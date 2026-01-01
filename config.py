@@ -1,1 +1,5 @@
 OUTPUT_PATH = "output/"
+
+# Global Parameters
+TICKERS_START_DATE = "2008-01-01"
+TICKERS_END_DATE = "2025-12-01"
