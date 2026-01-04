@@ -228,6 +228,7 @@ def run(provider: str, tickers_path: str, start: str, end: str, out: str,
 
 
 def parse_args():
+    """ Command-line interface """
     p = argparse.ArgumentParser()
     p.add_argument("--provider", default="yfinance", choices=["yfinance"])
     p.add_argument("--tickers", required=True, help="tickers file: txt (one/line) or csv (symbol column)")
