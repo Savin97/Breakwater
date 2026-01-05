@@ -306,18 +306,18 @@ fetch_yfinance_adj_close()
     # print(f"Symbols with data: {df['symbol'].nunique():,}")
 
 
-# def parse_args():
-#     p = argparse.ArgumentParser()
-#     p.add_argument("--provider", default="yfinance", choices=["yfinance"])
-#     p.add_argument("--tickers", required=True, help="tickers file: txt (one/line) or csv (symbol column)")
-#     p.add_argument("--start", default=TICKERS_START_DATE)
-#     p.add_argument("--end", default=today_yyyy_mm_dd())
-#     p.add_argument("--out", default="data/prices_adj_close.parquet")
-#     p.add_argument("--chunk-size", type=int, default=50)
-#     p.add_argument("--max-retries", type=int, default=5)
-#     p.add_argument("--base-backoff-sec", type=float, default=2.0)
-#     p.add_argument("--throttle-sec", type=float, default=0.5, help="sleep between batches to reduce blocks")
-#     return p.parse_args()
+def parse_args():
+    p = argparse.ArgumentParser()
+    p.add_argument("--provider", default="yfinance", choices=["yfinance"])
+    p.add_argument("--tickers", required=True, help="tickers file: txt (one/line) or csv (symbol column)")
+    p.add_argument("--start", default=TICKERS_START_DATE)
+    p.add_argument("--end", default=today_yyyy_mm_dd())
+    p.add_argument("--out", default="data/prices_adj_close.parquet")
+    p.add_argument("--chunk-size", type=int, default=50)
+    p.add_argument("--max-retries", type=int, default=5)
+    p.add_argument("--base-backoff-sec", type=float, default=2.0)
+    p.add_argument("--throttle-sec", type=float, default=0.5, help="sleep between batches to reduce blocks")
+    return p.parse_args()
 
 
 # args = parse_args()

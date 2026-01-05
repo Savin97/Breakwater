@@ -1,5 +1,9 @@
+# Paths
 OUTPUT_PATH = "output/"
+TICKERS_FILE_PATH = ""
+
 
 # Global Parameters
+DEFAULT_START_DATE = dt.date(2008, 1, 1)
 TICKERS_START_DATE = "2008-01-01"
 TICKERS_END_DATE = "2025-12-01"
