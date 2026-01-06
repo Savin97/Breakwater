@@ -1,0 +1,22 @@
+# Virtual env
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Data / outputs (tweak if needed)
+outputs/
+**/outputs/
+
+# OS stuff
+.DS_Store
+
+.env
+*.env
+.ipynb_checkpoints/
+data/   
+**/data/
+*.csv
+secrets.json
+config_local.py

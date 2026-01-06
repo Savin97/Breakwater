@@ -1,3 +1,5 @@
+import datetime as dt
+
 # Paths
 OUTPUT_PATH = "output/"
 TICKERS_FILE_PATH = ""

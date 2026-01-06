@@ -1,4 +1,4 @@
-# fetch_prices.py
+# fetch_stock_prices.py
 
 import sys, time
 import pandas as pd

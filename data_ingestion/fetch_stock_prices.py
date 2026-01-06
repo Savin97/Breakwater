@@ -1,0 +1,223 @@
+""" 
+    Fetch stock prices going back to 2008
+    Outputs a simple table:
+    symbol | date | adj_closed_price
+"""
+from config import TICKERS_START_DATE, TICKERS_END_DATE
+import argparse
+import sys
+import time
+from pathlib import Path
+import pandas as pd
+from data_utilities.formatting import today_yyyy_mm_dd
+
+try:
+    import yfinance as yf
+except Exception:
+    yf = None
+
+def ensure_parent_dir(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+
+
+def read_tickers(path: Path) -> list[str]:
+    """
+    Reads tickers from a file. Supports:
+    - .txt: one ticker per line
+    - .csv: column named symbol/ticker/stock 
+    """
+    if not path.exists():
+        raise FileNotFoundError(f"Tickers file not found: {path}")
+
+    if path.suffix.lower() == ".csv":
+        stock_prices_df = pd.read_csv(path)
+        col = None
+        for c in ("symbol", "ticker", "Symbol", "Ticker"):
+            if c in stock_prices_df.columns:
+                col = c
+                break
+        if col is None:
+            raise ValueError(f"CSV must contain a symbol/ticker/stock column. Found: {list(stock_prices_df.columns)}")
+        tickers = stock_prices_df[col].astype(str).str.strip().tolist()
+    else:
+        tickers = [ln.strip() for ln in path.read_text().splitlines() if ln.strip()]
+
+    # Basic cleanup
+    tickers = [t.replace(" ", "").upper() for t in tickers if t]
+    # dedupe preserve order
+    seen = set()
+    out = []
+    for t in tickers:
+        if t and t != "NAN" and t not in seen:
+            out.append(t)
+            seen.add(t)
+    return out
+
+def chunk_list(items: list[str], n: int):
+    """
+        Takes a list and returns it in chunks of size n.
+        Example:
+        items = ["A", "B", "C", "D", "E", "F", "G"]
+        n = 3
+
+        Output (one chunk at a time):
+        ["A", "B", "C"]
+        ["D", "E", "F"]
+        ["G"]
+
+        yield makes this a generator, not a normal function.
+        That means:
+            It does not return everything at once
+            It returns one chunk at a time
+            Memory-efficient
+            Perfect for large lists (like hundreds of tickers)
+    """
+    for i in range(0, len(items), n):
+        yield items[i:i+n]
+
+
+def sleep_backoff(attempt: int, base: float) -> None:
+    # exponential backoff with light jitter
+    wait = base * (2 ** attempt)
+    wait = wait + (0.1 * wait)
+    time.sleep(wait)
+
+
+# Provider implementations
+def fetch_yfinance_adj_close(tickers: list[str], start: str, end: str,
+                            max_retries: int, base_backoff_sec: float) -> pd.DataFrame:
+    """
+        Uses yfinance to fetch stock price data
+        Returns a tidy DF: symbol | date | adj_close
+        Notes:
+        - yfinance returns "Adj Close" adjusted for splits/dividends (Yahoo's adjusted close).
+        - We only keep Adj Close. If it's missing, we fall back to Close (with a warning).
+    """
+    if yf is None:
+        raise RuntimeError("yfinance is not installed. Run pip install yfinance")
+
+
+    last_err = None
+    for attempt in range(max_retries + 1):
+        try:
+            raw = yf.download(
+                tickers=tickers,
+                start=TICKERS_START_DATE,
+                end=TICKERS_END_DATE,
+                interval="1d",
+                group_by="ticker",
+                auto_adjust=False,   # keep Adj Close column
+                actions=False,
+                threads=True,
+                progress=False,
+            )
+
+            if raw is None or raw.empty:
+                raise RuntimeError("Empty response from yfinance (rate-limit/block/bad tickers).")
+
+            rows = []
+
+            # Multi ticker: columns MultiIndex (ticker, field)
+            if isinstance(raw.columns, pd.MultiIndex):
+                available_syms = set(raw.columns.get_level_values(0))
+                for sym in tickers:
+                    if sym not in available_syms:
+                        continue
+                    sub = raw[sym].copy()
+                    price_col = "Adj Close" if "Adj Close" in sub.columns else "Close"
+                    if price_col not in sub.columns:
+                        continue
+
+                    s = sub[price_col].rename("adj_close").dropna()
+                    if s.empty:
+                        continue
+
+                    df_sym = s.reset_index().rename(columns={"Date": "date"})
+                    df_sym["symbol"] = sym
+                    rows.append(df_sym[["symbol", "date", "adj_close"]])
+
+            # Single ticker: columns are fields
+            else:
+                price_col = "Adj Close" if "Adj Close" in raw.columns else "Close"
+                s = raw[price_col].rename("adj_close").dropna()
+                df_sym = s.reset_index().rename(columns={"Date": "date"})
+                df_sym["symbol"] = tickers[0]
+                rows.append(df_sym[["symbol", "date", "adj_close"]])
+
+            out = pd.concat(rows, ignore_index=True) if rows else pd.DataFrame(
+                columns=["symbol", "date", "adj_close"]
+            )
+
+            out["date"] = pd.to_datetime(out["date"]).dt.date
+            out["adj_close"] = pd.to_numeric(out["adj_close"], errors="coerce")
+            out = out.dropna(subset=["adj_close"])
+            out = out.sort_values(["symbol", "date"]).reset_index(drop=True)
+            out.to_csv("debug_yf_fetch.csv", index=False)
+            return out
+
+        except Exception as e:
+            last_err = e
+            print(f"[yfinance] attempt {attempt+1}/{max_retries+1} failed: {e}", file=sys.stderr)
+            if attempt < max_retries:
+                sleep_backoff(attempt, base_backoff_sec)
+
+    raise RuntimeError(f"yfinance failed after retries: {last_err}")
+
+    
+# -------------------------
+# Main orchestration
+# -------------------------
+def fetch_stock_prices(provider: str, tickers_path: str, start: str, end: str, out: str,
+        chunk_size: int, max_retries: int, base_backoff_sec: float,
+        throttle_sec: float) -> None:
+    tickers = read_tickers(Path(tickers_path))
+    if not tickers:
+        raise ValueError("No tickers found.")
+
+    print(f"Provider: {provider}")
+    print(f"Tickers: {len(tickers)}")
+    print(f"Date range: {start} → {end}")
+    print(f"Chunk size: {chunk_size}")
+
+    parts = []
+    done = 0
+    total = len(tickers)
+
+    for batch in chunk_list(tickers, chunk_size):
+        if provider == "yfinance":
+            df_batch = fetch_yfinance_adj_close(
+                tickers=batch,
+                start=start,
+                end=end,
+                max_retries=max_retries,
+                base_backoff_sec=base_backoff_sec,
+            )
+        else:
+            raise ValueError(f"Unknown provider: {provider}")
+
+        parts.append(df_batch)
+        done += len(batch)
+        print(f"Fetched {len(batch)} tickers. Progress {done}/{total}")
+
+        if throttle_sec > 0:
+            time.sleep(throttle_sec)
+
+    df = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(
+        columns=["symbol", "date", "adj_close"]
+    )
+
+    if df.empty:
+        raise RuntimeError("No data fetched (blocked/rate-limited or bad tickers list).")
+
+    df = df.drop_duplicates(subset=["symbol", "date"], keep="last")
+
+    out_path = Path(out)
+    ensure_parent_dir(out_path)
+    df.to_csv(out_path.with_suffix(".csv"), index=False)
+    df.to_parquet(out_path, index=False)
+
+    print(f"Saved: {out_path}")
+    print(f"Rows: {len(df):,}")
+    print(f"Symbols with data: {df['symbol'].nunique():,}")
+    return df
