@@ -10,14 +10,13 @@ import time
 from pathlib import Path
 import pandas as pd
 from data_utilities.formatting import today_yyyy_mm_dd
+from helper_funcs.helper_funcs import ensure_parent_dir
 
 try:
     import yfinance as yf
 except Exception:
     yf = None
 
-def ensure_parent_dir(path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
 
 
 
