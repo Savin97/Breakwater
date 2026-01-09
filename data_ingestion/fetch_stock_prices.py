@@ -1,3 +1,4 @@
+#fetch_stock_prices.py
 """ 
     Fetch stock prices going back to 2008
     Outputs a simple table:
@@ -10,6 +11,7 @@ import time
 from pathlib import Path
 import pandas as pd
 from data_utilities.formatting import today_yyyy_mm_dd
+from various_helper_funcs.helper_funcs import sleep_backoff, chunk_list
 
 try:
     import yfinance as yf
@@ -53,35 +55,6 @@ def read_tickers(path: Path) -> list[str]:
             out.append(t)
             seen.add(t)
     return out
-
-def chunk_list(items: list[str], n: int):
-    """
-        Takes a list and returns it in chunks of size n.
-        Example:
-        items = ["A", "B", "C", "D", "E", "F", "G"]
-        n = 3
-
-        Output (one chunk at a time):
-        ["A", "B", "C"]
-        ["D", "E", "F"]
-        ["G"]
-
-        yield makes this a generator, not a normal function.
-        That means:
-            It does not return everything at once
-            It returns one chunk at a time
-            Memory-efficient
-            Perfect for large lists (like hundreds of tickers)
-    """
-    for i in range(0, len(items), n):
-        yield items[i:i+n]
-
-
-def sleep_backoff(attempt: int, base: float) -> None:
-    # exponential backoff with light jitter
-    wait = base * (2 ** attempt)
-    wait = wait + (0.1 * wait)
-    time.sleep(wait)
 
 
 # Provider implementations
@@ -165,13 +138,11 @@ def fetch_yfinance_adj_close(tickers: list[str], start: str, end: str,
     raise RuntimeError(f"yfinance failed after retries: {last_err}")
 
     
-# -------------------------
-# Main orchestration
-# -------------------------
 def fetch_stock_prices(provider: str, tickers_path: str, start: str, end: str, out: str,
         chunk_size: int, max_retries: int, base_backoff_sec: float,
         throttle_sec: float) -> None:
     tickers = read_tickers(Path(tickers_path))
+
     if not tickers:
         raise ValueError("No tickers found.")
 

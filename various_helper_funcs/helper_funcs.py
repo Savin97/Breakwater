@@ -1,0 +1,29 @@
+import time
+
+def sleep_backoff(attempt: int, base: float) -> None:
+    # exponential backoff with light jitter
+    wait = base * (2 ** attempt)
+    wait = wait + (0.1 * wait)
+    time.sleep(wait)
+
+def chunk_list(items: list[str], n: int):
+    """
+        Takes a list and returns it in chunks of size n.
+        Example:
+        items = ["A", "B", "C", "D", "E", "F", "G"]
+        n = 3
+
+        Output (one chunk at a time):
+        ["A", "B", "C"]
+        ["D", "E", "F"]
+        ["G"]
+
+        yield makes this a generator, not a normal function.
+        That means:
+            It does not return everything at once
+            It returns one chunk at a time
+            Memory-efficient
+            Perfect for large lists (like hundreds of tickers)
+    """
+    for i in range(0, len(items), n):
+        yield items[i:i+n]
