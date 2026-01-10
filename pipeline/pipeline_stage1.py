@@ -4,22 +4,22 @@
     Data Ingestion
 """
 import warnings
-import argparse
 
 from config import TICKERS_START_DATE, TICKERS_END_DATE
 from data_utilities.formatting import today_yyyy_mm_dd
 from data_ingestion.fetch_stock_prices import fetch_stock_prices
 
 def stage1(tickers_path: str,
-    provider: str = "yfinance",
-    start: str = TICKERS_START_DATE,
-    end: str | None = None,
-    out: str = "data/prices_adj_close.parquet",
-    chunk_size: int = 50,
-    max_retries: int = 5,
-    base_backoff_sec: float = 2.0,
-    throttle_sec: float = 0.5
-    ):
+            provider: str = "yfinance",
+            start: str = TICKERS_START_DATE,
+            end: str = today_yyyy_mm_dd(),
+            out: str = "data/prices_adj_close.parquet",
+            chunk_size: int = 50,
+            max_retries: int = 5,
+            base_backoff_sec: float = 2.0,
+            throttle_sec: float = 0.5
+        ):
+    
     warnings.filterwarnings('ignore')
     # def parse_args():
     #     p = argparse.ArgumentParser()

@@ -1,4 +1,8 @@
 import time
+from pathlib import Path
+
+def ensure_parent_dir(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
 
 def sleep_backoff(attempt: int, base: float) -> None:
     # exponential backoff with light jitter

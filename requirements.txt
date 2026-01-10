@@ -1,0 +1,8 @@
+# requirements.txt
+pandas
+yfinance
+requests
+pathlib
+numpy
+#pytest
+

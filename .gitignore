@@ -3,6 +3,7 @@
 
 # Python cache
 __pycache__/
+**/__pycache__/
 *.pyc
 
 # Data / outputs (tweak if needed)

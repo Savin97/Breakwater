@@ -5,26 +5,24 @@
     symbol | date | adj_closed_price
 """
 from config import TICKERS_START_DATE, TICKERS_END_DATE
-import argparse
 import sys
 import time
 from pathlib import Path
 import pandas as pd
 from data_utilities.formatting import today_yyyy_mm_dd
+from various_helper_funcs.helper_funcs import chunk_list, ensure_parent_dir, sleep_backoff
 
 try:
     import yfinance as yf
 except Exception:
     yf = None
 
-
-
-
-def read_tickers(path: Path) -> list[str]:
+def read_tickers_to_fetch(path: Path) -> list[str]:
     """
-    Reads tickers from a file. Supports:
-    - .txt: one ticker per line
-    - .csv: column named symbol/ticker/stock 
+        Reads tickers from a file. Supports:
+        - .txt: one ticker per line
+        - .csv: column named symbol/ticker/stock 
+        Returns a list of all unique tickers (uppercase, no spaces)
     """
     if not path.exists():
         raise FileNotFoundError(f"Tickers file not found: {path}")
@@ -40,7 +38,9 @@ def read_tickers(path: Path) -> list[str]:
             raise ValueError(f"CSV must contain a symbol/ticker/stock column. Found: {list(stock_prices_df.columns)}")
         tickers = stock_prices_df[col].astype(str).str.strip().tolist()
     else:
+        print("Reading tickers from text file")
         tickers = [ln.strip() for ln in path.read_text().splitlines() if ln.strip()]
+        print(tickers)
 
     # Basic cleanup
     tickers = [t.replace(" ", "").upper() for t in tickers if t]
@@ -53,9 +53,8 @@ def read_tickers(path: Path) -> list[str]:
             seen.add(t)
     return out
 
-
 # Provider implementations
-def fetch_yfinance_adj_close(tickers: list[str], start: str, end: str,
+def fetch_tickers_yfinance(tickers: list[str], start: str, end: str,
                             max_retries: int, base_backoff_sec: float) -> pd.DataFrame:
     """
         Uses yfinance to fetch stock price data
@@ -66,7 +65,6 @@ def fetch_yfinance_adj_close(tickers: list[str], start: str, end: str,
     """
     if yf is None:
         raise RuntimeError("yfinance is not installed. Run pip install yfinance")
-
 
     last_err = None
     for attempt in range(max_retries + 1):
@@ -123,7 +121,6 @@ def fetch_yfinance_adj_close(tickers: list[str], start: str, end: str,
             out["adj_close"] = pd.to_numeric(out["adj_close"], errors="coerce")
             out = out.dropna(subset=["adj_close"])
             out = out.sort_values(["symbol", "date"]).reset_index(drop=True)
-            out.to_csv("debug_yf_fetch.csv", index=False)
             return out
 
         except Exception as e:
@@ -138,7 +135,8 @@ def fetch_yfinance_adj_close(tickers: list[str], start: str, end: str,
 def fetch_stock_prices(provider: str, tickers_path: str, start: str, end: str, out: str,
         chunk_size: int, max_retries: int, base_backoff_sec: float,
         throttle_sec: float) -> None:
-    tickers = read_tickers(Path(tickers_path))
+    
+    tickers = read_tickers_to_fetch(Path(tickers_path))
 
     if not tickers:
         raise ValueError("No tickers found.")
@@ -154,7 +152,7 @@ def fetch_stock_prices(provider: str, tickers_path: str, start: str, end: str, o
 
     for batch in chunk_list(tickers, chunk_size):
         if provider == "yfinance":
-            df_batch = fetch_yfinance_adj_close(
+            df_batch = fetch_tickers_yfinance(
                 tickers=batch,
                 start=start,
                 end=end,
