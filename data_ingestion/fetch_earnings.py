@@ -21,12 +21,15 @@ from __future__ import annotations
 
 import os
 import time
-import datetime as dt
 import requests
 import pandas as pd
 from typing import Iterable, Optional, List
 
-from config import ALPHAVANTAGE_BASE_URL, TICKERS_START_DATE
+from config import (ALPHAVANTAGE_BASE_URL,
+                    TICKERS_START_DATE,
+                    TIMEOUT_SECONDS,
+                    MAX_RETRIES,
+                    BACKOFF_SECONDS)
 from data_utilities.formatting import parse_date
 
 
@@ -34,9 +37,9 @@ def fetch_earnings_dates_for_symbol(
     symbol: str,
     start_date: str = TICKERS_START_DATE,
     api_key: Optional[str] = None,
-    timeout_seconds: float = 20.0,
-    retries: int = 3,
-    backoff_seconds: float = 15.0,
+    timeout_seconds: float = TIMEOUT_SECONDS,
+    retries: int = MAX_RETRIES,
+    backoff_seconds: float = BACKOFF_SECONDS,
     ) -> pd.DataFrame:
     """
         Fetch quarterly earnings report dates for a single symbol from Alpha Vantage.
@@ -131,7 +134,7 @@ def fetch_earnings_dates(
             .drop_duplicates(subset=["stock", "earnings_date"], keep="first")
             .reset_index(drop=True)
         )
-
+    out.to_csv("output/earnings_dates.csv", index=False)
     return out
 
 
