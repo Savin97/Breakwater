@@ -135,7 +135,10 @@ def fetch_tickers_yfinance(tickers: list[str], start: str, end: str,
 def fetch_stock_prices(provider: str, tickers_path: str, start: str, end: str, out: str,
         chunk_size: int, max_retries: int, base_backoff_sec: float,
         throttle_sec: float) -> None:
-    
+    """
+        Fetch stock prices for a list of tickers from a specified provider.
+        Outputs a DF: symbol | date | adj_close
+    """
     tickers = read_tickers_to_fetch(Path(tickers_path))
 
     if not tickers:

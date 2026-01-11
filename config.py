@@ -3,7 +3,7 @@ import datetime as dt
 # Paths
 OUTPUT_PATH = "output/"
 TICKERS_FILE_PATH = ""
-
+ALPHAVANTAGE_BASE_URL = "https://www.alphavantage.co/query"
 
 # Global Parameters
 DEFAULT_START_DATE = dt.date(2008, 1, 1)
