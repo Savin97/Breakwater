@@ -10,7 +10,7 @@ def run_pipeline():
 
     """
 
-    tickers_path = Path("stock_tickers_file.txt")
+    tickers_path = Path("tickers.csv")
     print("Running the pipeline...\n----------------\n")
     prices_and_earnings_df = stage1(tickers_path) 
 

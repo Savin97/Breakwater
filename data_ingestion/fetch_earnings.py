@@ -114,6 +114,8 @@ def fetch_earnings_dates(
     """
         Fetch earnings dates for multiple symbols and stack into one DataFrame.
     """
+
+
     
     frames: List[pd.DataFrame] = []
     for sym in symbols:
@@ -134,7 +136,7 @@ def fetch_earnings_dates(
             .drop_duplicates(subset=["stock", "earnings_date"], keep="first")
             .reset_index(drop=True)
         )
-    out.to_csv("output/earnings_dates.csv", index=False)
+    out.to_csv("data/earnings_dates.csv", index=False)
     return out
 
 

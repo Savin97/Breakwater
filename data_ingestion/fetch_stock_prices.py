@@ -134,7 +134,7 @@ def fetch_tickers_yfinance(tickers: list[str], start: str, end: str,
     
 def fetch_stock_prices(provider: str, tickers_path: str, start: str, end: str, out: str,
         chunk_size: int, max_retries: int, base_backoff_sec: float,
-        throttle_sec: float) -> None:
+        timeout_sec: float) -> None:
     """
         Fetch stock prices for a list of tickers from a specified provider.
         Outputs a DF: symbol | date | adj_close
@@ -169,8 +169,8 @@ def fetch_stock_prices(provider: str, tickers_path: str, start: str, end: str, o
         done += len(batch)
         print(f"Fetched {len(batch)} tickers. Progress {done}/{total}")
 
-        if throttle_sec > 0:
-            time.sleep(throttle_sec)
+        if timeout_sec > 0:
+            time.sleep(timeout_sec)
 
     df = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(
         columns=["symbol", "date", "adj_close"]

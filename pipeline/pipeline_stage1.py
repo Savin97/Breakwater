@@ -7,6 +7,7 @@ import warnings
 from pathlib import Path
 
 from config import MAX_RETRIES, TICKERS_START_DATE, BACKOFF_SECONDS, TIMEOUT_SECONDS
+from data_ingestion.fetch_eps import fetch_eps
 from data_utilities.formatting import today_yyyy_mm_dd
 from data_ingestion.fetch_stock_prices import fetch_stock_prices, read_tickers_to_fetch
 from data_ingestion.fetch_earnings import fetch_earnings_dates
@@ -15,7 +16,7 @@ def stage1(tickers_path: str,
             provider: str = "yfinance",
             start: str = TICKERS_START_DATE,
             end: str = today_yyyy_mm_dd(),
-            out: str = "output/prices_adj_close.parquet",
+            out: str = "data/prices_adj_close.parquet",
             chunk_size: int = 50,
             max_retries: int = MAX_RETRIES,
             base_backoff_sec: float = BACKOFF_SECONDS,
@@ -23,6 +24,7 @@ def stage1(tickers_path: str,
         ):
     warnings.filterwarnings('ignore')
     tickers = read_tickers_to_fetch(Path(tickers_path))
+
     stock_prices = fetch_stock_prices(
         provider=provider,
         tickers_path=tickers_path,
@@ -36,8 +38,14 @@ def stage1(tickers_path: str,
     )
 
     earnings_dates = fetch_earnings_dates(
-        symbols=tickers
+        symbols = tickers
     )
 
-    return stock_prices
+    eps_data = fetch_eps()
+
+
+
+    df = 0 # df that holds stock prices, earnings dates, EPS data merged
+
+    return df
     
