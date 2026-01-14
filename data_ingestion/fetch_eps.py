@@ -3,7 +3,6 @@ import os
 import pandas as pd
 from pathlib import Path
 
-import json
 from config import ALPHAVANTAGE_BASE_URL, FREE_ALPHAVANTAGE_KEY, TICKERS_START_DATE
 from data_utilities.clean_input import read_tickers_to_fetch
 
@@ -27,6 +26,7 @@ def fetch_eps_single_ticker(ticker: str ) -> dict:
         f"&symbol={ticker}"
         f"&apikey={api_key}"
         )
+    print(f"Fetching EPS for {ticker}")
     try:
         r = requests.get(url, timeout = 30)
         r.raise_for_status() # Raise an exception for bad HTTP status codes
@@ -38,6 +38,8 @@ def fetch_eps_single_ticker(ticker: str ) -> dict:
     
     if "Note" in data:
         raise RuntimeError(f"[EPS] Rate limited by Alpha Vantage: {ticker}")
+    if "Information" in data:
+        raise RuntimeError(f"[EPS] API info for {ticker}: {data['Information']}")
     if "Error" in data:
         raise RuntimeError(f"[EPS] API error for {ticker}")
     if "quarterlyEarnings" not in data:
@@ -64,16 +66,45 @@ def parse_quarterly_eps(data: dict) -> pd.DataFrame:
     df["symbol"] = data.get("symbol")
     df["fiscal_date"] = pd.to_datetime(df["fiscal_date"])
     df["reported_date"] = pd.to_datetime(df["reported_date"], errors="coerce")
+
     df["reported_eps"] = pd.to_numeric(df["reported_eps"], errors="coerce")
     df["estimated_eps"] = pd.to_numeric(df["estimated_eps"], errors="coerce")
     df["surprise_percentage"] = pd.to_numeric(df["surprise_percentage"], errors="coerce")
+
     df["surprise_percentage"] = df["surprise_percentage"] / 100.0
     df = df[df["fiscal_date"] >= TICKERS_START_DATE]
     df = df[["symbol", "fiscal_date", "reported_date", "reported_eps", "estimated_eps", "surprise_percentage"]]
     df.to_csv(f"data/{data.get('symbol')}_eps.csv", index=False)    
+
     return df
 
-data = fetch_eps_single_ticker("AAPL")
-df = parse_quarterly_eps(data)
+def get_eps_for_tickers(tickers: list) -> pd.DataFrame:
+    all_eps_data = []
+    errors = []
+    for ticker in tickers:
+        try:
+            data = fetch_eps_single_ticker(ticker)
+            df = parse_quarterly_eps(data)
+            all_eps_data.append(df)
+        except RuntimeError as e:
+            errors.append({
+                "ticker": ticker,
+                "error": str(e)
+            })
+            continue
+
+    if all_eps_data:
+        eps_df = pd.concat(all_eps_data, ignore_index=True)
+    else:
+        eps_df = pd.DataFrame(
+            columns=["symbol", "fiscal_date", "reported_date", "reported_eps", "estimated_eps", "surprise_percentage"]
+        )
+    eps_df.to_csv("data/all_eps_data.csv", index=False)
+    print("Errors:", errors)
+    return eps_df
+
+tickers = read_tickers_to_fetch(Path("tickers.csv"))
+get_eps_for_tickers(tickers)
+
 
 
