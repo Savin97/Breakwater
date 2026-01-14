@@ -1,20 +1,79 @@
 import requests
 import os 
-from config import ALPHAVANTAGE_BASE_URL
+import pandas as pd
+from pathlib import Path
 
-def fetch_eps():
+import json
+from config import ALPHAVANTAGE_BASE_URL, FREE_ALPHAVANTAGE_KEY, TICKERS_START_DATE
+from data_utilities.clean_input import read_tickers_to_fetch
+
+def get_alpha_vantage_api_key() -> str:
+    api_key = os.getenv("ALPHAVANTAGE_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "Missing ALPHAVANTAGE_API_KEY environment variable"
+        )
+    return api_key
+
+def fetch_eps_single_ticker(ticker: str ) -> dict:
     """
         Fetch EPS data for a list of tickers from Alpha Vantage.
     """
-    api_key = os.getenv("ALPHAVANTAGE_API_KEY")
-    if not api_key:
-        api_key = "demo"  # Use demo key for testing purposes
-    tickers = ["AAPL", "MSFT", "GOOGL"]
-    for ticker in tickers:
-        url = f"{ALPHAVANTAGE_BASE_URL}?function=EARNINGS&symbol={ticker}&apikey={api_key}"
-        r = requests.get(url)
-        data = r.json()
-        print(data)
+    # api_key = get_alpha_vantage_api_key()
 
-if __name__ == "__main__":
-    fetch_eps()
+    api_key = FREE_ALPHAVANTAGE_KEY
+    url = (f"{ALPHAVANTAGE_BASE_URL}"
+        f"?function=EARNINGS"
+        f"&symbol={ticker}"
+        f"&apikey={api_key}"
+        )
+    try:
+        r = requests.get(url, timeout = 30)
+        r.raise_for_status() # Raise an exception for bad HTTP status codes
+        data = r.json()
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"[EPS] HTTP error for {ticker}") from e
+    except ValueError as e:
+        raise RuntimeError(f"[EPS] Invalid JSON for {ticker}") from e
+    
+    if "Note" in data:
+        raise RuntimeError(f"[EPS] Rate limited by Alpha Vantage: {ticker}")
+    if "Error" in data:
+        raise RuntimeError(f"[EPS] API error for {ticker}")
+    if "quarterlyEarnings" not in data:
+        raise RuntimeError(f"[EPS] Missing earnings data for {ticker}")
+    
+    return data
+
+def parse_quarterly_eps(data: dict) -> pd.DataFrame:
+    quarterly = data.get("quarterlyEarnings", [])
+    if not quarterly:
+        return pd.DataFrame(
+            columns=["symbol", "fiscal_date", "reported_date", "reported_eps", "estimated_eps", "surprisePercentage"]
+        )
+
+    df = pd.DataFrame(quarterly)
+    df = df.rename(columns={
+        "fiscalDateEnding": "fiscal_date",
+        "reportedDate": "reported_date",
+        "reportedEPS": "reported_eps",
+        "estimatedEPS": "estimated_eps",
+        "surprisePercentage": "surprise_percentage"
+    })
+
+    df["symbol"] = data.get("symbol")
+    df["fiscal_date"] = pd.to_datetime(df["fiscal_date"])
+    df["reported_date"] = pd.to_datetime(df["reported_date"], errors="coerce")
+    df["reported_eps"] = pd.to_numeric(df["reported_eps"], errors="coerce")
+    df["estimated_eps"] = pd.to_numeric(df["estimated_eps"], errors="coerce")
+    df["surprise_percentage"] = pd.to_numeric(df["surprise_percentage"], errors="coerce")
+    df["surprise_percentage"] = df["surprise_percentage"] / 100.0
+    df = df[df["fiscal_date"] >= TICKERS_START_DATE]
+    df = df[["symbol", "fiscal_date", "reported_date", "reported_eps", "estimated_eps", "surprise_percentage"]]
+    df.to_csv(f"data/{data.get('symbol')}_eps.csv", index=False)    
+    return df
+
+data = fetch_eps_single_ticker("AAPL")
+df = parse_quarterly_eps(data)
+
+
