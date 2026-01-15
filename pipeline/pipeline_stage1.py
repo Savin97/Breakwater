@@ -8,7 +8,7 @@ import pandas as pd
 from pathlib import Path
 
 from config import MAX_RETRIES, TICKERS_START_DATE, BACKOFF_SECONDS, TIMEOUT_SECONDS
-from data_ingestion.fetch_eps import fetch_eps_single_ticker
+from data_ingestion.fetch_eps import get_eps_for_tickers
 from data_utilities.formatting import today_yyyy_mm_dd
 from data_ingestion.fetch_stock_prices import fetch_stock_prices
 from data_utilities.clean_input import read_tickers_to_fetch
@@ -42,7 +42,7 @@ def stage1(tickers_path: str,
     #     symbols = tickers
     # )
 
-    #eps_data = fetch_eps()
+    eps_data = get_eps_for_tickers(tickers)
 
 
 

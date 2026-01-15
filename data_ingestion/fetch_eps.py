@@ -35,8 +35,8 @@ def fetch_eps_single_ticker(ticker: str ) -> dict:
         raise RuntimeError(f"[EPS] HTTP error for {ticker}") from e
     except ValueError as e:
         raise RuntimeError(f"[EPS] Invalid JSON for {ticker}") from e
-    
-    if "Note" in data:
+
+    if "Note" in data or "premium" in data:
         raise RuntimeError(f"[EPS] Rate limited by Alpha Vantage: {ticker}")
     if "Information" in data:
         raise RuntimeError(f"[EPS] API info for {ticker}: {data['Information']}")
@@ -102,9 +102,3 @@ def get_eps_for_tickers(tickers: list) -> pd.DataFrame:
     eps_df.to_csv("data/all_eps_data.csv", index=False)
     print("Errors:", errors)
     return eps_df
-
-tickers = read_tickers_to_fetch(Path("tickers.csv"))
-get_eps_for_tickers(tickers)
-
-
-
