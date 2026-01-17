@@ -14,5 +14,5 @@ def run_pipeline():
     print("Running the pipeline...\n----------------\n")
     prices_and_earnings_df = stage1(tickers_path) 
 
-    prices_and_earnings_df.to_csv("output/prices.csv", index=False)
+    prices_and_earnings_df.to_csv("output/df.csv", index=False)
     return prices_and_earnings_df
