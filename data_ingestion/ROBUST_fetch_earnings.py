@@ -583,5 +583,5 @@ if __name__ == "__main__":
         backups=["yfinance"],
     )
     print(df_test.head())
-    df_test.to_csv("earnings_test_output.csv", index=False)
+    #df_test.to_csv("earnings_test_output.csv", index=False)
     print(f"Total rows: {len(df_test)}")

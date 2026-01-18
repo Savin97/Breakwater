@@ -18,6 +18,6 @@ outputs/
 .ipynb_checkpoints/
 data/   
 **/data/
-*.csv
+#*.csv
 secrets.json
 config_local.py
