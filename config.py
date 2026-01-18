@@ -13,3 +13,5 @@ TICKERS_END_DATE = "2025-12-01"
 TIMEOUT_SECONDS = 20.0
 BACKOFF_SECONDS = 15.0
 MAX_RETRIES = 5
+CORRECT_STOCK_COL_NAME = "stock"
+LIST_OF_POSSIBLE_STOCK_COL_NAMES = ["ticker", "Ticker", "Symbol", "symbol", "Stock", "stock"]

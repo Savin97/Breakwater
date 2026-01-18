@@ -14,3 +14,9 @@ def parse_date(x) -> Optional[date]:
         return pd.to_datetime(x).date()
     except Exception:
         return None
+    
+def change_column_name(df, list_of_col_names, correct_col_name):
+    for col_name in list_of_col_names:
+        if col_name in df.columns:
+            df = df.rename(columns = {col_name: correct_col_name})
+            return df

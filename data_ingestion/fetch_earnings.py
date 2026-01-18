@@ -10,7 +10,7 @@ Fetch historical quarterly earnings *report dates* from Alpha Vantage.
 Usage:
     from data_ingestion.fetch_earnings import fetch_earnings_dates
 
-    df = fetch_earnings_dates(["AAPL", "MSFT"], start_date="2008-01-01")
+    df = fetch_earnings_dates(["AAPL", "MSFT"], start_date=TICKERS_START_DATE)
     print(df.head())
 
 Auth:
