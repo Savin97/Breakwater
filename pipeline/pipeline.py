@@ -10,9 +10,8 @@ def run_pipeline():
 
     """
 
-    tickers_path = Path("tickers.csv")
+    tickers_path = Path("data/tickers.csv")
     print("Running the pipeline...\n----------------\n")
     prices_and_earnings_df = stage1(tickers_path) 
-
     prices_and_earnings_df.to_csv("output/df.csv", index=False)
     return prices_and_earnings_df

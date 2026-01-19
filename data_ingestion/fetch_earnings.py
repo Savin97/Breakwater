@@ -107,9 +107,10 @@ def fetch_earnings_dates(
     """
         Fetch earnings dates for multiple symbols and stack into one DataFrame.
     """
-
+    print("Fetching Earnings Dates")
     frames: List[pd.DataFrame] = []
     for sym in symbols:
+        print(f"Fetching {sym} Earnings")
         df = fetch_earnings_dates_for_symbol(sym, start_date=start_date, api_key=api_key)
         if not df.empty:
             frames.append(df)

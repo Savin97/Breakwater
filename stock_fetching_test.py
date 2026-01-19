@@ -63,27 +63,27 @@ def _fetch_yfinance_batch(
                     if price_col not in sub.columns:
                         continue
 
-                    s = sub[price_col].rename("adj_close").dropna()
+                    s = sub[price_col].rename("price_adj_close").dropna()
                     if s.empty:
                         continue
 
                     df_sym = s.reset_index().rename(columns={"Date": "date"})
                     df_sym["symbol"] = sym
-                    rows.append(df_sym[["symbol", "date", "adj_close"]])
+                    rows.append(df_sym[["symbol", "date", "price_adj_close"]])
 
             else:
                 price_col = "Adj Close" if "Adj Close" in raw.columns else "Close"
-                s = raw[price_col].rename("adj_close").dropna()
+                s = raw[price_col].rename("price_adj_close").dropna()
                 df_sym = s.reset_index().rename(columns={"Date": "date"})
                 df_sym["symbol"] = tickers[0]
-                rows.append(df_sym[["symbol", "date", "adj_close"]])
+                rows.append(df_sym[["symbol", "date", "price_adj_close"]])
 
             out = pd.concat(rows, ignore_index=True)
             out["date"] = pd.to_datetime(out["date"]).dt.date
-            out["adj_close"] = pd.to_numeric(out["adj_close"], errors="coerce")
-            out = out.dropna(subset=["adj_close"])
+            out["price_adj_close"] = pd.to_numeric(out["price_adj_close"], errors="coerce")
+            out = out.dropna(subset=["price_adj_close"])
             out = out.sort_values(["symbol", "date"]).reset_index(drop=True)
-            out.to_csv("debug_yf_output.csv", index=False)  # Debug line
+            #out.to_csv("debug_yf_output.csv", index=False)  # Debug line
             return out
 
         except Exception as e:
@@ -108,11 +108,11 @@ def fetch_prices_for_tickers(
         parts.append(df_batch)
 
     if not parts:
-        return pd.DataFrame(columns=["symbol", "date", "adj_close"])
+        return pd.DataFrame(columns=["symbol", "date", "price_adj_close"])
 
     df = pd.concat(parts, ignore_index=True)
     df = df.drop_duplicates(subset=["symbol", "date"], keep="last")
     return df
 tickers = ["AAPL", "MSFT", "GOOGL"]
 df = fetch_prices_for_tickers(tickers)
-df.to_csv("output.csv", index=False)
+df.to_csv("prices.csv", index=False)

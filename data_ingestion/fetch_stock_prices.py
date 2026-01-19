@@ -2,7 +2,7 @@
 """ 
     Fetch stock prices going back to 2008
     Outputs a simple table:
-    symbol | date | adj_closed_price
+    symbol | date | price_adj_closed_price
 """
 from config import TICKERS_START_DATE, TICKERS_END_DATE
 import sys
@@ -23,7 +23,7 @@ def fetch_tickers_yfinance(tickers: list[str], start: str, end: str,
                             max_retries: int, base_backoff_sec: float) -> pd.DataFrame:
     """
         Uses yfinance to fetch stock price data
-        Returns a tidy DF: symbol | date | adj_close
+        Returns a tidy DF: symbol | date | price_adj_close
         Notes:
         - yfinance returns "Adj Close" adjusted for splits/dividends (Yahoo's adjusted close).
         - We only keep Adj Close. If it's missing, we fall back to Close (with a warning).
@@ -62,29 +62,29 @@ def fetch_tickers_yfinance(tickers: list[str], start: str, end: str,
                     if price_col not in sub.columns:
                         continue
 
-                    s = sub[price_col].rename("adj_close").dropna()
+                    s = sub[price_col].rename("price_adj_close").dropna()
                     if s.empty:
                         continue
 
                     df_sym = s.reset_index().rename(columns={"Date": "date"})
                     df_sym["symbol"] = sym
-                    rows.append(df_sym[["symbol", "date", "adj_close"]])
+                    rows.append(df_sym[["symbol", "date", "price_adj_close"]])
 
             # Single ticker: columns are fields
             else:
                 price_col = "Adj Close" if "Adj Close" in raw.columns else "Close"
-                s = raw[price_col].rename("adj_close").dropna()
+                s = raw[price_col].rename("price_adj_close").dropna()
                 df_sym = s.reset_index().rename(columns={"Date": "date"})
                 df_sym["symbol"] = tickers[0]
-                rows.append(df_sym[["symbol", "date", "adj_close"]])
+                rows.append(df_sym[["symbol", "date", "price_adj_close"]])
 
             out = pd.concat(rows, ignore_index=True) if rows else pd.DataFrame(
-                columns=["symbol", "date", "adj_close"]
+                columns=["symbol", "date", "price_adj_close"]
             )
 
             out["date"] = pd.to_datetime(out["date"]).dt.date
-            out["adj_close"] = pd.to_numeric(out["adj_close"], errors="coerce")
-            out = out.dropna(subset=["adj_close"])
+            out["price_adj_close"] = pd.to_numeric(out["price_adj_close"], errors="coerce")
+            out = out.dropna(subset=["price_adj_close"])
             out = out.sort_values(["symbol", "date"]).reset_index(drop=True)
             return out
 
@@ -102,7 +102,7 @@ def fetch_stock_prices(provider: str, tickers_path: str, start: str, end: str, o
         timeout_sec: float) -> None:
     """
         Fetch stock prices for a list of tickers from a specified provider.
-        Outputs a DF: symbol | date | adj_close
+        Outputs a DF: symbol | date | price_adj_close
     """
     tickers = read_tickers_to_fetch(Path(tickers_path))
 
@@ -138,7 +138,7 @@ def fetch_stock_prices(provider: str, tickers_path: str, start: str, end: str, o
             time.sleep(timeout_sec)
 
     df = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(
-        columns=["symbol", "date", "adj_close"]
+        columns=["symbol", "date", "price_adj_close"]
     )
 
     if df.empty:
@@ -148,7 +148,6 @@ def fetch_stock_prices(provider: str, tickers_path: str, start: str, end: str, o
 
     out_path = Path(out)
     ensure_parent_dir(out_path)
-    df.to_csv(out_path.with_suffix(".csv"), index=False)
     df.to_parquet(out_path, index=False)
 
     print(f"Saved: {out_path}")

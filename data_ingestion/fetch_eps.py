@@ -74,7 +74,6 @@ def parse_quarterly_eps(data: dict) -> pd.DataFrame:
     df["surprise_percentage"] = df["surprise_percentage"] / 100.0
     df = df[df["fiscal_date"] >= TICKERS_START_DATE]
     df = df[["symbol", "fiscal_date", "reported_date", "reported_eps", "estimated_eps", "surprise_percentage"]]
-    df.to_csv(f"data/{data.get('symbol')}_eps.csv", index=False)    
 
     return df
 

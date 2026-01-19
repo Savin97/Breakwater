@@ -8,15 +8,14 @@ def today_yyyy_mm_dd() -> str:
 
 def parse_date(x) -> Optional[date]:
     """Parse 'YYYY-MM-DD' into datetime.date. Returns None on failure."""
-    if not x:
-        return None
     try:
-        return pd.to_datetime(x).date()
+        return pd.to_datetime(x, errors="coerce")
     except Exception:
-        return None
+        raise ValueError ("parse_date got an invalid input")
     
 def change_column_name(df, list_of_col_names, correct_col_name):
-    for col_name in list_of_col_names:
-        if col_name in df.columns:
+    for col_name in df.columns:
+        if col_name in list_of_col_names:
             df = df.rename(columns = {col_name: correct_col_name})
             return df
+    return df
