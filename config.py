@@ -2,7 +2,7 @@ import datetime as dt
 
 # Paths
 OUTPUT_PATH = "output/"
-TICKERS_FILE_PATH = ""
+TICKERS_FILE_PATH = "data_ingestion/tickers.csv"
 ALPHAVANTAGE_BASE_URL = "https://www.alphavantage.co/query"
 
 # Global Parameters
@@ -15,3 +15,4 @@ BACKOFF_SECONDS = 15.0
 MAX_RETRIES = 5
 CORRECT_STOCK_COL_NAME = "stock"
 LIST_OF_POSSIBLE_STOCK_COL_NAMES = ["ticker", "Ticker", "Symbol", "symbol", "Stock", "stock"]
+DEFAULT_FETCH_CHUNK_SIZE = 50

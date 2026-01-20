@@ -4,7 +4,6 @@
     Data Ingestion
 """
 import warnings
-import pandas as pd
 from pathlib import Path
 
 from config import (MAX_RETRIES,
@@ -12,41 +11,45 @@ from config import (MAX_RETRIES,
                     BACKOFF_SECONDS,
                     TIMEOUT_SECONDS,
                     CORRECT_STOCK_COL_NAME,
-                    LIST_OF_POSSIBLE_STOCK_COL_NAMES
+                    LIST_OF_POSSIBLE_STOCK_COL_NAMES,
+                    DEFAULT_FETCH_CHUNK_SIZE,
+                    TICKERS_FILE_PATH
                     )
-from data_ingestion.fetch_eps import get_eps_for_tickers
 from data_utilities.formatting import today_yyyy_mm_dd, parse_date, change_column_name
 from data_ingestion.fetch_stock_prices import fetch_stock_prices
 from data_ingestion.fetch_earnings import fetch_earnings_dates
 from data_utilities.clean_input import read_tickers_to_fetch
-from data_utilities.merge_input_data import merge_prices_earnings_dates
+from data_utilities.merging import merge_prices_earnings_dates
 
-def stage1(tickers_path: str,
-            provider: str = "yfinance",
-            start: str = TICKERS_START_DATE,
-            end: str = today_yyyy_mm_dd(),
-            out: str = "data/prices_adj_close.parquet",
-            chunk_size: int = 50,
-            max_retries: int = MAX_RETRIES,
-            base_backoff_sec: float = BACKOFF_SECONDS,
-            timeout_sec: float = TIMEOUT_SECONDS
-        ):
+# def stage1(tickers_path: str,
+#             provider: str = "yfinance",
+#             start: str = TICKERS_START_DATE,
+#             end: str = today_yyyy_mm_dd(),
+#             out: str = "data/prices_adj_close.parquet",
+#             chunk_size: int = 50,
+#             max_retries: int = MAX_RETRIES,
+#             base_backoff_sec: float = BACKOFF_SECONDS,
+#             timeout_sec: float = TIMEOUT_SECONDS
+#         ):
+def stage1(
+        provider: str = "yfinance"
+    ):
     warnings.filterwarnings('ignore')
-    tickers = read_tickers_to_fetch(Path(tickers_path))
 
     stock_prices = fetch_stock_prices(
         provider=provider,
-        tickers_path=tickers_path,
-        start=start,
-        end=end,
-        out=out,
-        chunk_size=chunk_size,
-        max_retries=max_retries,
-        base_backoff_sec=base_backoff_sec,
-        timeout_sec=timeout_sec,
+        tickers_path=TICKERS_FILE_PATH,
+        start=TICKERS_START_DATE,
+        end=today_yyyy_mm_dd(),
+        out = "data/prices_adj_close.csv",
+        chunk_size=DEFAULT_FETCH_CHUNK_SIZE,
+        max_retries=MAX_RETRIES,
+        base_backoff_sec=BACKOFF_SECONDS,
+        timeout_sec=TIMEOUT_SECONDS,
     )
     #stock_prices = pd.read_csv("data/prices_adj_close.csv")
 
+    tickers = read_tickers_to_fetch(Path(TICKERS_FILE_PATH))
     earnings_dates = fetch_earnings_dates(
         symbols = tickers
     )

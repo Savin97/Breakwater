@@ -148,7 +148,7 @@ def fetch_stock_prices(provider: str, tickers_path: str, start: str, end: str, o
 
     out_path = Path(out)
     ensure_parent_dir(out_path)
-    df.to_parquet(out_path, index=False)
+    df.to_csv(out_path, index=False)
 
     print(f"Saved: {out_path}")
     print(f"Rows: {len(df):,}")
