@@ -1,5 +1,5 @@
 from pathlib import Path
-from pipeline.pipeline_stage1 import stage1
+from pipeline.stage1 import stage1
 
 def run_pipeline():
     """
