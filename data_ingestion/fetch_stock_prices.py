@@ -4,23 +4,27 @@
     Outputs a simple table:
     symbol | date | price_adj_closed_price
 """
-from config import TICKERS_START_DATE, TICKERS_END_DATE
+from config import ( TICKERS_START_DATE,
+                    TICKERS_END_DATE, 
+                    PRICES_PATH, 
+                    TICKERS_FILE_PATH,
+                    TIMEOUT_SECONDS,
+                    BACKOFF_SECONDS,
+                    MAX_RETRIES,
+                    DEFAULT_FETCH_CHUNK_SIZE,
+                    USE_CACHED_DATA_FLAG )
 import sys
 import time
 from pathlib import Path
 import pandas as pd
+import yfinance as yf
+
 
 from data_utilities.clean_input import read_tickers_to_fetch
-from various_helper_funcs.helper_funcs import chunk_list, ensure_parent_dir, sleep_backoff
-
-try:
-    import yfinance as yf
-except Exception:
-    yf = None
+from data_utilities.helper_funcs import chunk_list, ensure_parent_dir, sleep_backoff
 
 # Provider implementations
-def fetch_tickers_yfinance(tickers: list[str], start: str, end: str,
-                            max_retries: int, base_backoff_sec: float) -> pd.DataFrame:
+def fetch_tickers_yfinance(tickers: list[str]) -> pd.DataFrame:
     """
         Uses yfinance to fetch stock price data
         Returns a tidy DF: symbol | date | price_adj_close
@@ -32,7 +36,7 @@ def fetch_tickers_yfinance(tickers: list[str], start: str, end: str,
         raise RuntimeError("yfinance is not installed. Run pip install yfinance")
 
     last_err = None
-    for attempt in range(max_retries + 1):
+    for attempt in range(MAX_RETRIES + 1):
         try:
             raw = yf.download(
                 tickers=tickers,
@@ -90,67 +94,65 @@ def fetch_tickers_yfinance(tickers: list[str], start: str, end: str,
 
         except Exception as e:
             last_err = e
-            print(f"[yfinance] attempt {attempt+1}/{max_retries+1} failed: {e}", file=sys.stderr)
-            if attempt < max_retries:
-                sleep_backoff(attempt, base_backoff_sec)
+            print(f"[yfinance] attempt {attempt+1}/{MAX_RETRIES + 1} failed: {e}", file=sys.stderr)
+            if attempt < MAX_RETRIES:
+                sleep_backoff(attempt, BACKOFF_SECONDS)
 
     raise RuntimeError(f"yfinance failed after retries: {last_err}")
 
     
-def fetch_stock_prices(provider: str, tickers_path: str, start: str, end: str, out: str,
-        chunk_size: int, max_retries: int, base_backoff_sec: float,
-        timeout_sec: float) -> None:
+def fetch_stock_prices(provider: str) -> None:
     """
         Fetch stock prices for a list of tickers from a specified provider.
         Outputs a DF: symbol | date | price_adj_close
     """
-    tickers = read_tickers_to_fetch(Path(tickers_path))
+    tickers = read_tickers_to_fetch(Path(TICKERS_FILE_PATH))
 
     if not tickers:
         raise ValueError("No tickers found.")
+    
+    # TODO: Temp solution, caching should work differently in the production version
+    if Path(PRICES_PATH).exists() and USE_CACHED_DATA_FLAG:
+        print(f"\nUsing cached Prices from {PRICES_PATH}\n")
+        return pd.read_csv(PRICES_PATH)
 
     print(f"Provider: {provider}")
     print(f"Tickers: {len(tickers)}")
-    print(f"Date range: {start} → {end}")
-    print(f"Chunk size: {chunk_size}")
+    print(f"Date range: {TICKERS_START_DATE} → {TICKERS_END_DATE}")
+    print(f"Chunk size: {DEFAULT_FETCH_CHUNK_SIZE}")
 
     parts = []
     done = 0
     total = len(tickers)
 
-    for batch in chunk_list(tickers, chunk_size):
+    for batch in chunk_list(tickers, DEFAULT_FETCH_CHUNK_SIZE):
         if provider == "yfinance":
             df_batch = fetch_tickers_yfinance(
-                tickers=batch,
-                start=start,
-                end=end,
-                max_retries=max_retries,
-                base_backoff_sec=base_backoff_sec,
+                tickers=batch
             )
         else:
             raise ValueError(f"Unknown provider: {provider}")
 
         parts.append(df_batch)
         done += len(batch)
-        print(f"Fetched {len(batch)} tickers. Progress {done}/{total}")
+        print(f"Fetched prices for {len(batch)} tickers. Progress {done}/{total}")
 
-        if timeout_sec > 0:
-            time.sleep(timeout_sec)
+        time.sleep(TIMEOUT_SECONDS)
 
-    df = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(
+    prices_df = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(
         columns=["symbol", "date", "price_adj_close"]
     )
 
-    if df.empty:
+    if prices_df.empty:
         raise RuntimeError("No data fetched (blocked/rate-limited or bad tickers list).")
 
-    df = df.drop_duplicates(subset=["symbol", "date"], keep="last")
+    prices_df = prices_df.drop_duplicates(subset=["symbol", "date"], keep="last")
 
-    out_path = Path(out)
+    out_path = Path(PRICES_PATH)
     ensure_parent_dir(out_path)
-    df.to_csv(out_path, index=False)
+    prices_df.to_csv(out_path, index=False)
 
-    print(f"Saved: {out_path}")
-    print(f"Rows: {len(df):,}")
-    print(f"Symbols with data: {df['symbol'].nunique():,}")
-    return df
+    print(f"Saved Prices: {out_path}")
+    print(f"Rows: {len(prices_df):,}")
+    print(f"Tickers with data: {prices_df['symbol'].nunique():,}\n")
+    return prices_df

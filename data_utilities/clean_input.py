@@ -36,5 +36,4 @@ def read_tickers_to_fetch(path: Path) -> list[str]:
         if t and t != "NAN" and t not in seen:
             out.append(t)
             seen.add(t)
-    print(f"Tickers to fetch: {out}")
     return out

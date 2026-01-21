@@ -2,9 +2,9 @@
 from pipeline.pipeline import run_pipeline
 
 def main():
-    print("Application started")
+    print("Running pipeline...\n")
     run_pipeline()    
-    print("\n----------------\nPipeline execution completed\n----------------")
+    print("\n----------------\nPipeline execution completed.\n----------------")
 
 if __name__ == "__main__":
     main()

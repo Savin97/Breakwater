@@ -10,7 +10,8 @@ def run_pipeline():
 
     """
 
-    print("Running the pipeline...\n----------------\n")
     prices_and_earnings_df = stage1() 
     prices_and_earnings_df.to_csv("output/df.csv", index=False)
+    print("\n----------------\n")
+    print("DF csv created in: output/df.csv")
     return prices_and_earnings_df

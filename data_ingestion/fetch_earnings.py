@@ -16,17 +16,20 @@ Usage:
 Auth:
     Set env var: ALPHAVANTAGE_API_KEY="..."
 """
-import os
 import time
 import requests
 import pandas as pd
 from typing import Iterable, Optional, List
+from pathlib import Path
 
-from config import (ALPHAVANTAGE_BASE_URL, FREE_ALPHAVANTAGE_KEY,
+from config import (ALPHAVANTAGE_BASE_URL, 
+                    FREE_ALPHAVANTAGE_KEY,
                     TICKERS_START_DATE,
                     TIMEOUT_SECONDS,
                     MAX_RETRIES,
-                    BACKOFF_SECONDS)
+                    BACKOFF_SECONDS,
+                    EARNINGS_PATH,
+                    USE_CACHED_DATA_FLAG)
 from data_utilities.formatting import parse_date
 
 
@@ -60,6 +63,7 @@ def fetch_earnings_dates_for_symbol(
             last_err = exc
             if attempt == MAX_RETRIES:
                 raise RuntimeError(f"Alpha Vantage request failed for {symbol}: {exc}")
+            print(f"Waiting {BACKOFF_SECONDS * attempt} seconds")
             time.sleep(BACKOFF_SECONDS * attempt)
             continue
 
@@ -68,6 +72,7 @@ def fetch_earnings_dates_for_symbol(
             last_err = RuntimeError(data["Note"])
             if attempt == MAX_RETRIES:
                 raise RuntimeError(f"Alpha Vantage rate limit for {symbol}: {data['Note']}")
+            print(f"Waiting {BACKOFF_SECONDS * attempt} seconds")
             time.sleep(BACKOFF_SECONDS * attempt)
             continue
 
@@ -107,6 +112,10 @@ def fetch_earnings_dates(
     """
         Fetch earnings dates for multiple symbols and stack into one DataFrame.
     """
+    if Path(EARNINGS_PATH).exists() and USE_CACHED_DATA_FLAG:
+        print(f"\nUsing cached Earnings Data from {EARNINGS_PATH}\n")
+        return pd.read_csv(EARNINGS_PATH)
+
     print("Fetching Earnings Dates")
     frames: List[pd.DataFrame] = []
     for sym in symbols:
@@ -120,13 +129,16 @@ def fetch_earnings_dates(
     if not frames:
         return pd.DataFrame(columns=["symbol", "earnings_date", "fiscal_date_ending"])
 
-    out = pd.concat(frames, ignore_index=True)
+    earnings_df = pd.concat(frames, ignore_index=True)
 
     if deduplicate:
-        out = (
-            out.sort_values(["symbol", "earnings_date"])
+        earnings_df = (
+            earnings_df.sort_values(["symbol", "earnings_date"])
             .drop_duplicates(subset=["symbol", "earnings_date"], keep="first")
             .reset_index(drop=True)
         )
-    out.to_csv("data/earnings_dates.csv", index=False)
-    return out
+    earnings_df.to_csv("data/earnings_dates.csv", index=False)
+    print(f"Saved Earnings: {EARNINGS_PATH}")
+    print(f"Rows: {len(earnings_df):,}")
+    print(f"Tickers with data: {earnings_df['symbol'].nunique():,}\n")
+    return earnings_df

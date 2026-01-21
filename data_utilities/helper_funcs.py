@@ -1,13 +1,15 @@
 import time
 from pathlib import Path
+from config import BACKOFF_SECONDS
 
 def ensure_parent_dir(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
-def sleep_backoff(attempt: int, base: float) -> None:
+def sleep_backoff(attempt: int) -> None:
     # exponential backoff with light jitter
-    wait = base * (2 ** attempt)
+    wait = BACKOFF_SECONDS * (2 ** attempt)
     wait = wait + (0.1 * wait)
+    print(f"Waiting {wait} seconds")
     time.sleep(wait)
 
 def chunk_list(items: list[str], n: int):

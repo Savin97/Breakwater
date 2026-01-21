@@ -3,7 +3,11 @@ import os
 import pandas as pd
 from pathlib import Path
 
-from config import ALPHAVANTAGE_BASE_URL, FREE_ALPHAVANTAGE_KEY, TICKERS_START_DATE
+from config import ( ALPHAVANTAGE_BASE_URL, 
+                    FREE_ALPHAVANTAGE_KEY, 
+                    TICKERS_START_DATE,
+                    EPS_PATH,
+                    USE_CACHED_DATA_FLAG )
 from data_utilities.clean_input import read_tickers_to_fetch
 
 def get_alpha_vantage_api_key() -> str:
@@ -26,7 +30,6 @@ def fetch_eps_single_ticker(ticker: str ) -> dict:
         f"&symbol={ticker}"
         f"&apikey={api_key}"
         )
-    print(f"Fetching EPS for {ticker}")
     try:
         r = requests.get(url, timeout = 30)
         r.raise_for_status() # Raise an exception for bad HTTP status codes
@@ -77,10 +80,15 @@ def parse_quarterly_eps(data: dict) -> pd.DataFrame:
 
     return df
 
-def get_eps_for_tickers(tickers: list) -> pd.DataFrame:
+def fetch_eps(tickers: list) -> pd.DataFrame:
+    if Path(EPS_PATH).exists() and USE_CACHED_DATA_FLAG:
+        print(f"\nUsing cached EPS Data from {EPS_PATH}\n")
+        return pd.read_csv(EPS_PATH)
+
     all_eps_data = []
     errors = []
-    for ticker in tickers:
+    for i,ticker in enumerate(tickers, start=1):
+        print(f"Fetching {ticker} EPS ({i}/{len(tickers)})")
         try:
             data = fetch_eps_single_ticker(ticker)
             df = parse_quarterly_eps(data)
@@ -98,6 +106,7 @@ def get_eps_for_tickers(tickers: list) -> pd.DataFrame:
         eps_df = pd.DataFrame(
             columns=["symbol", "fiscal_date", "reported_date", "reported_eps", "estimated_eps", "surprise_percentage"]
         )
+
     eps_df.to_csv("data/all_eps_data.csv", index=False)
     print("Errors:", errors)
     return eps_df
