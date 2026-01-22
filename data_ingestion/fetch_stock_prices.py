@@ -112,10 +112,12 @@ def fetch_stock_prices(provider: str) -> None:
         raise ValueError("No tickers found.")
     
     # TODO: Temp solution, caching should work differently in the production version
-    if Path(PRICES_PATH).exists() and USE_CACHED_DATA_FLAG:
-        print(f"\nUsing cached Prices from {PRICES_PATH}\n")
-        return pd.read_csv(PRICES_PATH)
-
+    if USE_CACHED_DATA_FLAG == True:
+        if Path(PRICES_PATH).exists():
+            print(f"\nUsing cached Prices from {PRICES_PATH}\n")
+            return pd.read_csv(PRICES_PATH)
+            
+    print("No cached Prices data, fetching NEW...")        
     print(f"Provider: {provider}")
     print(f"Tickers: {len(tickers)}")
     print(f"Date range: {TICKERS_START_DATE} → {TICKERS_END_DATE}")

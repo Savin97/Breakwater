@@ -1,5 +1,8 @@
 import datetime as dt
 
+# Switches
+USE_CACHED_DATA_FLAG = True
+
 # Paths
 TICKERS_FILE_PATH = "data_ingestion/tickers.csv"
 PRICES_PATH = "data/stock_prices.csv"
@@ -9,7 +12,6 @@ OUTPUT_PATH = "output/"
 ALPHAVANTAGE_BASE_URL = "https://www.alphavantage.co/query"
 
 # Global Parameters
-USE_CACHED_DATA_FLAG = False
 FREE_ALPHAVANTAGE_KEY = "KMMS5F3XHGRFA7CD"
 DEFAULT_START_DATE = dt.date(2008, 1, 1)
 TICKERS_START_DATE = "2025-01-01"

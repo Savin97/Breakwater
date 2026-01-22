@@ -11,8 +11,10 @@ from data_utilities.clean_input import read_tickers_to_fetch
 def fetch_single_sector(ticker: str) -> str:
     try:
         info = yf.Ticker(ticker).info
+        sector_name = info.get("sector")
+        sub_sector_name = info.get("industryDisp")
     except Exception as e:
-        raise LookupError("Fetching failed") from e
+        print(f"Fetching Sector Name failed for {ticker}")
 
 def fetch_sectors():
     tickers = read_tickers_to_fetch(Path(TICKERS_FILE_PATH))

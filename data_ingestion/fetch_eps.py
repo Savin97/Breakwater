@@ -81,10 +81,14 @@ def parse_quarterly_eps(data: dict) -> pd.DataFrame:
     return df
 
 def fetch_eps(tickers: list) -> pd.DataFrame:
-    if Path(EPS_PATH).exists() and USE_CACHED_DATA_FLAG:
-        print(f"\nUsing cached EPS Data from {EPS_PATH}\n")
-        return pd.read_csv(EPS_PATH)
 
+    if USE_CACHED_DATA_FLAG == True:
+        if Path(EPS_PATH).exists():
+            print(f"\nUsing cached EPS Data from {EPS_PATH}\n")
+            return pd.read_csv(EPS_PATH)
+        
+        
+    print("No cached EPS data, fetching NEW...")
     all_eps_data = []
     errors = []
     for i,ticker in enumerate(tickers, start=1):

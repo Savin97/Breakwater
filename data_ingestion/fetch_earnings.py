@@ -112,10 +112,12 @@ def fetch_earnings_dates(
     """
         Fetch earnings dates for multiple symbols and stack into one DataFrame.
     """
-    if Path(EARNINGS_PATH).exists() and USE_CACHED_DATA_FLAG:
-        print(f"\nUsing cached Earnings Data from {EARNINGS_PATH}\n")
-        return pd.read_csv(EARNINGS_PATH)
-
+    if USE_CACHED_DATA_FLAG == True:
+        if Path(EARNINGS_PATH).exists():
+            print(f"\nUsing cached Earnings Data from {EARNINGS_PATH}\n")
+            return pd.read_csv(EARNINGS_PATH)
+        
+    print("No cached Earnings data, fetching NEW...")
     print("Fetching Earnings Dates")
     frames: List[pd.DataFrame] = []
     for sym in symbols:
