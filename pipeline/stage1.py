@@ -15,7 +15,7 @@ from data_ingestion.fetch_earnings import fetch_earnings_dates
 from data_ingestion.fetch_eps import fetch_eps
 from data_ingestion.fetch_sectors import fetch_sectors
 from data_utilities.clean_input import read_tickers_to_fetch
-from data_utilities.merging import merge_prices_earnings_dates, merge_main_df_with_eps_df
+from data_utilities.merging import merge_prices_earnings_dates, merge_main_df_with_eps_df, map_sectors_and_sub_sectors_to_main_df
 
 # def stage1(tickers_path: str,
 #             provider: str = "yfinance",
@@ -52,7 +52,9 @@ def stage1( provider: str = "yfinance" ):
     df = df.sort_values(["stock", "date"])
     df = merge_main_df_with_eps_df(df, eps_data)
 
-    sector_map = fetch_sectors()
-
+    sector_df = fetch_sectors()
+  
+    df = map_sectors_and_sub_sectors_to_main_df(df, sector_df)
+    
     return df
     

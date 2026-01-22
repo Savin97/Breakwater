@@ -21,5 +21,8 @@ def merge_main_df_with_eps_df(main_df,eps_df):
     
     return merged_df
 
-def merge_main_df_with_sectors_df(main_df,sector_df):
-    pass
+def map_sectors_and_sub_sectors_to_main_df(main_df: pd.DataFrame,sector_df:dict):
+    main_df["sector"] = main_df["stock"].map(sector_df["sector"])
+    main_df["sub_sector"] = main_df["stock"].map(sector_df["sub_sector"])
+    return main_df
+
