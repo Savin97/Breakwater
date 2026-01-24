@@ -29,7 +29,7 @@ def chunk_list(items: list[str], n: int):
             It does not return everything at once
             It returns one chunk at a time
             Memory-efficient
-            Perfect for large lists (like hundreds of tickers)
+            Perfect for large lists (like hundreds of stocks)
     """
     for i in range(0, len(items), n):
         yield items[i:i+n]

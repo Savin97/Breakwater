@@ -1,25 +1,27 @@
 # pipeline_stage1
 """
     First stage of the pipeline.
-    Data Ingestion
+    Data Ingestion:
+    Fetch historical stock prices,
+    Earnings dates, EPS data, Sector & Sub-sector data, Market cap, Beta.
 """
 import warnings
 from pathlib import Path
 
 from config import ( CORRECT_STOCK_COL_NAME,
                     LIST_OF_POSSIBLE_STOCK_COL_NAMES,
-                    TICKERS_FILE_PATH )
+                    STOCK_NAMES_FILE_PATH )
 from data_utilities.formatting import today_yyyy_mm_dd, parse_date, change_column_name
 from data_ingestion.fetch_stock_prices import fetch_stock_prices
 from data_ingestion.fetch_earnings import fetch_earnings_dates
 from data_ingestion.fetch_eps import fetch_eps
 from data_ingestion.fetch_sectors import fetch_sectors
-from data_utilities.clean_input import read_tickers_to_fetch
-from data_utilities.merging import merge_prices_earnings_dates, merge_main_df_with_eps_df, map_sectors_and_sub_sectors_to_main_df
+from data_utilities.clean_input import read_stocks_to_fetch
+from data_utilities.merging import merge_prices_earnings_dates, merge_main_df_with_eps_df, map_sector_data_to_main_df
 
-# def stage1(tickers_path: str,
+# def stage1(stocks_path: str,
 #             provider: str = "yfinance",
-#             start: str = TICKERS_START_DATE,
+#             start: str = STOCKS_START_DATE,
 #             end: str = today_yyyy_mm_dd(),
 #             out: str = "data/stock_prices.parquet",
 #             chunk_size: int = 50,
@@ -31,11 +33,11 @@ from data_utilities.merging import merge_prices_earnings_dates, merge_main_df_wi
 def stage1( provider: str = "yfinance" ):
 
     warnings.filterwarnings('ignore')
-    tickers = read_tickers_to_fetch(Path(TICKERS_FILE_PATH))
-    print(f"{len(tickers)} Tickers to fetch.\n")
+    stocks = read_stocks_to_fetch(Path(STOCK_NAMES_FILE_PATH))
+    print(f"{len(stocks)} Stocks to fetch.\n")
     
     stock_prices = fetch_stock_prices(provider=provider)
-    earnings_dates = fetch_earnings_dates(symbols = tickers)
+    earnings_dates = fetch_earnings_dates(stocks = stocks)
 
     stock_prices = change_column_name(stock_prices, LIST_OF_POSSIBLE_STOCK_COL_NAMES, CORRECT_STOCK_COL_NAME )
     earnings_dates = change_column_name(earnings_dates, LIST_OF_POSSIBLE_STOCK_COL_NAMES, CORRECT_STOCK_COL_NAME )
@@ -46,15 +48,15 @@ def stage1( provider: str = "yfinance" ):
     stock_prices = stock_prices.sort_values("date")
     earnings_dates = earnings_dates.sort_values("earnings_date")
     
-    eps_data = fetch_eps(tickers)
+    eps_data = fetch_eps(stocks)
 
     df = merge_prices_earnings_dates(stock_prices, earnings_dates) # df that holds stock prices, earnings dates, EPS data merged
     df = df.sort_values(["stock", "date"])
     df = merge_main_df_with_eps_df(df, eps_data)
 
     sector_df = fetch_sectors()
-  
-    df = map_sectors_and_sub_sectors_to_main_df(df, sector_df)
+    
+    df = map_sector_data_to_main_df(df, sector_df)
     
     return df
     

@@ -1,5 +1,6 @@
 from pathlib import Path
 from pipeline.stage1 import stage1
+from pipeline.stage2 import stage2
 
 def run_pipeline():
     """
@@ -7,11 +8,12 @@ def run_pipeline():
         1. Fetch stock prices, earnings data, EPS data.
         2. Merge into a single DataFrame
         3. Engineer features
-
     """
 
-    prices_and_earnings_df = stage1() 
-    prices_and_earnings_df.to_csv("output/df.csv", index=False)
+    inputs_df = stage1() 
+    inputs_df.to_csv("output/stage_1_df.csv", index=False)
+    feature_engineering = stage2(inputs_df)
+    feature_engineering.to_csv("output/stage_2_df.csv", index=False)
     print("\n----------------\n")
-    print("DF csv created in: output/df.csv")
-    return prices_and_earnings_df
+    print("DF csv created in: output/stage_2_df.csv")
+    return inputs_df

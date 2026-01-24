@@ -15,14 +15,13 @@ def merge_main_df_with_eps_df(main_df,eps_df):
     eps_df["reported_date"] = parse_date(eps_df["reported_date"])
     merged_df = main_df.merge(eps_df, 
                               left_on = ["stock", "date"], 
-                              right_on = ["symbol", "reported_date"], how="left")
+                              right_on = ["stock", "reported_date"], how="left")
     # Drop duplicate columns
-    merged_df = merged_df.drop(columns= ["symbol","reported_date", "fiscal_date"])
+    merged_df = merged_df.drop(columns= ["reported_date", "fiscal_date"])
     
     return merged_df
 
-def map_sectors_and_sub_sectors_to_main_df(main_df: pd.DataFrame,sector_df:dict):
-    main_df["sector"] = main_df["stock"].map(sector_df["sector"])
-    main_df["sub_sector"] = main_df["stock"].map(sector_df["sub_sector"])
-    return main_df
+def map_sector_data_to_main_df(main_df: pd.DataFrame,sector_df:pd.DataFrame):
+    merged_df = main_df.merge(sector_df, on="stock", validate="m:1")
+    return merged_df
 

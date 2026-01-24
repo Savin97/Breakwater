@@ -1,457 +1,457 @@
-stock,date,price_adj_close,earnings_date,fiscal_date_ending,reported_eps,estimated_eps,surprise_percentage,sector,sub_sector
-AAPL,2025-01-02,242.7520904541016,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-03,242.2642822265625,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-06,243.8969268798828,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-07,241.11947631835935,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-08,241.60726928710935,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-10,235.7836151123047,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-13,233.34461975097656,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-14,232.22967529296875,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-15,236.7989959716797,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-16,227.23228454589844,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-17,228.9445343017578,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-21,221.63758850097656,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-22,222.8222198486328,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-23,222.6529998779297,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-24,221.77696228027344,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-27,228.82508850097656,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-28,237.187255859375,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-29,238.2823028564453,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-30,236.520263671875,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics
-AAPL,2025-01-31,234.93743896484372,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-03,226.9833984375,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-04,231.75184631347656,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-05,231.42333984375,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-06,232.16995239257807,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-07,226.60513305664065,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-10,226.8741912841797,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-11,231.82725524902344,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-12,236.06277465820312,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-13,240.70689392089844,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-14,243.7664337158203,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-18,243.6368865966797,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-19,244.03550720214844,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-20,244.99224853515625,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-21,244.7132110595703,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-24,246.25791931152344,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-25,246.19810485839844,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-26,239.5408935546875,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-27,236.49131774902344,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-02-28,241.01583862304688,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-03,237.21881103515625,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-04,235.1259765625,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-05,234.93663024902344,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-06,234.52801513671875,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-07,238.2552795410156,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-10,226.70477294921875,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-11,220.08740234375,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-12,216.24057006835935,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-13,208.96543884277344,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-14,212.7624664306641,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-17,213.27072143554688,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-18,211.96519470214844,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-19,214.50650024414065,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-20,213.3703765869141,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-21,217.5261688232422,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-24,219.977783203125,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-25,222.98748779296875,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-26,220.7750396728516,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-27,223.08714294433597,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-28,217.15740966796875,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-03-31,221.37301635742188,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-01,222.4293975830078,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-02,223.12701416015625,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-03,202.49757385253903,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-04,187.738037109375,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-07,180.84161376953125,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-08,171.83242797851562,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-09,198.1723480224609,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-10,189.7710723876953,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-11,197.47471618652344,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-14,201.829833984375,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-15,201.45114135742188,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-16,193.6079559326172,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-17,196.3087158203125,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-21,192.5017242431641,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-22,199.059326171875,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-23,203.9027557373047,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-24,207.65989685058597,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-25,208.5668029785156,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-28,209.4238739013672,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-29,210.4902191162109,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-04-30,211.77584838867188,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics
-AAPL,2025-05-01,212.59304809570312,2025-05-01,2025-03-31,1.65,1.62,0.018519,Technology,Consumer Electronics
-AAPL,2025-05-02,204.65020751953125,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-05,198.21221923828125,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-06,197.83349609375,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-07,195.58120727539065,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-08,196.8169860839844,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-09,197.8534393310547,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-12,210.3471221923828,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-13,212.48263549804688,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-14,211.8839111328125,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-15,211.00575256347656,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-16,210.81614685058597,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-19,208.3413543701172,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-20,206.42539978027344,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-21,201.66542053222656,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-22,200.93695068359372,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-23,194.8597412109375,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-27,199.78936767578125,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-28,199.9989318847656,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-29,199.5299072265625,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-05-30,200.4280242919922,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-02,201.27622985839844,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-03,202.8429412841797,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-04,202.3938751220703,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-05,200.2084808349609,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-06,203.49156188964844,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-09,201.02674865722656,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-10,202.24420166015625,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-11,198.36236572265625,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-12,198.78147888183597,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-13,196.03726196289065,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-16,198.0031280517578,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-17,195.2289581298828,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-18,196.1669921875,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-20,200.5777130126953,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-23,201.0766448974609,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-24,199.87918090820312,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-25,201.1365203857422,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-26,200.5777130126953,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-27,200.6575469970703,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-06-30,204.7389373779297,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-01,207.3833770751953,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-02,211.99366760253903,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-03,213.1013336181641,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-07,209.50889587402344,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-08,209.5687713623047,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-09,210.69639587402344,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-10,211.9637451171875,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-11,210.7163543701172,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-14,208.1816864013672,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-15,208.6706695556641,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-16,209.7184600830078,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-17,209.5787506103516,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-18,210.7363128662109,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-21,212.03358459472656,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-22,213.9495391845703,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-23,213.7000732421875,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-24,213.31089782714844,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-25,213.4306488037109,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-28,213.6002960205078,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-29,210.8261260986328,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-30,208.6107940673828,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics
-AAPL,2025-07-31,207.1339111328125,2025-07-31,2025-06-30,1.57,1.43,0.097902,Technology,Consumer Electronics
-AAPL,2025-08-01,201.95480346679688,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-04,202.9227752685547,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-05,202.49366760253903,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-06,212.8019561767578,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-07,219.56771850585935,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-08,228.86813354492188,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-11,226.95997619628903,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-12,229.42758178710935,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-13,233.10403442382807,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-14,232.5545654296875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-15,231.3657073974609,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-18,230.66639709472656,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-19,230.3367156982422,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-20,225.7911071777344,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-21,224.68218994140625,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-22,227.53941345214844,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-25,226.94000244140625,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-26,229.08792114257807,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-27,230.26678466796875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-28,232.33477783203125,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-08-29,231.9151763916016,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-02,229.49752807617188,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-03,238.2390594482422,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-04,239.5477752685547,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-05,239.45787048339844,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-08,237.64962768554688,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-09,234.123046875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-10,226.5703582763672,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-11,229.8072204589844,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-12,233.84332275390625,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-15,236.47076416015625,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-16,237.9193572998047,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-17,238.7585601806641,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-18,237.64962768554688,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-19,245.26223754882807,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-22,255.8319854736328,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-23,254.18359375,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-24,252.06564331054688,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-25,256.6212158203125,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-26,255.2126007080078,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-29,254.18359375,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-09-30,254.38340759277344,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-01,255.20260620117188,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-02,256.8809814453125,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-03,257.7701110839844,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-06,256.44140625,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-07,256.23162841796875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-08,257.8100891113281,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-09,253.79396057128903,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-10,245.032470703125,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-13,247.42015075683597,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-14,247.5300445556641,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-15,249.09852600097656,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-16,247.2103576660156,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-17,252.045654296875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-20,261.98602294921875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-21,262.5155029296875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-22,258.19970703125,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-23,259.3285827636719,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-24,262.56549072265625,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-27,268.5496520996094,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-28,268.7394714355469,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-29,269.4388122558594,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics
-AAPL,2025-10-30,271.1371459960937,2025-10-30,2025-09-30,1.85,1.76,0.051136,Technology,Consumer Electronics
-AAPL,2025-10-31,270.108154296875,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-03,268.7894287109375,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-04,269.7784729003906,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-05,269.8783874511719,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-06,269.5087280273437,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-07,268.2099914550781,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-10,269.42999267578125,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-11,275.25,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-12,273.4700012207031,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-13,272.95001220703125,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-14,272.4100036621094,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-17,267.4599914550781,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-18,267.44000244140625,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-19,268.5599975585937,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-20,266.25,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-21,271.489990234375,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-24,275.9200134277344,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-25,276.9700012207031,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-26,277.54998779296875,,,,,,Technology,Consumer Electronics
-AAPL,2025-11-28,278.8500061035156,,,,,,Technology,Consumer Electronics
-MSFT,2025-01-02,415.5148315429688,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-03,420.2499084472656,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-06,424.7169494628906,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-07,419.277099609375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-08,421.4510498046875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-10,415.8821105957031,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-13,414.135009765625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-14,412.6261596679688,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-15,423.188232421875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-16,421.4708557128906,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-17,425.8883361816406,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-21,425.3621826171875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-22,442.9326171875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-23,443.4388122558594,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-24,440.8082580566406,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-27,431.3778076171875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-28,443.92529296875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-29,439.0909118652344,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-30,411.95111083984375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-01-31,412.0205993652344,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-03,407.9109497070313,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-04,409.3503112792969,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-05,410.2635803222656,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-06,412.7750549316406,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-07,406.7494812011719,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-10,409.201416015625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-11,408.4271240234375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-12,406.0447082519531,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-13,407.5337219238281,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-14,405.4391479492188,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-18,406.6403198242188,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-19,411.7327270507813,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-20,413.91107177734375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-21,406.03326416015625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-24,401.8457336425781,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-25,395.7782287597656,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-26,397.5984802246094,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-27,390.4368896484375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-02-28,394.87310791015625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-03,386.4184265136719,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-04,386.5377807617188,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-05,398.8816223144531,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-06,394.7736511230469,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-07,391.2127380371094,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-10,378.13287353515625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-11,378.4212951660156,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-12,381.2262573242188,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-13,376.750244140625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-14,386.4880676269531,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-17,386.6273193359375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-18,381.4749450683594,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-19,385.75201416015625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-20,384.7772216796875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-21,389.1736755371094,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-24,390.9839782714844,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-25,393.0528869628906,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-26,387.89056396484375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-27,388.497314453125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-28,376.7800903320313,,,,,,Technology,Software - Infrastructure
-MSFT,2025-03-31,373.3883056640625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-01,380.1520385742188,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-02,380.1023254394531,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-03,371.1204528808594,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-04,357.9212341308594,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-07,355.9517822265625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-08,352.6693725585937,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-09,388.4077453613281,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-10,379.3164978027344,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-11,386.3786926269531,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-14,385.7420654296875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-15,383.6731567382813,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-16,369.6284484863281,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-17,365.8188781738281,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-21,357.2050476074219,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-22,364.864013671875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-23,372.3936462402344,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-24,385.2347717285156,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-25,389.7605285644531,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-28,389.0741882324219,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-29,391.9388427734375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-04-30,393.1523742675781,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-01,423.1316223144531,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-02,432.95892333984375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-05,433.8442077636719,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-06,430.99945068359375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-07,431.0392456054688,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-08,435.8335571289063,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-09,436.39056396484375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-12,446.8643798828125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-13,446.74505615234375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-14,450.5247497558594,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-15,451.5412292480469,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-16,452.67718505859375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-19,457.2610473632813,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-20,456.56353759765625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-21,450.9831848144531,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-22,453.26513671875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-23,448.6015319824219,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-27,459.07470703125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-28,455.75634765625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-29,457.0717468261719,,,,,,Technology,Software - Infrastructure
-MSFT,2025-05-30,458.7458190917969,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-02,460.3502197265625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-03,461.3466796875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-04,462.2435302734375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-05,466.0401611328125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-06,468.7307434082031,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-09,471.0924072265625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-10,469.2688598632813,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-11,470.9628601074219,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-12,477.1909484863281,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-13,473.2946472167969,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-16,477.46002197265625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-17,476.3638610839844,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-18,478.5561218261719,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-20,475.7261047363281,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-23,484.29595947265625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-24,488.3915100097656,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-25,490.5439758300781,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-26,495.705810546875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-27,494.20111083984375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-06-30,495.66595458984375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-01,490.32470703125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-02,489.36810302734375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-03,497.0909423828125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-07,495.974853515625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-08,494.8786926269531,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-09,501.74456787109375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-10,499.7216796875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-11,501.5552062988281,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-14,501.2562561035156,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-15,504.0464477539063,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-16,503.84716796875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-17,509.9058532714844,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-18,508.2615966796875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-21,508.2716064453125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-22,503.4983825683594,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-23,504.0962524414063,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-24,509.0887451171875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-25,511.9088439941406,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-28,510.7030334472656,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-29,510.7727966308594,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-30,511.4404296875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-07-31,531.62939453125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-01,522.2722778320312,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-04,533.7619018554688,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-05,525.8995361328125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-06,523.0994262695312,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-07,519.0137939453125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-08,520.2095947265625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-11,519.9405517578125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-12,527.3843383789062,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-13,518.7546997070312,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-14,520.6480102539062,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-15,518.3461303710938,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-18,515.286865234375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-19,507.9826049804688,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-20,503.9468078613281,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-21,503.2980041503906,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-22,506.2824401855469,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-25,503.3179931640625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-26,501.1021423339844,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-27,505.7933349609375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-28,508.68792724609375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-08-29,505.7434387207031,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-02,504.1763610839844,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-03,504.4059448242188,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-04,507.0210571289063,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-05,494.0752868652344,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-08,497.2693176269531,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-09,497.4789123535156,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-10,499.4352416992188,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-11,500.0740661621094,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-12,508.9474487304688,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-15,514.397216796875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-16,508.0890502929688,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-17,509.0671997070313,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-18,507.5001525878906,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-19,516.96240234375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-22,513.4889526367188,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-23,508.2787170410156,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-24,509.1969604492188,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-25,506.0827941894531,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-26,510.5045166015625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-29,513.6386108398438,,,,,,Technology,Software - Infrastructure
-MSFT,2025-09-30,516.982421875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-01,518.7391357421875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-02,514.7765502929688,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-03,516.3834838867188,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-06,527.5825805664062,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-07,523.0010986328125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-08,523.8695068359375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-09,521.4241333007812,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-10,510.0054626464844,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-13,513.0896606445312,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-14,512.610595703125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-15,512.4708251953125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-16,510.65423583984375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-17,512.62060546875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-20,515.8245239257812,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-21,516.6929321289062,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-22,519.5675659179688,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-23,519.5875244140625,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-24,522.6318359375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-27,530.527099609375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-28,541.057373046875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-29,540.538330078125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-30,524.77783203125,,,,,,Technology,Software - Infrastructure
-MSFT,2025-10-31,516.8426513671875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-03,516.0641479492188,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-04,513.3692016601562,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-05,506.2125549316406,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-06,496.1713562011719,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-07,495.8918762207031,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-10,505.0547180175781,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-11,507.7297058105469,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-12,510.1851501464844,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-13,502.3497924804688,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-14,509.2268981933594,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-17,506.54193115234375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-18,492.8675537109375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-19,486.2099914550781,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-20,478.4299926757813,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-21,472.1199951171875,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-24,474.0,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-25,476.989990234375,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-26,485.5,,,,,,Technology,Software - Infrastructure
-MSFT,2025-11-28,492.010009765625,,,,,,Technology,Software - Infrastructure
+stock,date,price_adj_close,earnings_date,fiscal_date_ending,reported_eps,estimated_eps,surprise_percentage,sector,sub_sector,market_cap,beta
+AAPL,2025-01-02,242.7520904541016,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-03,242.2642974853516,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-06,243.8969268798828,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-07,241.11947631835935,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-08,241.60726928710935,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-10,235.7836151123047,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-13,233.34461975097656,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-14,232.22967529296875,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-15,236.79901123046875,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-16,227.23228454589844,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-17,228.94454956054688,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-21,221.63758850097656,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-22,222.8222198486328,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-23,222.6529998779297,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-24,221.77696228027344,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-27,228.82508850097656,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-28,237.1872711181641,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-29,238.2823028564453,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-30,236.520263671875,2025-01-30,2024-12-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-01-31,234.93743896484372,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-03,226.9833984375,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-04,231.75184631347656,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-05,231.42333984375,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-06,232.16995239257807,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-07,226.60513305664065,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-10,226.8741912841797,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-11,231.82725524902344,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-12,236.06277465820312,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-13,240.70689392089844,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-14,243.7664337158203,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-18,243.6368865966797,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-19,244.03550720214844,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-20,244.99224853515625,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-21,244.7132110595703,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-24,246.25791931152344,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-25,246.19810485839844,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-26,239.5408935546875,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-27,236.49131774902344,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-02-28,241.01583862304688,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-03,237.21881103515625,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-04,235.1259765625,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-05,234.93663024902344,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-06,234.52801513671875,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-07,238.2552795410156,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-10,226.70477294921875,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-11,220.08740234375,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-12,216.24057006835935,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-13,208.96543884277344,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-14,212.7624664306641,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-17,213.27072143554688,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-18,211.96519470214844,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-19,214.50650024414065,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-20,213.3703765869141,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-21,217.5261688232422,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-24,219.977783203125,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-25,222.98748779296875,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-26,220.7750396728516,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-27,223.08714294433597,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-28,217.15740966796875,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-03-31,221.37301635742188,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-01,222.4293975830078,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-02,223.12701416015625,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-03,202.49757385253903,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-04,187.738037109375,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-07,180.84161376953125,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-08,171.83242797851562,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-09,198.1723480224609,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-10,189.7710723876953,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-11,197.47471618652344,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-14,201.829833984375,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-15,201.45114135742188,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-16,193.6079559326172,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-17,196.3087158203125,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-21,192.5017242431641,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-22,199.059326171875,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-23,203.9027557373047,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-24,207.65989685058597,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-25,208.5668029785156,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-28,209.4238739013672,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-29,210.4902191162109,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-04-30,211.77584838867188,2025-05-01,2025-03-31,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-01,212.59304809570312,2025-05-01,2025-03-31,1.65,1.62,0.018519,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-02,204.65020751953125,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-05,198.21221923828125,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-06,197.83349609375,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-07,195.58120727539065,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-08,196.8169860839844,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-09,197.8534393310547,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-12,210.3471221923828,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-13,212.48263549804688,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-14,211.8839111328125,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-15,211.00575256347656,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-16,210.81614685058597,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-19,208.3413543701172,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-20,206.42539978027344,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-21,201.66542053222656,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-22,200.93695068359372,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-23,194.8597412109375,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-27,199.78936767578125,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-28,199.9989318847656,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-29,199.5299072265625,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-05-30,200.4280242919922,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-02,201.27622985839844,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-03,202.8429412841797,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-04,202.3938751220703,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-05,200.2084808349609,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-06,203.49156188964844,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-09,201.02674865722656,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-10,202.24420166015625,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-11,198.36236572265625,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-12,198.78147888183597,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-13,196.03726196289065,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-16,198.0031280517578,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-17,195.2289581298828,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-18,196.1669921875,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-20,200.5777130126953,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-23,201.0766448974609,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-24,199.87918090820312,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-25,201.1365203857422,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-26,200.5777130126953,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-27,200.6575469970703,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-06-30,204.7389373779297,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-01,207.3833770751953,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-02,211.99366760253903,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-03,213.1013336181641,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-07,209.50889587402344,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-08,209.5687713623047,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-09,210.69639587402344,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-10,211.9637451171875,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-11,210.7163543701172,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-14,208.1816864013672,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-15,208.6706695556641,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-16,209.7184600830078,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-17,209.5787506103516,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-18,210.7363128662109,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-21,212.03358459472656,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-22,213.9495391845703,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-23,213.7000732421875,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-24,213.31089782714844,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-25,213.4306488037109,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-28,213.6002960205078,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-29,210.8261260986328,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-30,208.6107940673828,2025-07-31,2025-06-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-07-31,207.1339111328125,2025-07-31,2025-06-30,1.57,1.43,0.097902,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-01,201.95480346679688,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-04,202.9227752685547,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-05,202.49366760253903,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-06,212.8019561767578,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-07,219.56771850585935,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-08,228.86813354492188,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-11,226.95997619628903,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-12,229.42758178710935,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-13,233.10403442382807,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-14,232.5545654296875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-15,231.3657073974609,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-18,230.66639709472656,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-19,230.3367156982422,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-20,225.7911071777344,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-21,224.68218994140625,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-22,227.53941345214844,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-25,226.94000244140625,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-26,229.08792114257807,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-27,230.26678466796875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-28,232.33477783203125,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-08-29,231.9151763916016,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-02,229.49752807617188,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-03,238.2390594482422,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-04,239.5477752685547,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-05,239.45787048339844,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-08,237.64962768554688,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-09,234.123046875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-10,226.5703582763672,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-11,229.8072204589844,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-12,233.84332275390625,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-15,236.47076416015625,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-16,237.9193572998047,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-17,238.7585601806641,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-18,237.64962768554688,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-19,245.26223754882807,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-22,255.8319854736328,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-23,254.18359375,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-24,252.06564331054688,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-25,256.6212158203125,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-26,255.2126007080078,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-29,254.18359375,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-09-30,254.38340759277344,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-01,255.20260620117188,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-02,256.8809814453125,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-03,257.7701110839844,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-06,256.44140625,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-07,256.23162841796875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-08,257.8100891113281,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-09,253.79396057128903,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-10,245.032470703125,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-13,247.42015075683597,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-14,247.5300445556641,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-15,249.09852600097656,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-16,247.2103576660156,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-17,252.045654296875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-20,261.98602294921875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-21,262.5155029296875,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-22,258.19970703125,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-23,259.3285827636719,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-24,262.56549072265625,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-27,268.5496520996094,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-28,268.7394714355469,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-29,269.4388122558594,2025-10-30,2025-09-30,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-30,271.1371459960937,2025-10-30,2025-09-30,1.85,1.76,0.051136,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-10-31,270.108154296875,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-03,268.7894287109375,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-04,269.7784729003906,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-05,269.8783874511719,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-06,269.5087280273437,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-07,268.2099914550781,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-10,269.42999267578125,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-11,275.25,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-12,273.4700012207031,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-13,272.95001220703125,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-14,272.4100036621094,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-17,267.4599914550781,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-18,267.44000244140625,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-19,268.5599975585937,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-20,266.25,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-21,271.489990234375,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-24,275.9200134277344,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-25,276.9700012207031,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-26,277.54998779296875,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+AAPL,2025-11-28,278.8500061035156,,,,,,Technology,Consumer Electronics,3665126490112,1.093
+MSFT,2025-01-02,415.5148315429688,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-03,420.2499084472656,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-06,424.7169494628906,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-07,419.2770690917969,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-08,421.4510498046875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-10,415.8821105957031,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-13,414.135009765625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-14,412.6261901855469,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-15,423.188232421875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-16,421.4708557128906,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-17,425.8883361816406,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-21,425.3621826171875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-22,442.9326171875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-23,443.4388122558594,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-24,440.8082580566406,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-27,431.3778381347656,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-28,443.92529296875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-29,439.09088134765625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-30,411.9510803222656,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-01-31,412.0205993652344,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-03,407.9109497070313,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-04,409.3502807617188,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-05,410.2635803222656,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-06,412.7750854492188,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-07,406.7494812011719,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-10,409.201416015625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-11,408.4271240234375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-12,406.044677734375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-13,407.5337219238281,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-14,405.4391479492188,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-18,406.6402893066406,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-19,411.7327575683594,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-20,413.91107177734375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-21,406.03326416015625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-24,401.845703125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-25,395.77825927734375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-26,397.5985107421875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-27,390.4368896484375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-02-28,394.87310791015625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-03,386.41845703125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-04,386.5377807617188,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-05,398.8816223144531,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-06,394.7736511230469,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-07,391.2127380371094,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-10,378.13287353515625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-11,378.42132568359375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-12,381.2262573242188,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-13,376.7502746582031,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-14,386.4880676269531,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-17,386.6273193359375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-18,381.4749450683594,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-19,385.75201416015625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-20,384.7772521972656,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-21,389.1736755371094,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-24,390.9839782714844,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-25,393.0528564453125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-26,387.8905334472656,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-27,388.497314453125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-28,376.7801208496094,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-03-31,373.3883056640625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-01,380.1520385742188,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-02,380.1023254394531,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-03,371.1204528808594,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-04,357.92120361328125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-07,355.9517822265625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-08,352.6694030761719,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-09,388.4077453613281,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-10,379.3165283203125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-11,386.378662109375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-14,385.7420654296875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-15,383.6731567382813,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-16,369.6284484863281,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-17,365.81884765625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-21,357.2050476074219,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-22,364.864013671875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-23,372.3936462402344,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-24,385.2347412109375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-25,389.7605285644531,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-28,389.0741882324219,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-29,391.9388427734375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-04-30,393.15234375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-01,423.1316223144531,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-02,432.95892333984375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-05,433.8442077636719,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-06,430.99945068359375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-07,431.0392456054688,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-08,435.8335266113281,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-09,436.39056396484375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-12,446.8644104003906,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-13,446.74505615234375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-14,450.5247497558594,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-15,451.5412292480469,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-16,452.67718505859375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-19,457.2610473632813,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-20,456.56353759765625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-21,450.9831848144531,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-22,453.26513671875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-23,448.6015319824219,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-27,459.07470703125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-28,455.75634765625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-29,457.0717468261719,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-05-30,458.7458190917969,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-02,460.3502197265625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-03,461.3466796875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-04,462.2435302734375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-05,466.0401611328125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-06,468.7307434082031,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-09,471.0924072265625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-10,469.2688598632813,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-11,470.9628601074219,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-12,477.1909484863281,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-13,473.2946472167969,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-16,477.46002197265625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-17,476.3638610839844,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-18,478.5561218261719,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-20,475.7261047363281,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-23,484.29595947265625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-24,488.3915100097656,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-25,490.5439758300781,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-26,495.705810546875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-27,494.20111083984375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-06-30,495.66595458984375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-01,490.32470703125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-02,489.36810302734375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-03,497.0909423828125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-07,495.974853515625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-08,494.8786926269531,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-09,501.74456787109375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-10,499.7216796875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-11,501.5552062988281,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-14,501.2562561035156,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-15,504.0464477539063,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-16,503.84716796875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-17,509.9058532714844,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-18,508.2615966796875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-21,508.2716064453125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-22,503.4983825683594,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-23,504.0962524414063,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-24,509.0887451171875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-25,511.9088439941406,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-28,510.7030334472656,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-29,510.7727966308594,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-30,511.4404296875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-07-31,531.62939453125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-01,522.2722778320312,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-04,533.7619018554688,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-05,525.8995361328125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-06,523.0994262695312,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-07,519.0137939453125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-08,520.2095947265625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-11,519.9405517578125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-12,527.3843383789062,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-13,518.7546997070312,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-14,520.6480102539062,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-15,518.3461303710938,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-18,515.286865234375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-19,507.9826049804688,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-20,503.9468078613281,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-21,503.2980041503906,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-22,506.2824401855469,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-25,503.3179931640625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-26,501.1021423339844,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-27,505.7933349609375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-28,508.68792724609375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-08-29,505.7434387207031,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-02,504.1763610839844,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-03,504.4059448242188,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-04,507.0210571289063,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-05,494.0752868652344,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-08,497.2693176269531,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-09,497.4789123535156,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-10,499.4352416992188,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-11,500.0740661621094,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-12,508.9474487304688,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-15,514.397216796875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-16,508.0890502929688,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-17,509.0671997070313,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-18,507.5001525878906,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-19,516.96240234375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-22,513.4889526367188,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-23,508.2787170410156,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-24,509.1969604492188,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-25,506.0827941894531,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-26,510.5045166015625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-29,513.6386108398438,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-09-30,516.982421875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-01,518.7391357421875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-02,514.7765502929688,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-03,516.3834838867188,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-06,527.5825805664062,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-07,523.0010986328125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-08,523.8695068359375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-09,521.4241333007812,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-10,510.0054626464844,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-13,513.0896606445312,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-14,512.610595703125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-15,512.4708251953125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-16,510.65423583984375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-17,512.62060546875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-20,515.8245239257812,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-21,516.6929321289062,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-22,519.5675659179688,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-23,519.5875244140625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-24,522.6318359375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-27,530.527099609375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-28,541.057373046875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-29,540.538330078125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-30,524.77783203125,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-10-31,516.8426513671875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-03,516.0641479492188,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-04,513.3692016601562,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-05,506.2125549316406,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-06,496.1713562011719,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-07,495.8918762207031,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-10,505.0547180175781,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-11,507.7297058105469,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-12,510.1851501464844,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-13,502.3497924804688,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-14,509.2268981933594,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-17,506.54193115234375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-18,492.8675537109375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-19,486.2099914550781,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-20,478.4299926757813,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-21,472.1199951171875,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-24,474.0,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-25,476.989990234375,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-26,485.5,,,,,,Technology,Software - Infrastructure,3463484014592,1.073
+MSFT,2025-11-28,492.010009765625,,,,,,Technology,Software - Infrastructure,3463484014592,1.073

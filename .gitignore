@@ -7,8 +7,8 @@ __pycache__/
 *.pyc
 
 # Data / outputs (tweak if needed)
-outputs/
-**/outputs/
+output/
+**/output/
 
 # OS stuff
 .DS_Store
@@ -16,8 +16,8 @@ outputs/
 .env
 *.env
 .ipynb_checkpoints/
-data/   
-**/data/
+# data/   
+# **/data/
 #*.csv
 secrets.json
 config_local.py

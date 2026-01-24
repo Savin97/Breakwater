@@ -2,38 +2,38 @@
 import pandas as pd
 from pathlib import Path
 
-def read_tickers_to_fetch(path: Path) -> list[str]:
+def read_stocks_to_fetch(path: Path) -> list[str]:
     """
-        Reads tickers from a file. Supports:
-        - .txt: one ticker per line
+        Reads stocks from a file. Supports:
+        - .txt: one stock per line
         - .csv: column named symbol/ticker/stock 
-        Returns a list of all unique tickers (uppercase, no spaces)
+        Returns a list of all unique stocks (uppercase, no spaces)
     """
     if not path.exists():
-        raise FileNotFoundError(f"Tickers file not found: {path}")
+        raise FileNotFoundError(f"Stocks file not found: {path}")
 
     if path.suffix.lower() == ".csv":
         stock_prices_df = pd.read_csv(path)
         col = None
-        for c in ("symbol", "ticker", "Symbol", "Ticker"):
+        for c in ("stock", "symbol", "ticker","Stock", "Symbol", "Ticker"):
             if c in stock_prices_df.columns:
                 col = c
                 break
         if col is None:
             raise ValueError(f"CSV must contain a symbol/ticker/stock column. Found: {list(stock_prices_df.columns)}")
-        tickers = stock_prices_df[col].astype(str).str.strip().tolist()
+        stocks = stock_prices_df[col].astype(str).str.strip().tolist()
     else:
-        print("Reading tickers from text file")
-        tickers = [ln.strip() for ln in path.read_text().splitlines() if ln.strip()]
-        print(tickers)
+        print("Reading stocks from text file")
+        stocks = [ln.strip() for ln in path.read_text().splitlines() if ln.strip()]
+        print(stocks)
 
     # Basic cleanup
-    tickers = [t.replace(" ", "").upper() for t in tickers if t]
+    stocks = [t.replace(" ", "").upper() for t in stocks if t]
     # dedupe preserve order
     seen = set()
     out = []
-    for t in tickers:
-        if t and t != "NAN" and t not in seen:
-            out.append(t)
-            seen.add(t)
+    for stock in stocks:
+        if stock and stock != "NAN" and stock not in seen:
+            out.append(stock)
+            seen.add(stock)
     return out

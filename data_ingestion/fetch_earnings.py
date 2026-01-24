@@ -10,7 +10,7 @@ Fetch historical quarterly earnings *report dates* from Alpha Vantage.
 Usage:
     from data_ingestion.fetch_earnings import fetch_earnings_dates
 
-    df = fetch_earnings_dates(["AAPL", "MSFT"], start_date=TICKERS_START_DATE)
+    df = fetch_earnings_dates(["AAPL", "MSFT"], start_date=STOCKS_START_DATE)
     print(df.head())
 
 Auth:
@@ -24,7 +24,7 @@ from pathlib import Path
 
 from config import (ALPHAVANTAGE_BASE_URL, 
                     FREE_ALPHAVANTAGE_KEY,
-                    TICKERS_START_DATE,
+                    STOCKS_START_DATE,
                     TIMEOUT_SECONDS,
                     MAX_RETRIES,
                     BACKOFF_SECONDS,
@@ -33,16 +33,16 @@ from config import (ALPHAVANTAGE_BASE_URL,
 from data_utilities.formatting import parse_date
 
 
-def fetch_earnings_dates_for_symbol(
-    symbol: str,
-    start_date: str = TICKERS_START_DATE,
+def fetch_earnings_dates_for_stock(
+    stock: str,
+    start_date: str = STOCKS_START_DATE,
     api_key: Optional[str] = None
         ) -> pd.DataFrame:
     """
-        Fetch quarterly earnings report dates for a single symbol from Alpha Vantage.
+        Fetch quarterly earnings report dates for a single stock from Alpha Vantage.
         Keeps only rows where reportedDate >= start_date.
     """
-
+    # TODO: Use env variable
     #api_key = os.getenv("ALPHAVANTAGE_API_KEY")
     api_key = FREE_ALPHAVANTAGE_KEY
     if not api_key:
@@ -51,7 +51,7 @@ def fetch_earnings_dates_for_symbol(
         )
 
     start_dt = parse_date(start_date)
-    params = {"function": "EARNINGS", "symbol": symbol, "apikey": api_key}
+    params = {"function": "EARNINGS", "symbol": stock, "apikey": api_key}
 
     last_err = None
     for attempt in range(1, MAX_RETRIES + 1):
@@ -62,7 +62,7 @@ def fetch_earnings_dates_for_symbol(
         except Exception as exc:
             last_err = exc
             if attempt == MAX_RETRIES:
-                raise RuntimeError(f"Alpha Vantage request failed for {symbol}: {exc}")
+                raise RuntimeError(f"Alpha Vantage request failed for {stock}: {exc}")
             print(f"Waiting {BACKOFF_SECONDS * attempt} seconds")
             time.sleep(BACKOFF_SECONDS * attempt)
             continue
@@ -71,13 +71,13 @@ def fetch_earnings_dates_for_symbol(
         if "Note" in data:
             last_err = RuntimeError(data["Note"])
             if attempt == MAX_RETRIES:
-                raise RuntimeError(f"Alpha Vantage rate limit for {symbol}: {data['Note']}")
+                raise RuntimeError(f"Alpha Vantage rate limit for {stock}: {data['Note']}")
             print(f"Waiting {BACKOFF_SECONDS * attempt} seconds")
             time.sleep(BACKOFF_SECONDS * attempt)
             continue
 
         if "Error Message" in data:
-            raise RuntimeError(f"Alpha Vantage error for {symbol}: {data['Error Message']}")
+            raise RuntimeError(f"Alpha Vantage error for {stock}: {data['Error Message']}")
 
         quarterly = data.get("quarterlyEarnings", []) or []
         rows = []
@@ -90,27 +90,27 @@ def fetch_earnings_dates_for_symbol(
                 continue
             rows.append(
                 {
-                    "symbol": symbol,
+                    "stock": stock,
                     "earnings_date": reported,
                     "fiscal_date_ending": fiscal,
                 }
             )
 
-        df = pd.DataFrame(rows, columns=["symbol", "earnings_date", "fiscal_date_ending"])
-        return df.sort_values(["symbol", "earnings_date"]).reset_index(drop=True)
+        df = pd.DataFrame(rows, columns=["stock", "earnings_date", "fiscal_date_ending"])
+        return df.sort_values(["stock", "earnings_date"]).reset_index(drop=True)
 
     # should never reach here
-    raise RuntimeError(f"Alpha Vantage failed for {symbol}: {last_err}")
+    raise RuntimeError(f"Alpha Vantage failed for {stock}: {last_err}")
 
 def fetch_earnings_dates(
-        symbols: Iterable[str],
-        start_date: str = TICKERS_START_DATE,
+        stocks: Iterable[str],
+        start_date: str = STOCKS_START_DATE,
         api_key: Optional[str] = None,
         sleep_between: float = 0.0,
         deduplicate: bool = True,
     ) -> pd.DataFrame:
     """
-        Fetch earnings dates for multiple symbols and stack into one DataFrame.
+        Fetch earnings dates for multiple stocks and stack into one DataFrame.
     """
     if USE_CACHED_DATA_FLAG == True:
         if Path(EARNINGS_PATH).exists():
@@ -120,27 +120,27 @@ def fetch_earnings_dates(
     print("No cached Earnings data, fetching NEW...")
     print("Fetching Earnings Dates")
     frames: List[pd.DataFrame] = []
-    for sym in symbols:
-        print(f"Fetching {sym} Earnings")
-        df = fetch_earnings_dates_for_symbol(sym, start_date=start_date, api_key=api_key)
+    for stock in stocks:
+        print(f"Fetching {stock} Earnings")
+        df = fetch_earnings_dates_for_stock(stock, start_date=start_date, api_key=api_key)
         if not df.empty:
             frames.append(df)
         if sleep_between > 0:
             time.sleep(sleep_between)
 
     if not frames:
-        return pd.DataFrame(columns=["symbol", "earnings_date", "fiscal_date_ending"])
+        return pd.DataFrame(columns=["stock", "earnings_date", "fiscal_date_ending"])
 
     earnings_df = pd.concat(frames, ignore_index=True)
 
     if deduplicate:
         earnings_df = (
-            earnings_df.sort_values(["symbol", "earnings_date"])
-            .drop_duplicates(subset=["symbol", "earnings_date"], keep="first")
+            earnings_df.sort_values(["stock", "earnings_date"])
+            .drop_duplicates(subset=["stock", "earnings_date"], keep="first")
             .reset_index(drop=True)
         )
     earnings_df.to_csv("data/earnings_dates.csv", index=False)
     print(f"Saved Earnings: {EARNINGS_PATH}")
     print(f"Rows: {len(earnings_df):,}")
-    print(f"Tickers with data: {earnings_df['symbol'].nunique():,}\n")
+    print(f"Stocks with data: {earnings_df['stock'].nunique():,}\n")
     return earnings_df
