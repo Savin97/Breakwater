@@ -3,4 +3,4 @@
 prices, earnings, etc - tighten for fetching errors, downtime, alternate sources in case main one fails.
 2b. Also storage of this data - *parquet* instead of csv.
 3. Standardize stock column name - its now ticker, symbol, etc
-
+4. REACTION_THRESHOLD - probably shouldnt be a static number (Check GPT)
