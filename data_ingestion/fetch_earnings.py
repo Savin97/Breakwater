@@ -33,11 +33,7 @@ from config import (ALPHAVANTAGE_BASE_URL,
 from data_utilities.formatting import parse_date
 
 
-def fetch_earnings_dates_for_stock(
-    stock: str,
-    start_date: str = STOCKS_START_DATE,
-    api_key: Optional[str] = None
-        ) -> pd.DataFrame:
+def fetch_earnings_dates_for_stock(stock: str) -> pd.DataFrame:
     """
         Fetch quarterly earnings report dates for a single stock from Alpha Vantage.
         Keeps only rows where reportedDate >= start_date.
@@ -50,10 +46,10 @@ def fetch_earnings_dates_for_stock(
             "Missing Alpha Vantage API key. Set ALPHAVANTAGE_API_KEY or pass api_key=..."
         )
 
-    start_dt = parse_date(start_date)
+    start_dt = parse_date(STOCKS_START_DATE)
     params = {"function": "EARNINGS", "symbol": stock, "apikey": api_key}
-
     last_err = None
+
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             r = requests.get(ALPHAVANTAGE_BASE_URL, params=params, timeout=TIMEOUT_SECONDS)
@@ -104,8 +100,6 @@ def fetch_earnings_dates_for_stock(
 
 def fetch_earnings_dates(
         stocks: Iterable[str],
-        start_date: str = STOCKS_START_DATE,
-        api_key: Optional[str] = None,
         sleep_between: float = 0.0,
         deduplicate: bool = True,
     ) -> pd.DataFrame:
@@ -122,7 +116,7 @@ def fetch_earnings_dates(
     frames: List[pd.DataFrame] = []
     for stock in stocks:
         print(f"Fetching {stock} Earnings")
-        df = fetch_earnings_dates_for_stock(stock, start_date=start_date, api_key=api_key)
+        df = fetch_earnings_dates_for_stock(stock)
         if not df.empty:
             frames.append(df)
         if sleep_between > 0:

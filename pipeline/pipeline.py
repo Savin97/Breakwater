@@ -11,9 +11,13 @@ def run_pipeline():
     """
 
     inputs_df = stage1() 
-    inputs_df.to_csv("output/stage_1_df.csv", index=False)
     feature_engineering = stage2(inputs_df)
+
+    inputs_df.to_csv("output/stage_1_df.csv", index=False)
     feature_engineering.to_csv("output/stage_2_df.csv", index=False)
     print("\n----------------\n")
-    print("DF csv created in: output/stage_2_df.csv")
+    print("Stage 1 DF created in: output/stage_2_df.csv")
+    print("----------------\n")
+    print("Stage 2 DF created in: output/stage_2_df.csv")
+    print("----------------\n")
     return inputs_df

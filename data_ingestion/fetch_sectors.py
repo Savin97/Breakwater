@@ -1,5 +1,6 @@
 #fetch_sectors.py
 import pandas as pd
+import numpy as np
 from pathlib import Path
 import yfinance as yf
 
@@ -103,7 +104,7 @@ def fetch_single_sector(stock: str, retries: int = 2, base_sleep: float = 0.6) -
                 "stock": stock,
                 "sector": sector,
                 "sub_sector": sub_sector,
-                "market_cap": market_cap,
+                "market_cap_log": np.log(market_cap),
                 "beta": beta
             }
 
@@ -119,11 +120,11 @@ def fetch_single_sector(stock: str, retries: int = 2, base_sleep: float = 0.6) -
                 "stock": stock,
                 "sector": None,
                 "sub_sector": None,
-                "market_cap": None,
+                "market_cap_log": None,
                 "beta": None
             }
 
-def fetch_sectors() -> pd.DataFrame:
+def fetch_sectors_market_cap_beta() -> pd.DataFrame:
     """
         Returns a DF
         stock sector sub_sector
@@ -133,20 +134,20 @@ def fetch_sectors() -> pd.DataFrame:
     if USE_CACHED_DATA_FLAG == True:
         # Check cache
         if Path(SECTORS_PATH).exists():
-            print("Sectors DF already exists in data/ , using CACHED Sectors")
+            print("Sectors DF already exists in data/\nUsing CACHED Sectors")
             cached_df = pd.read_csv(SECTORS_PATH)
 
             # Stocks that aren't acturally complete
             complete_mask = (
                 cached_df["sector"].notna()
                 & cached_df["sub_sector"].notna()
-                & cached_df["market_cap"].notna()
+                & cached_df["market_cap_log"].notna()
                 & cached_df["beta"].notna()
             )
 
             cached_stocks = set(cached_df.loc[complete_mask, "stock"])
         else:
-            cached_df = pd.DataFrame(columns=["stock", "sector", "sub_sector","market_cap","beta"])
+            cached_df = pd.DataFrame(columns=["stock", "sector", "sub_sector","market_cap_log","beta"])
             cached_stocks = set()
         stocks_to_fetch = sorted(stocks - cached_stocks)
     else:
@@ -170,7 +171,7 @@ def fetch_sectors() -> pd.DataFrame:
                     "stock": stock,
                     "sector": None,
                     "sub_sector": None,
-                    "market_cap": None,
+                    "market_cap_log": None,
                     "beta": None
                 })
 

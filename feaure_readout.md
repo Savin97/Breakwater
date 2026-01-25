@@ -2,8 +2,35 @@ feature definition explanation
 stock
 date
 earnings_date
-60d_drift |60 day stock drift, daily rolling 60 mean | AVG of past 60 daily returns (with .shift(1)) ; expectations about this company
-vol_10,30 | 10,30 day Volatility | STD of past 10/30 daily returns (with .shift(1))
-mom_5,20 | 5,20 day Momentum | Sum of past 5/20 daily returns (with .shift(1))
+
 
 Stock Drift |  | Capital flow / macro / theme pressure affecting all stocks in that bucket Earnings reactions are amplified when both Stock drift and Sector drift align.
+
+Pre-earninigs features:
+Daily return
+Drift (drift_60d) | 60 day stock drift, daily rolling 60 mean | AVG of past 60 daily returns (with .shift(1)) ; expectations about this company
+Volatility (vol_10,30d) | 10,30 day Volatility | STD of past 10/30 daily returns (with .shift(1))
+Momentum (mom_5,20d) | 5,20 day Momentum | Sum of past 5/20 daily returns (with .shift(1))
+
+days_from_last_earnings
+Days to next earnings (Calendar days) = (next_earnings_date - date).days 
+
+earnings_proximity = min(
+    abs(days_from_last_earnings),
+    abs(days_to_next_earnings)
+) # very low → stock is “hot” | mid → digestion phase | high → normal regime
+
+is_earnings_week → days_to_earnings ∈ [0,7]
+is_earnings_window → [-2,+3]
+
+sector_earnings_count_5d - # of distinct stocks in the same sector with earnings within ±N calendar days
+sector_earnings_count_10d - high count → crowded tape | low count → idiosyncratic reaction more likely
+
+sector_earnings_density = (
+    sector_earnings_count_5d / sector_size
+    )  This fixes: Tech vs Utilities size mismatch, makes values comparable cross-sector
+sector_reaction_entropy_5d ; High entropy = mixed Up / Down reactions, no clear narrative, lower predictability
+
+Global earnings pressure
+    market_earnings_count_5d
+    market_earnings_density

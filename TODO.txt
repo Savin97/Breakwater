@@ -4,3 +4,61 @@ prices, earnings, etc - tighten for fetching errors, downtime, alternate sources
 2b. Also storage of this data - *parquet* instead of csv.
 3. Standardize stock column name - its now ticker, symbol, etc
 4. REACTION_THRESHOLD - probably shouldnt be a static number (Check GPT)
+
+5. Stage 2 - Each feature must answer one question:
+“Why would this stock move more than usual around earnings?”
+
+2.1 Price-based regime features (pre-earnings context)
+Computed as-of each day, shifted safely.
+
+Trend / Drift
+
+drift_60d — slow regime bias
+drift_20d — medium bias
+(optional) drift_5d — short-term sentiment
+
+Volatility
+
+vol_10d — short-term tension
+vol_30d — baseline volatility
+vol_ratio_10_30 = vol_10d / vol_30d
+
+Momentum
+
+mom_5d — earnings run-up / selloff
+mom_20d — medium narrative momentum
+
+2.2 Earnings-specific setup features (core to Breakwater)
+
+days_to_earnings
+is_earnings_week (≤5 days)
+is_earnings_window (≤10 days)
+
+Historical reaction
+
+abs_reaction_median_3d
+abs_reaction_p75_3d
+directional_bias (mean signed reaction)
+
+Consistency
+
+reaction_std
+reaction_entropy (chaotic vs predictable mover)
+
+These alone justify the product.
+
+2.3 Cross-sectional context (relative risk)
+Risk is relative, not absolute.
+
+sector_vol_30d
+stock_vs_sector_vol = vol_30d / sector_vol_30d
+sector_earnings_density
+(% of sector reporting this week)
+
+2.4 Structural risk features
+These explain why a move might be violent.
+
+beta (yes, but low weight)
+market_cap_bucket
+liquidity_proxy (avg dollar volume)
+gap_frequency (how often it gaps > X%)

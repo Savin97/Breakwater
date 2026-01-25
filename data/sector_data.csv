@@ -1,3 +1,3 @@
-stock,sector,sub_sector,market_cap,beta
-MSFT,Technology,Software - Infrastructure,3463484014592,1.073
-AAPL,Technology,Consumer Electronics,3665126490112,1.093
+stock,sector,sub_sector,market_cap_log,beta
+AAPL,Technology,Consumer Electronics,28.9298839636626,1.093
+MSFT,Technology,Software - Infrastructure,28.873296139007053,1.073

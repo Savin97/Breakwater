@@ -5,6 +5,6 @@ def main():
     print("Running pipeline...\n")
     run_pipeline()    
     print("\n----------------\nPipeline execution completed.\n----------------")
-
+    
 if __name__ == "__main__":
     main()

@@ -1,16 +1,39 @@
 import pandas as pd
 import numpy as np
 
-def engineer_returns(input_df):
-    df = input_df.copy()
+def engineer_earnings_reactions(df):
+    """
+        Compute forward post-earnings price reactions.
 
-    df = df.sort_values(["stock", "date"])
+        For each stock and date, computes forward returns:
+            reaction_k = price(t + k) / price(t) - 1
+        for k in {1, 3, 5} trading days.
 
-    # TODO: 24/1/26 Fix this, should be both post rearnings returns, and should also be 3 days before earnings
-    # g = df.groupby("stock")["price"]
-    # df["ret_1d"] = g.div(g.shift(1)).sub(1)
-    # df["ret_3d"] = g.div(g.shift(3)).sub(1)
-    # df["ret_5d"] = g.div(g.shift(5)).sub(1)
+        Reactions are computed mechanically for all rows to preserve
+        group alignment, then set to NaN on non-earnings days.
+
+        Contract:
+        - Requires columns: ["stock", "date", "price", "is_earnings_day"]
+        - Output columns exist only on earnings days; non-earnings rows are NaN
+        - Prevents leakage of post-event information into normal days
+    """
+    df = df.copy().sort_values(["stock", "date"])
+    group = df.groupby("stock")["price"]
+
+    # forward returns from *today* to +k trading days
+    df["reaction_1d"] = (group.shift(-1) / df["price"]) - (1)
+    df["reaction_3d"] = (group.shift(-3) / df["price"]) - (1)
+    df["reaction_5d"] = (group.shift(-5) / df["price"]) - (1)
+
+    # keep only on earnings days (else NaN)
+    mask = df["is_earnings_day"].astype(bool)
+    for column in ["reaction_1d", "reaction_3d", "reaction_5d"]:
+        df.loc[~mask, column] = np.nan # Apply NaN where the mask returns False
+
+    # Assertion checks
+    for i in [1,3,5]:
+        assert df.loc[mask, f"reaction_{i}d"].notna().any() # At least 1 has a valid reaction
+        assert df.loc[~mask, f"reaction_{i}d"].isna().all() # No reactions on non-earnings days
     return df
 
 def classify_reaction(series : pd.Series, threshold : float) -> np.ndarray:
