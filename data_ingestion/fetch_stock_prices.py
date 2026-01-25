@@ -32,7 +32,7 @@ def fetch_stocks_yfinance(stocks: list[str]) -> pd.DataFrame:
         - yfinance returns "Adj Close" adjusted for splits/dividends (Yahoo's adjusted close).
         - We only keep Adj Close. If it's missing, we fall back to Close (with a warning).
     """
-    def _download(tickers: list[str]) -> pd.DataFrame:
+    def _download(tickers: list[str]):
         return yf.download(
             tickers=tickers,
             start=STOCKS_START_DATE,

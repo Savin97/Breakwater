@@ -45,13 +45,31 @@ def engineer_momentum(input_df):
     return df
 
 def engineer_abs_reaction_median(input_df):
+    """
+        Median of |reaction_3d| over past earnings.
+
+        Captures Typical size of earnings moves
+        Robust to outliers
+
+        High → this stock usually moves on earnings
+        Low → earnings are often a non-event
+
+        Median so one crazy quarter doesn't dominate the signal
+    """
     df = input_df.copy()
     earnings_df = (
-    df.loc[df["earnings_date"].notna(), 
-            ["stock", "earnings_date", "reaction_3d"]]
-        .sort_values(["stock", "earnings_date"])
-    )
+        df.loc[df["earnings_date"].notna(), 
+                ["stock", "earnings_date", "reaction_3d"]]
+            .sort_values(["stock", "earnings_date"])
+        )
     earnings_df["abs_reaction_median_3d"] = (
         df.groupby("stock")["reaction_3d"]
         .apply(lambda col: col.abs().expanding().shift(1)) 
     )
+
+def engineer_abs_reaction_p75_3d(input_df):
+    """
+
+    """
+    df = input_df.copy()
+    
