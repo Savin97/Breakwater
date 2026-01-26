@@ -91,6 +91,7 @@ def engineer_abs_reaction_median_3d(input_df):
         .transform(lambda x:x.abs().shift(1).expanding().median() ) 
         )
     
+    # TODO: .to_numpy might be dangerous. It assumes positional alignment, not logical alignment.
     df.loc[earnings_mask, "abs_reaction_median_3d"] = earnings_df["abs_reaction_median_3d"].to_numpy()
     
     return df
@@ -126,6 +127,8 @@ def engineer_abs_reaction_p75_3d(input_df):
         earnings_df.groupby("stock")["reaction_3d"]
         .transform(lambda x:x.abs().shift(1).expanding().quantile(0.75) ) 
         )
+    
+    # TODO: .to_numpy might be dangerous. It assumes positional alignment, not logical alignment.
     df.loc[earnings_mask, "abs_reaction_p75_3d"] = earnings_df["abs_reaction_p75_3d"].to_numpy()
 
     return df
