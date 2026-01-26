@@ -17,12 +17,15 @@ def fetch_sp500_tickers():
     tables = pd.read_html(r.text)
     sp500 = tables[0]
     sp500 = sp500.rename(columns={
-        "Symbol": "ticker",
+        "Symbol": "stock",
         "Security": "name",
         "GICS Sector": "sector",
         "GICS Sub-Industry": "sub_sector"
     })
-    sp500["ticker"] = sp500["ticker"].str.replace(".", "-", regex=False)
-    sp500[["ticker", "name", "sector", "sub_sector"]].to_csv("sp500.csv")
+    sp500["stock"] = sp500["stock"].str.replace(".", "-", regex=False)
+    # Fetch symbols only
+    sp500[["stock"]].to_csv("sp500_symbols.csv", index=False)
+    # Fetch symbols, names and setcor data
+    #sp500[["stock", "name", "sector", "sub_sector"]].to_csv("sp500_full_info.csv",index=False)
 
-fetch_sp500_tickers()
+

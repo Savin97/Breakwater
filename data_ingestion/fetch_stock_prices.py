@@ -12,16 +12,80 @@ from config import ( STOCKS_START_DATE,
                     BACKOFF_SECONDS,
                     MAX_RETRIES,
                     DEFAULT_FETCH_CHUNK_SIZE,
-                    USE_CACHED_DATA_FLAG )
+                    USE_CACHED_DATA_FLAG,
+                    ALPHAVANTAGE_CALLS_PER_MINUTE)
 import sys
 import time
+import requests
 from pathlib import Path
 import pandas as pd
 import yfinance as yf
 
-
 from data_utilities.clean_input import read_stocks_to_fetch
-from data_utilities.helper_funcs import chunk_list, ensure_parent_dir, sleep_backoff
+from data_utilities.formatting import parse_date
+from data_utilities.helper_funcs import (chunk_list, 
+                                         sleep_backoff,
+                                         get_alpha_vantage_api_key )
+
+
+
+BASE_URL = "https://www.alphavantage.co/query"
+
+def fetch_stocks_alpha_vantage(stocks, api_key, outputsize="compact"):
+    """
+        Fetch daily adjusted close prices from Alpha Vantage.
+        Returns DF: stock | date | price
+    """
+    start_date = parse_date(STOCKS_START_DATE)
+    end_date = parse_date(STOCKS_END_DATE)
+    min_sleep = 60 / ALPHAVANTAGE_CALLS_PER_MINUTE  # ~0.8s for 75/min
+    parts = []
+
+    for i, stock in enumerate(stocks, start=1):
+        params = {
+            "function": "TIME_SERIES_DAILY_ADJUSTED",
+            "symbol": stock,
+            "outputsize": outputsize,   # "compact" (~100 days) or "full"
+            "apikey": api_key
+        }
+
+        r = requests.get(BASE_URL, params=params, timeout=TIMEOUT_SECONDS)
+        data = r.json()
+
+        # Basic failure handling (AlphaVantage often returns errors inside JSON)
+        if "Error Message" in data or "Time Series (Daily)" not in data:
+            print(f"[{i}] {stock}: no data / error")
+            time.sleep(min_sleep)
+            continue
+
+        ts = data["Time Series (Daily)"]
+
+        rows = []
+        for date_str, ohlc in ts.items():
+            price = float(ohlc["5. adjusted close"])
+            rows.append((stock, date_str, price))
+
+        prices_df = pd.DataFrame(rows, columns=["stock", "date", "price"])
+        prices_df["date"] = parse_date(prices_df["date"])
+
+        # 🔑 DATE FILTERING (this is what you wanted)
+        if start_date is not None:
+            prices_df = prices_df[prices_df["date"] >= start_date]
+        if end_date is not None:
+            prices_df = prices_df[prices_df["date"] <= end_date]
+
+        parts.append(prices_df)
+        # TODO: change to i/len(stocks)
+        print(f"[{i}] {stock}: {len(prices_df)} rows")
+        time.sleep(min_sleep)
+
+    out = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=["stock", "date", "price"])
+    out = out.drop_duplicates(["stock", "date"]).sort_values(["stock", "date"]).reset_index(drop=True)
+    return out
+
+
+
+
 
 # Provider implementations
 def fetch_stocks_yfinance(stocks: list[str]) -> pd.DataFrame:
@@ -147,40 +211,43 @@ def fetch_stock_prices(provider: str) -> pd.DataFrame:
     print(f"Provider: {provider}")
     print(f"Stocks: {len(stocks)}")
     print(f"Date range: {STOCKS_START_DATE} → {STOCKS_END_DATE}")
-    print(f"Chunk size: {DEFAULT_FETCH_CHUNK_SIZE}")
 
     parts = []
     done = 0
     total = len(stocks)
 
-    for i,batch in enumerate(chunk_list(stocks, DEFAULT_FETCH_CHUNK_SIZE), start=1):
-        if provider == "yfinance":
+    if provider == "ALPHAVANTAGE":
+            print(f"Fetching Stock Prices...")
+            api_key = get_alpha_vantage_api_key()
+            prices_df = fetch_stocks_alpha_vantage(stocks, api_key, outputsize="full")
+
+    elif provider == "yfinance":
+        for i,batch in enumerate(chunk_list(stocks, DEFAULT_FETCH_CHUNK_SIZE), start=1):
             print(f"Fetching Stock Prices in chunks, batch number {i}")
+            print(f"Chunk size: {DEFAULT_FETCH_CHUNK_SIZE}")
             df_batch = fetch_stocks_yfinance(
                 stocks=batch
             )
-        else:
-            raise ValueError(f"Unknown provider: {provider}")
+            parts.append(df_batch)
+            done += len(batch)
+            got = df_batch["stock"].nunique() if not df_batch.empty else 0
+            print(f"Fetched prices for {got}/{len(batch)} stocks in this batch. Progress attempted {done}/{total}")
 
-        parts.append(df_batch)
-        done += len(batch)
-        got = df_batch["stock"].nunique() if not df_batch.empty else 0
-        print(f"Fetched prices for {got}/{len(batch)} stocks in this batch. Progress attempted {done}/{total}")
-
-
-        time.sleep(TIMEOUT_SECONDS)
-
-    prices_df = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(
-        columns=["stock", "date", "price"]
-    )
-
+            time.sleep(TIMEOUT_SECONDS)
+            prices_df = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(
+                columns=["stock", "date", "price"]
+            )
+            
+    else:
+        prices_df = pd.DataFrame()
+        raise ValueError(f"Unknown provider: {provider}")
+        
     if prices_df.empty:
         raise RuntimeError("No data fetched (blocked/rate-limited or bad stocks list).")
 
     prices_df = prices_df.drop_duplicates(subset=["stock", "date"], keep="last")
 
     out_path = Path(PRICES_PATH)
-    ensure_parent_dir(out_path)
     prices_df.to_csv(out_path, index=False)
 
     print(f"Saved Prices: {out_path}")

@@ -3,28 +3,19 @@ import os
 import pandas as pd
 from pathlib import Path
 
-from config import ( ALPHAVANTAGE_BASE_URL, 
-                    FREE_ALPHAVANTAGE_KEY, 
+from config import ( ALPHAVANTAGE_BASE_URL,
                     STOCKS_START_DATE,
                     EPS_PATH,
                     USE_CACHED_DATA_FLAG )
 from data_utilities.clean_input import read_stocks_to_fetch
-
-def get_alpha_vantage_api_key() -> str:
-    api_key = os.getenv("ALPHAVANTAGE_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "Missing ALPHAVANTAGE_API_KEY environment variable"
-        )
-    return api_key
+from data_utilities.helper_funcs import get_alpha_vantage_api_key
 
 def fetch_eps_single_stock(stock: str ) -> dict:
     """
         Fetch EPS data for a list of stocks from Alpha Vantage.
     """
-    # api_key = get_alpha_vantage_api_key()
+    api_key = get_alpha_vantage_api_key()
 
-    api_key = FREE_ALPHAVANTAGE_KEY
     url = (f"{ALPHAVANTAGE_BASE_URL}"
         f"?function=EARNINGS"
         f"&symbol={stock}"

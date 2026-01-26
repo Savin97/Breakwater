@@ -11,19 +11,18 @@ Usage:
     from data_ingestion.fetch_earnings import fetch_earnings_dates
 
     df = fetch_earnings_dates(["AAPL", "MSFT"], start_date=STOCKS_START_DATE)
-    print(df.head())
 
 Auth:
-    Set env var: ALPHAVANTAGE_API_KEY="..."
+    env var that holds API key.
 """
 import time
 import requests
+import os
 import pandas as pd
-from typing import Iterable, Optional, List
+from typing import Iterable, List
 from pathlib import Path
 
 from config import (ALPHAVANTAGE_BASE_URL, 
-                    FREE_ALPHAVANTAGE_KEY,
                     STOCKS_START_DATE,
                     TIMEOUT_SECONDS,
                     MAX_RETRIES,
@@ -31,6 +30,7 @@ from config import (ALPHAVANTAGE_BASE_URL,
                     EARNINGS_PATH,
                     USE_CACHED_DATA_FLAG)
 from data_utilities.formatting import parse_date
+from data_utilities.helper_funcs import get_alpha_vantage_api_key
 
 
 def fetch_earnings_dates_for_stock(stock: str) -> pd.DataFrame:
@@ -38,15 +38,10 @@ def fetch_earnings_dates_for_stock(stock: str) -> pd.DataFrame:
         Fetch quarterly earnings report dates for a single stock from Alpha Vantage.
         Keeps only rows where reportedDate >= start_date.
     """
-    # TODO: Use env variable
-    #api_key = os.getenv("ALPHAVANTAGE_API_KEY")
-    api_key = FREE_ALPHAVANTAGE_KEY
-    if not api_key:
-        raise ValueError(
-            "Missing Alpha Vantage API key. Set ALPHAVANTAGE_API_KEY or pass api_key=..."
-        )
 
-    start_dt = parse_date(STOCKS_START_DATE)
+    api_key = get_alpha_vantage_api_key()
+
+    start_date = parse_date(STOCKS_START_DATE)
     params = {"function": "EARNINGS", "symbol": stock, "apikey": api_key}
     last_err = None
 
@@ -82,7 +77,7 @@ def fetch_earnings_dates_for_stock(stock: str) -> pd.DataFrame:
             fiscal = parse_date(q.get("fiscalDateEnding"))
             if reported is None:
                 continue
-            if reported < start_dt:
+            if reported < start_date:
                 continue
             rows.append(
                 {
