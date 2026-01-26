@@ -1,4 +1,5 @@
-from pathlib import Path
+# pipeline/pipeline.py
+
 from pipeline.stage1 import stage1
 from pipeline.stage2 import stage2
 
@@ -9,7 +10,7 @@ def run_pipeline():
         2. Merge into a single DataFrame
         3. Engineer features
     """
-
+    
     inputs_df = stage1() 
     feature_engineering = stage2(inputs_df)
 

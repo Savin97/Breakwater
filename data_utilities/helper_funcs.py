@@ -1,9 +1,9 @@
 import time
+import os
 from pathlib import Path
-from config import BACKOFF_SECONDS
+from dotenv import load_dotenv
 
-def ensure_parent_dir(path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
+from config import BACKOFF_SECONDS
 
 def sleep_backoff(attempt: int) -> None:
     # exponential backoff with light jitter
@@ -11,6 +11,16 @@ def sleep_backoff(attempt: int) -> None:
     wait = wait + (0.1 * wait)
     print(f"Waiting {wait} seconds")
     time.sleep(wait)
+
+def get_alpha_vantage_api_key() -> str:
+    load_dotenv() 
+    api_key = os.getenv("ALPHAVANTAGE_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "Missing ALPHAVANTAGE_API_KEY environment variable"
+        )
+    return api_key
+
 
 def chunk_list(items: list[str], n: int):
     """

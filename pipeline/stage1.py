@@ -1,12 +1,14 @@
-# pipeline_stage1
+# pipeline/stage1.py
 import warnings
 
 from pathlib import Path
 
 from config import ( CORRECT_STOCK_COL_NAME,
                     LIST_OF_POSSIBLE_STOCK_COL_NAMES,
-                    STOCK_NAMES_FILE_PATH )
-from data_utilities.formatting import today_yyyy_mm_dd, parse_date, parse_numeric, change_column_name
+                    STOCK_NAMES_FILE_PATH,
+                    PRICES_PROVIDER)
+
+from data_utilities.formatting import parse_date, parse_numeric, change_column_name
 from data_ingestion.fetch_stock_prices import fetch_stock_prices
 from data_ingestion.fetch_earnings import fetch_earnings_dates
 from data_ingestion.fetch_eps import fetch_eps
@@ -14,18 +16,7 @@ from data_ingestion.fetch_sectors import fetch_sectors_market_cap_beta
 from data_utilities.clean_input import read_stocks_to_fetch
 from data_utilities.merging import merge_prices_earnings_dates, merge_main_df_with_eps_df, map_sector_data_to_main_df
 
-# def stage1(stocks_path: str,
-#             provider: str = "yfinance",
-#             start: str = STOCKS_START_DATE,
-#             end: str = today_yyyy_mm_dd(),
-#             out: str = "data/stock_prices.parquet",
-#             chunk_size: int = 50,
-#             max_retries: int = MAX_RETRIES,
-#             base_backoff_sec: float = BACKOFF_SECONDS,
-#             timeout_sec: float = TIMEOUT_SECONDS
-#         ):
-
-def stage1( provider: str = "yfinance" ):
+def stage1():
     """
         First stage of the pipeline - Data Ingestion:
         Fetch historical stock prices,
@@ -37,15 +28,21 @@ def stage1( provider: str = "yfinance" ):
 
         Merge into one DF and return it.
     """
+    # if USE_CACHED_DATA_FLAG == False:
+    #   answer = input("USE_CACHED_DATA is switched OFF - are you sure? Y/N")
+    #   if answer.lower() == "n":
+    #       print("OK, Swtich USE_CACHED_DATA ON and retry.\nExecution Stopped.")
+    #       return None
     warnings.filterwarnings('ignore')
     stocks = read_stocks_to_fetch(Path(STOCK_NAMES_FILE_PATH))
     print(f"{len(stocks)} Stocks to fetch.\n")
     
-    stock_prices = fetch_stock_prices(provider=provider)
+    stock_prices = fetch_stock_prices(provider=PRICES_PROVIDER)
     earnings_dates = fetch_earnings_dates(stocks = stocks)
 
     stock_prices = change_column_name(stock_prices, LIST_OF_POSSIBLE_STOCK_COL_NAMES, CORRECT_STOCK_COL_NAME )
     earnings_dates = change_column_name(earnings_dates, LIST_OF_POSSIBLE_STOCK_COL_NAMES, CORRECT_STOCK_COL_NAME )
+    
     # Sort to prep for merge_asof
     stock_prices["date"] = parse_date(stock_prices["date"])
     earnings_dates["earnings_date"] = parse_date(earnings_dates["earnings_date"])
@@ -57,17 +54,17 @@ def stage1( provider: str = "yfinance" ):
 
     df = merge_prices_earnings_dates(stock_prices, earnings_dates) # df that holds stock prices, earnings dates, EPS data merged
 
-
     # TODO: EPS is ignored for now as Im focusing on pre-earnings features
-    # eps_data = fetch_eps(stocks)
-    # df = merge_main_df_with_eps_df(df, eps_data)
+    eps_data = fetch_eps(stocks)
+    df = merge_main_df_with_eps_df(df, eps_data)
 
     sector_market_cap_beta_df = fetch_sectors_market_cap_beta()
     
     df = map_sector_data_to_main_df(df, sector_market_cap_beta_df)
 
     # Sort, make sure "price" is numeric, make sure dates are datetime just in case
-    df = df.sort_values(["stock", "date"])
+    df = df.sort_values(["stock", "date"]).reset_index(drop=True)
+
     df["date"] = parse_date(df["date"])
     df["earnings_date"] = parse_date(df["earnings_date"])
     df["price"] = parse_numeric(df["price"])

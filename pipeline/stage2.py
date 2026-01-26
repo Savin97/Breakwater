@@ -2,16 +2,15 @@
 import pandas as pd
 import numpy as np
 
-from config import (REACTION_THRESHOLD, 
-                    OUTPUT_PATH )
-from feature_engineering.stock_features import (engineer_daily_ret,
+from feature_engineering.pre_earnings_stock_features import (engineer_daily_ret,
                                                 engineer_drift, 
                                                 engineer_volatility, 
                                                 engineer_momentum,
-                                                engineer_abs_reaction_median, 
-                                                engineer_abs_reaction_p75_3d)
-from feature_engineering.returns import engineer_earnings_reactions, classify_reaction
-from feature_engineering.earnings_windows import engineer_earnings_windows
+                                                engineer_abs_reaction_median_3d, 
+                                                engineer_abs_reaction_p75_3d,
+                                                engineer_earnings_windows )
+from feature_engineering.post_earnings_stock_features import (engineer_earnings_reactions)
+from data_utilities.formatting import parse_date
 
 def stage2(stage1_df):
     """ 
@@ -23,7 +22,8 @@ def stage2(stage1_df):
         
     """
     df = stage1_df.copy()
-
+    df = df.sort_values(["stock","date"], kind="mergesort")
+    df["date"] = parse_date(df["date"])
     feature_steps = [
         engineer_daily_ret,
         engineer_drift,
@@ -31,7 +31,7 @@ def stage2(stage1_df):
         engineer_momentum,
         engineer_earnings_windows,
         engineer_earnings_reactions,
-        engineer_abs_reaction_median,
+        engineer_abs_reaction_median_3d,
         engineer_abs_reaction_p75_3d
     ]
     for feature in feature_steps:

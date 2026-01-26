@@ -23,6 +23,23 @@ earnings_proximity = min(
 is_earnings_week → days_to_earnings ∈ [0,7]
 is_earnings_window → [-2,+3]
 
+abs_reaction_median_3d
+abs_reaction_p75_3d | The earnings move size that this stock exceeds only in its top 25% of past 
+    earnings reactions | 
+    Feature meaning
+    ---------------
+    abs_reaction_p75_3d represents a "large but typical" earnings move size:
+    the absolute 3-day post-earnings return that a stock has exceeded in only
+    its top 25% of past earnings reactions.
+    
+    Typical applications include:
+    • Identifying stocks with fat-tailed earnings reactions
+    • Normalizing current reactions:
+        |reaction_3d| / abs_reaction_p75_3d
+    • Risk bucketing and position sizing
+    • Comparing stock-level earnings risk to sector-level behavior
+
+
 sector_earnings_count_5d - # of distinct stocks in the same sector with earnings within ±N calendar days
 sector_earnings_count_10d - high count → crowded tape | low count → idiosyncratic reaction more likely
 
