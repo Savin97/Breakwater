@@ -37,7 +37,7 @@ def stage2(stage1_df):
     for feature in feature_steps:
         df = feature(df)
 
-        
+    
 
     # Sector Features
     # sector_drift_and_vol = (

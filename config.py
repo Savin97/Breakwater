@@ -1,7 +1,7 @@
 import datetime as dt
 
 # Switches
-USE_CACHED_DATA_FLAG = False
+USE_CACHED_DATA_FLAG = True
 
 # Paths
 STOCK_NAMES_FILE_PATH = "data_ingestion/stocks.csv"
@@ -14,8 +14,8 @@ ALPHAVANTAGE_BASE_URL = "https://www.alphavantage.co/query"
 
 # Global Parameters
 
-DEFAULT_START_DATE = dt.date(2007, 1, 1)
-STOCKS_START_DATE = "2005-01-01"
+DEFAULT_START_DATE = dt.date(2025, 1, 1)
+STOCKS_START_DATE = "2025-01-01"
 STOCKS_END_DATE = "2026-01-01"
 REACTION_THRESHOLD = 0.01
 SHORT_TERM_DRIFT = 30 # 30 past days
