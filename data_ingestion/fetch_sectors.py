@@ -134,7 +134,7 @@ def fetch_sectors_market_cap_beta() -> pd.DataFrame:
     if USE_CACHED_DATA_FLAG == True:
         # Check cache
         if Path(SECTORS_PATH).exists():
-            print("Sectors DF already exists in data/\nUsing CACHED Sectors")
+            print("Using cached Sectors Data from data/sector_data.csv")
             cached_df = pd.read_csv(SECTORS_PATH)
 
             # Stocks that aren't acturally complete

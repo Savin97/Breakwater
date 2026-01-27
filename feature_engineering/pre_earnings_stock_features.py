@@ -1,8 +1,27 @@
 # feature_engineering/pre_earnings_stock_features.py
-import pandas as pd
-import numpy as np
+"""
+    Pre-earnings stock features:
+    daily_ret
+    drift_30d
+    drift_60d
+    vol_10d
+    vol_30d
+    mom_5d
+    mom_20d
+    market_cap_log
+    cap_bucket
+    beta_5y_monthly
+    beta_bucket
+    avg_dollar_volume
+    past_large_move_freq *(computed only from past earnings, rolled forward safely)
+    past_downside_tail_freq *
+    past_small_move_freq *
+    abs_reaction_std_3d * 
+    abs_reaction_std_10d *
+"""
 
-from config import (SHORT_TERM_DRIFT,
+from config import (DEFAULT_REACTION_WINDOW,
+                    SHORT_TERM_DRIFT,
                     LONG_TERM_DRIFT,
                     SHORT_TERM_VOLATILITY,
                     LONG_TERM_VOLATILITY,
@@ -65,9 +84,9 @@ def engineer_earnings_windows(input_df):
     
     return df
 
-def engineer_abs_reaction_median_3d(input_df):
+def engineer_abs_reaction_median(input_df):
     """
-        Median of |reaction_3d| over past earnings.
+        Median of |DEFAULT_REACTION_WINDOW| over past earnings.
 
         Captures Typical size of earnings moves
         Robust to outliers
@@ -80,26 +99,28 @@ def engineer_abs_reaction_median_3d(input_df):
         Median so one crazy quarter doesn't dominate the signal
     """
     df = input_df.copy()
+    
     # Separate earnings rows
-    earnings_mask =  df["reaction_3d"].notna()
-    earnings_df = df.loc[earnings_mask, ["stock","earnings_date","reaction_3d"]].copy()
+    earnings_mask =  df[DEFAULT_REACTION_WINDOW].notna()
+    earnings_df = df.loc[earnings_mask, ["stock","earnings_date", DEFAULT_REACTION_WINDOW]].copy()
     earnings_df = earnings_df.sort_values(["stock", "earnings_date"])
 
     # write back only on earnings rows
-    earnings_df["abs_reaction_median_3d"] = (
-        earnings_df.groupby("stock")["reaction_3d"]
-        .transform(lambda x:x.abs().shift(1).expanding().median() ) 
+    earnings_df["abs_reaction_median"] = (
+        earnings_df.groupby("stock")[DEFAULT_REACTION_WINDOW]
+        .transform(lambda x: x.abs().shift(1).expanding().median() ) 
         )
     
     # TODO: .to_numpy might be dangerous. It assumes positional alignment, not logical alignment.
-    df.loc[earnings_mask, "abs_reaction_median_3d"] = earnings_df["abs_reaction_median_3d"].to_numpy()
-    
+    df.loc[earnings_mask, "abs_reaction_median"] = earnings_df["abs_reaction_median"].to_numpy()
+    assert earnings_mask.sum() == len(earnings_df), "Mismatch: earnings rows vs earnings_df"
+
     return df
 
 
-def engineer_abs_reaction_p75_3d(input_df):
+def engineer_abs_reaction_p75(input_df):
     """
-        Compute the 75th percentile of historical absolute 3-day earnings reactions
+        Compute the 75th percentile of historical absolute DEFAULT_REACTION_WINDOW earnings reactions
         for each stock, using only *past* earnings events.
 
         Intuition:
@@ -118,18 +139,19 @@ def engineer_abs_reaction_p75_3d(input_df):
     """
     df = input_df.copy()
     # Separate earnings rows
-    earnings_mask =  df["reaction_3d"].notna()
-    earnings_df = df.loc[earnings_mask, ["stock","earnings_date","reaction_3d"]].copy()
+    earnings_mask = df[DEFAULT_REACTION_WINDOW].notna()
+    earnings_df = df.loc[earnings_mask, ["stock","earnings_date",DEFAULT_REACTION_WINDOW]].copy()
     earnings_df = earnings_df.sort_values(["stock", "earnings_date"])
 
     # write back only on earnings rows
-    earnings_df["abs_reaction_p75_3d"] = (
-        earnings_df.groupby("stock")["reaction_3d"]
+    earnings_df["abs_reaction_p75"] = (
+        earnings_df.groupby("stock")[DEFAULT_REACTION_WINDOW]
         .transform(lambda x:x.abs().shift(1).expanding().quantile(0.75) ) 
         )
     
     # TODO: .to_numpy might be dangerous. It assumes positional alignment, not logical alignment.
-    df.loc[earnings_mask, "abs_reaction_p75_3d"] = earnings_df["abs_reaction_p75_3d"].to_numpy()
+    df.loc[earnings_mask, "abs_reaction_p75"] = earnings_df["abs_reaction_p75"].to_numpy()
+    assert earnings_mask.sum() == len(earnings_df), "Mismatch: earnings rows vs earnings_df"
 
     return df
 

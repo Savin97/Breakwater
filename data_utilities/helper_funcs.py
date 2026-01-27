@@ -1,9 +1,8 @@
 import time
 import os
-from pathlib import Path
 from dotenv import load_dotenv
 
-from config import BACKOFF_SECONDS
+from config import BACKOFF_SECONDS, DEFAULT_REACTION_WINDOW
 
 def sleep_backoff(attempt: int) -> None:
     # exponential backoff with light jitter
@@ -26,14 +25,11 @@ def chunk_list(items: list[str], n: int):
     """
         Takes a list and returns it in chunks of size n.
         Example:
-        items = ["A", "B", "C", "D", "E", "F", "G"]
-        n = 3
-
+        items = ["A", "B", "C", "D", "E", "F", "G"]; n = 3
         Output (one chunk at a time):
         ["A", "B", "C"]
         ["D", "E", "F"]
         ["G"]
-
         yield makes this a generator, not a normal function.
         That means:
             It does not return everything at once
@@ -43,3 +39,12 @@ def chunk_list(items: list[str], n: int):
     """
     for i in range(0, len(items), n):
         yield items[i:i+n]
+
+def build_earnings_df(df):
+    """ Separate earnings rows """
+
+    # Boolean mask, gives True for rows with earnings dates
+    earnings_mask =  df[DEFAULT_REACTION_WINDOW].notna()
+    earnings_df = df.loc[earnings_mask]
+    earnings_df = earnings_df.sort_values(["stock", "earnings_date"])
+    return earnings_df

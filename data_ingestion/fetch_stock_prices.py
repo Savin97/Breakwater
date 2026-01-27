@@ -76,7 +76,7 @@ def fetch_stocks_alpha_vantage(stocks, api_key, outputsize="compact"):
 
         parts.append(prices_df)
         # TODO: change to i/len(stocks)
-        print(f"[{i}] {stock}: {len(prices_df)} rows")
+        print(f"{i}/{len(stocks)} {stock}: {len(prices_df)} rows")
         time.sleep(min_sleep)
 
     out = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(columns=["stock", "date", "price"])
@@ -204,7 +204,7 @@ def fetch_stock_prices(provider: str) -> pd.DataFrame:
     # TODO: Temp solution, caching should work differently in the production version
     if USE_CACHED_DATA_FLAG == True:
         if Path(PRICES_PATH).exists():
-            print(f"\nUsing cached Prices from {PRICES_PATH}\n")
+            print(f"Using cached Prices from {PRICES_PATH}\n")
             return pd.read_csv(PRICES_PATH)
             
     print("No cached Prices data, fetching NEW...")        

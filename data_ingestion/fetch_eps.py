@@ -75,7 +75,7 @@ def fetch_eps(stocks: list) -> pd.DataFrame:
 
     if USE_CACHED_DATA_FLAG == True:
         if Path(EPS_PATH).exists():
-            print(f"\nUsing cached EPS Data from {EPS_PATH}\n")
+            print(f"Using cached EPS Data from {EPS_PATH}\n")
             return pd.read_csv(EPS_PATH)
         
         

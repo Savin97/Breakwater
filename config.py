@@ -1,4 +1,4 @@
-import datetime as dt
+# config.py
 
 # Switches
 USE_CACHED_DATA_FLAG = True
@@ -13,11 +13,10 @@ OUTPUT_PATH = "output/"
 ALPHAVANTAGE_BASE_URL = "https://www.alphavantage.co/query"
 
 # Global Parameters
-
-DEFAULT_START_DATE = dt.date(2025, 1, 1)
-STOCKS_START_DATE = "2025-01-01"
+STOCKS_START_DATE = "2021-01-01"
 STOCKS_END_DATE = "2026-01-01"
-REACTION_THRESHOLD = 0.01
+DEFAULT_REACTION_WINDOW = "reaction_3d" # Model will use 3 days after earnings
+REACTION_THRESHOLD = 0.007
 SHORT_TERM_DRIFT = 30 # 30 past days
 LONG_TERM_DRIFT = 60 # 60 past days
 SHORT_TERM_VOLATILITY = 10 # 10 past days

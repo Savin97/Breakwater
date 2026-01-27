@@ -35,7 +35,7 @@ abs_reaction_p75_3d | The earnings move size that this stock exceeds only in its
     Typical applications include:
     • Identifying stocks with fat-tailed earnings reactions
     • Normalizing current reactions:
-        |reaction_3d| / abs_reaction_p75_3d
+        |DEFAULT_REACTION_WINDOW| / abs_reaction_p75_3d
     • Risk bucketing and position sizing
     • Comparing stock-level earnings risk to sector-level behavior
 

@@ -3,10 +3,11 @@ import warnings
 
 from pathlib import Path
 
-from config import ( CORRECT_STOCK_COL_NAME,
+from config import (CORRECT_STOCK_COL_NAME,
                     LIST_OF_POSSIBLE_STOCK_COL_NAMES,
                     STOCK_NAMES_FILE_PATH,
-                    PRICES_PROVIDER)
+                    PRICES_PROVIDER,
+                    USE_CACHED_DATA_FLAG)
 
 from data_utilities.formatting import parse_date, parse_numeric, change_column_name
 from data_ingestion.fetch_stock_prices import fetch_stock_prices
@@ -28,11 +29,14 @@ def stage1():
 
         Merge into one DF and return it.
     """
-    # if USE_CACHED_DATA_FLAG == False:
-    #   answer = input("USE_CACHED_DATA is switched OFF - are you sure? Y/N")
-    #   if answer.lower() == "n":
-    #       print("OK, Swtich USE_CACHED_DATA ON and retry.\nExecution Stopped.")
-    #       return None
+    print(f"Cached Data Usage Switch is set to: {USE_CACHED_DATA_FLAG}\n")
+    if USE_CACHED_DATA_FLAG == False:
+        answer = input("USE_CACHED_DATA_FLAG is switched OFF - are you sure? Y/N ")
+        if answer.lower() == "n":
+            print("OK, Switch USE_CACHED_DATA_FLAG ON and retry.\nExecution Stopped.")
+            exit()
+        if answer.lower() == "y":
+            print("OK, Model won't use Cached Data. Proceeding...\n")
     warnings.filterwarnings('ignore')
     stocks = read_stocks_to_fetch(Path(STOCK_NAMES_FILE_PATH))
     print(f"{len(stocks)} Stocks to fetch.\n")
@@ -54,9 +58,10 @@ def stage1():
 
     df = merge_prices_earnings_dates(stock_prices, earnings_dates) # df that holds stock prices, earnings dates, EPS data merged
 
-    # TODO: EPS is ignored for now as Im focusing on pre-earnings features
+    
     eps_data = fetch_eps(stocks)
-    df = merge_main_df_with_eps_df(df, eps_data)
+    # TODO: EPS is fetch but not merged now. ignored for as Im focusing on pre-earnings features
+    #df = merge_main_df_with_eps_df(df, eps_data)
 
     sector_market_cap_beta_df = fetch_sectors_market_cap_beta()
     

@@ -1,9 +1,8 @@
 1. Improve caching mechanism for prices, earnings, eps - should work more like sector fetching checks cache.
-2. Strengthen data fetching - stock lise (Currently S&P 500 scraped from wikipedia),
+2. Strengthen data fetching - stock list (Currently S&P 500 scraped from wikipedia),
 prices, earnings, etc - tighten for fetching errors, downtime, alternate sources in case main one fails.
 2b. Also storage of this data - *parquet* instead of csv.
-3. Standardize stock column name - its now ticker, symbol, etc
-4. REACTION_THRESHOLD - probably shouldnt be a static number (Check GPT)
+4. REACTION_THRESHOLD - probably shouldn't be a static number (Check GPT)
 
 5. Stage 2 - Each feature must answer one question:
 “Why would this stock move more than usual around earnings?”
@@ -62,3 +61,13 @@ beta (yes, but low weight)
 market_cap_bucket
 liquidity_proxy (avg dollar volume)
 gap_frequency (how often it gaps > X%)
+
+6. Move these OUT of df, create a separate table earnings_outcomes with:
+""" Used for: evaluation, PDFs, credibility (“historically this stock moves X%”) """
+reaction_3d,1d,5d
+sector_mean_d
+relative_to_sector
+reportedEPS
+estimatedEPS
+surprise
+surprise_bucket

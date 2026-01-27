@@ -103,7 +103,7 @@ def fetch_earnings_dates(
     """
     if USE_CACHED_DATA_FLAG == True:
         if Path(EARNINGS_PATH).exists():
-            print(f"\nUsing cached Earnings Data from {EARNINGS_PATH}\n")
+            print(f"Using cached Earnings Data from {EARNINGS_PATH}\n")
             return pd.read_csv(EARNINGS_PATH)
         
     print("No cached Earnings data, fetching NEW...")
