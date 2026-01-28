@@ -1,6 +1,7 @@
 # pipeline/stage3.py
 """
     Risk Scoring and reccomendation stage
+    Returns a separate DF
 """
 import pandas as pd
 
