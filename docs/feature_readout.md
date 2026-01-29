@@ -51,3 +51,60 @@ sector_reaction_entropy_5d ; High entropy = mixed Up / Down reactions, no clear 
 Global earnings pressure
     market_earnings_count_5d
     market_earnings_density
+
+Scoring Features:
+
+    Explosiveness | how violently a stock tends to move *because* of earnings, conditional on history.
+
+
+
+
+Market Features:
+momentum_pressure_regime:
+    Momentum Pressure captures how unusually stretched a stock’s price action
+    is relative to its cross-sectional peers on the same date, combining
+    short-term crowding and longer-term trend extension into a single
+    interpretable feature.
+
+    The feature is designed to identify crowded or extended positioning
+    ahead of earnings, which is empirically associated with elevated
+    post-earnings move risk.
+
+    Methodology
+    ------------
+    1. Compute absolute short-term (5-day) and medium-term (20-day) momentum:
+       - |mom_5d| reflects recent speculative pressure.
+       - |mom_20d| reflects persistent trend pressure.
+
+    2. For each date, compute the cross-sectional quantile threshold
+       (default: 80th percentile) of |mom_5d| and |mom_20d| across all stocks.
+
+    3. Flag each stock as "extreme" on each horizon if its absolute momentum
+       exceeds the corresponding same-day cross-sectional threshold.
+
+    4. Combine the two horizon flags into a single categorical regime:
+
+       - "normal":
+         Neither short-term nor medium-term momentum is extreme.
+
+       - "short_term_extreme":
+         Short-term momentum is extreme, but medium-term momentum is not.
+         Indicates recent crowding or speculative buildup.
+
+       - "trend_extreme":
+         Medium-term momentum is extreme, but short-term momentum is not.
+         Indicates a strong, persistent trend with less immediate crowding.
+
+       - "crowded_trend":
+         Both short-term and medium-term momentum are extreme.
+         Indicates a crowded and extended trade, historically associated
+         with the highest earnings-related move risk.
+
+
+
+
+Risk Score:
+earnings_risk_score =
+    base_volatility
+  × earnings_explosiveness
+  × regime_instability

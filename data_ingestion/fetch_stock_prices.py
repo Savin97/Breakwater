@@ -58,6 +58,12 @@ def fetch_stocks_alpha_vantage(stocks, api_key, outputsize="compact"):
             time.sleep(min_sleep)
             continue
 
+        if ("Note" in data) or ("Information" in data):
+            msg = data.get("Note") or data.get("Information")
+            print(f"[{i}] {stock}: throttled by AlphaVantage: {msg}")
+            time.sleep(BACKOFF_SECONDS) 
+            continue
+
         ts = data["Time Series (Daily)"]
 
         rows = []
@@ -234,9 +240,12 @@ def fetch_stock_prices(provider: str) -> pd.DataFrame:
             print(f"Fetched prices for {got}/{len(batch)} stocks in this batch. Progress attempted {done}/{total}")
 
             time.sleep(TIMEOUT_SECONDS)
-            prices_df = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame(
-                columns=["stock", "date", "price"]
-            )
+
+        prices_df = (
+            pd.concat(parts, ignore_index=True) if parts 
+            else pd.DataFrame(columns=["stock", "date", "price"])
+        )
+
             
     else:
         prices_df = pd.DataFrame()

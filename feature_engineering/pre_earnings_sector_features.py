@@ -1,8 +1,8 @@
 # feature_engineering/pre_earnings_sector_features.py
 """
     Pre-earnings sector features:
-    sector_drift_30d
-    sector_drift_60d
+    sector_drift_{SHORT_TERM_DRIFT}d # 30 days by default
+    sector_drift_{LONG_TERM_DRIFT}d # 60 days by default
     sector_vol_30d
 """
 import numpy as np
@@ -38,3 +38,18 @@ def engineer_stock_vs_sector_vol(df):
     denom = df["sector_vol_30d"].replace(0, np.nan) # prevent divison by zero
     df["stock_vs_sector_vol"] = df["vol_30d"] / denom
     return df
+
+def engineer_sector_earnings_density(input_df):
+    """
+        Shows fraction of stocks in the sector whose earnings are within the next week.
+        Calculated by mean.
+    """
+    df = input_df.sort_values(["sector", "date"])
+
+    df["sector_earnings_density"] = (df.groupby(["sector","date"])["is_earnings_week"]
+            .transform("mean")
+        )
+    df = df.sort_values(["stock", "date"]).reset_index(drop=True)
+    return df
+
+

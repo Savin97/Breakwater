@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 
-def engineer_vol_stress(input_df):
+def engineer_vol_stress(input_df, ratio_col: str = "vol_ratio_10_to_30"):
     """
         If vol_ratio_10_to_30 is high, recent vol spiked relative to the recent baseline → “stress”.
         Define “stress” as “top X%”.
@@ -21,15 +21,86 @@ def engineer_vol_stress(input_df):
         - vol_stress_elevated: top (1-q_high)
     """
     df = input_df.copy()
-    group = "date",
-    q_high = 0.80,   # elevated
+    q_high = 0.80  # elevated
     q_extreme = 0.90 # high / extreme
 
-    replaced = df["vol_ratio_10_to_30"].replace( [np.inf, -np.inf], np.nan)
-    df["vol_ratio_10_to_30"] = replaced
+    # Prevent div by zero
+    replaced = df[ratio_col].replace( [np.inf, -np.inf], np.nan)
+    df[ratio_col] = replaced
+
+    # Cross-sectional percentile rank per day
+    df["vol_ratio_cross_percentile"] = (
+        df.groupby("date")[ratio_col]
+            .rank(pct=True, method="average")
+    )
+
+    df["vol_stress_elevated"] = df["vol_ratio_cross_percentile"] >= q_high
+    # Might be a better implementaion 
+    # (guards against only showing vol_stress_elevated as relative, not absolute):
+    # vol_stress_elevated =
+        # (vol_ratio_cross_percentile >= 0.80) &
+        # (vol_ratio_10_to_30 >= 1.10)
+
+    df["vol_stress_extreme"] = df["vol_ratio_cross_percentile"] >= q_extreme
+    
+    return df
 
 
+def engineer_momentum_pressure(input_df, quantile = 0.8) -> pd.DataFrame:
+    """ 
+        top 20% of absolute momentum values per date
+        cross-sectional and date-aligned
+        Momentum pressure measures how unusually stretched a stock's price action 
+        is relative to peers ahead of earnings,
+        capturing both short-term crowding and longer-term trend extension.
+
+    Returns
+    -------
+        - 'momentum_pressure_regime' : str
+          {'normal', 'short_term_extreme', 'trend_extreme', 'crowded_trend'}
+    """
+    df = input_df.copy()
+
+    abs5 = df["mom_5d"].abs()
+    abs20 = df["mom_20d"].abs()
+
+    threshold_5 = abs5.groupby(df["date"]).transform(lambda x: x.quantile(quantile))
+    threshold_20 = abs20.groupby(df["date"]).transform(lambda x: x.quantile(quantile))
+
+    mom_5 = abs5 > threshold_5
+    mom_20 = abs20 > threshold_20
+
+    df["momentum_pressure_regime"] = np.select(
+        [~mom_5 & ~mom_20,  mom_5 & ~mom_20,  ~mom_5 & mom_20,  mom_5 & mom_20],
+        ["normal", "short_term_extreme", "trend_extreme", "crowded_trend"],
+        default="normal"
+    )
+    return df
 
 
+def engineer_earnings_explosiveness(input_df, epsilon = 1e-6):
+    """
+        Adds:
+        ####- earnings_explosiveness (raw)          = abs_reaction_median_3d
+        - earnings_explosiveness_z (normalized) = abs_reaction_median_3d / max(vol_30d, epsilon)
+        Median-based explosiveness = “typical risk”
+        
+        - earnings_tail_z (optional)            = abs_reaction_p75_3d / max(vol_30d, epsilon)  (if column exists)
+        P75-based explosiveness = “tail danger” (“When earnings go bad, this is how ugly it can get.”)
+        
+        Assumptions:
+        - med_col / p75_col are already computed using ONLY past earnings events (shifted).
+        - vol_30d is rolling vol from daily returns (ideally shifted by 1 day).
+    """
+    
+    df = input_df.sort_values(["stock", "date"]).copy()
 
-    return  
+    df["earnings_explosiveness_z"] = (
+        df["abs_reaction_median"] / np.maximum(df["vol_30d"], epsilon)
+        )
+
+    df["earnings_tail_z"] = (
+        df["abs_reaction_p75"] / np.maximum(df["vol_30d"], epsilon)
+        )
+
+    return df

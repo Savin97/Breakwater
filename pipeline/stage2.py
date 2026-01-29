@@ -15,6 +15,10 @@ from feature_engineering.post_earnings_stock_features import (engineer_earnings_
                                                               engineer_reaction_entropy,
                                                               engineer_directional_bias)
 
+from feature_engineering.pre_earnings_sector_features import (engineer_sector_drift_vol,
+                                                              engineer_stock_vs_sector_vol,
+                                                              engineer_sector_earnings_density)
+
 
 def stage2(stage1_df):
     """ 
@@ -25,9 +29,9 @@ def stage2(stage1_df):
         Pre-Earnings Feature Engineering
         
     """
-    df = stage1_df.copy()
-    df = df.sort_values(["stock","date"], kind="mergesort")
-    df["date"] = parse_date(df["date"])
+    stage2_df = stage1_df.copy()
+    stage2_df = stage2_df.sort_values(["stock","date"], kind="mergesort")
+    stage2_df["date"] = parse_date(stage2_df["date"])
 
     feature_steps = [
         engineer_daily_ret,
@@ -41,11 +45,14 @@ def stage2(stage1_df):
         engineer_reaction_entropy,
         engineer_directional_bias,
         engineer_abs_reaction_median,
-        engineer_abs_reaction_p75
+        engineer_abs_reaction_p75,
+        engineer_sector_drift_vol,
+        engineer_stock_vs_sector_vol,
+        engineer_sector_earnings_density
     ]
     for feature in feature_steps:
-        df = feature(df)
+        stage2_df = feature(stage2_df)
 
-    if df is None:
+    if stage2_df is None:
         raise ValueError("\n---ERROR! Stage 2 Returned None.---\n")
-    return df
+    return stage2_df
