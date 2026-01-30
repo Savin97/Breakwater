@@ -1,11 +1,17 @@
-import pandas as pd
+import numpy as np
+import random
+import matplotlib.pyplot as plt
 
-heavy_prices = pd.read_csv("data/Copy of 2005 onward cached data/stock_prices.csv")
-heavy_dates = pd.read_csv("data/Copy of 2005 onward cached data/earnings_dates.csv")
-heavy_prices["date"] = pd.to_datetime(heavy_prices["date"])
-heavy_dates["earnings_date"] = pd.to_datetime(heavy_dates["earnings_date"])
+days_to_earnings = [n for n in range(31) ]
+list_to_plot=[]
+for day in days_to_earnings:
+    # days_to_earnings >= 30  → 0
+    # days_to_earnings <= 0   → 100
+    base = 1 - np.clip(day / 30 , 0, 1)
+    # Non-linear pressure near earnings
+    base = base ** 1.5
+    print(base, "\n-----------\n")
+    list_to_plot.append((day, base))
 
-heavy_prices = heavy_prices[heavy_prices["date"] > "2021-01-01"]
-heavy_dates = heavy_dates[heavy_dates["earnings_date"] > "2021-01-01"]
-
-heavy_prices.to_csv("heavy_prices",index=False)
+plt.plot(list_to_plot)
+plt.show()

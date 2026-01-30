@@ -2,8 +2,13 @@
 import numpy as np
 import pandas as pd
 
+from risk_scoring.composite_scoring import (score_proximity,
+                               score_vol_expansion,
+                               score_earnings_explosiveness,
+                               score_momentum_fragility)
 
 def engineer_vol_stress(input_df, ratio_col: str = "vol_ratio_10_to_30"):
+
     """
         If vol_ratio_10_to_30 is high, recent vol spiked relative to the recent baseline → “stress”.
         Define “stress” as “top X%”.
@@ -16,7 +21,7 @@ def engineer_vol_stress(input_df, ratio_col: str = "vol_ratio_10_to_30"):
         Leakage-safe if ratio_col is already computed using shift(1) rolling stats.
 
         Output columns:
-        - vol_ratio_cs_pct: cross-sectional percentile rank on that date (0..1)
+        - vol_ratio_cross_pct: cross-sectional percentile rank on that date (0..1)
         - vol_stress_high: top (1-q_extreme)
         - vol_stress_elevated: top (1-q_high)
     """
@@ -104,3 +109,62 @@ def engineer_earnings_explosiveness(input_df, epsilon = 1e-6):
         )
 
     return df
+
+def engineer_timing_danger(input_df, w_prox=0.25, w_vol=0.25, w_mom=0.20, w_exp=0.30,):
+    """
+        TimingDanger = w1 * ProximityRisk +
+                        + w2 * VolExpansionRisk
+                        + w3 * MomentumFragility
+                        + w4 * EarningsExplosiveness
+    """
+    df = input_df.copy()
+
+    # TODO: better way of applying weights? makes sure they sum to 1.
+    # weights = np.array([w_prox, w_vol, w_mom, w_exp], dtype=float)
+    # weights = weights / weights.sum()
+
+    # timing_danger = (
+    #     weights[0] * prox +
+    #     weights[1] * vol +
+    #     weights[2] * mom +
+    #     weights[3] * exp
+    # )
+
+    prox = score_proximity(df)
+    vol  = score_vol_expansion(df)
+    mom  = score_momentum_fragility(df)
+    exp  = score_earnings_explosiveness(df)
+
+    timing_danger = (
+        w_prox * prox +
+        w_vol  * vol  +
+        w_mom  * mom  +
+        w_exp  * exp
+    )
+
+    scores = {
+        "proximity_score": prox,
+        "vol_expansion_score": vol,
+        "momentum_fragility_score": mom,
+        "earnings_explosiveness_score": exp,
+        "timing_danger": np.clip(timing_danger, 0, 100),
+    }
+
+    df = df.assign(**scores)
+
+    return df
+    
+    
+# def timing_danger_bucket(td):
+#     # td: Series or scalar in [0, 100]
+
+#     # df["timing_danger_bucket"] = pd.cut(
+#     #     df["timing_danger"],
+#     #     bins=[0, 30, 55, 75, 100],
+#     #     labels=["Low", "Moderate", "High", "Extreme"]
+#     # )
+#     return pd.cut(
+#         td,
+#         bins=[-1, 20, 40, 60, 80, 101],
+#         labels=["Very Low", "Low", "Moderate", "High", "Extreme"]
+#     )

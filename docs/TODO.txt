@@ -55,7 +55,10 @@ sector_earnings_density
 (% of sector reporting this week)
 
 2.4 Structural risk features
-These explain why a move might be violent.
+These 3 explain why a move might be violent:
+avg_dollar_volume (or proxy)
+bid_ask_proxy (even a crude one)
+gap_frequency
 
 beta (yes, but low weight)
 market_cap_bucket

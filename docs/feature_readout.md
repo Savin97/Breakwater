@@ -54,7 +54,15 @@ Global earnings pressure
 
 Scoring Features:
 
-    Explosiveness | how violently a stock tends to move *because* of earnings, conditional on history.
+    - Explosiveness | how violently a stock tends to move *because* of earnings, conditional on history.
+    - Timing Danger | a 0–100 score composed of four independent risk axes:
+        Axis	                        What it captures
+        Proximity Risk	                How close earnings are
+        Volatility Expansion Risk	    Is volatility accelerating
+        Momentum Fragility      	    Is price stretched / unstable
+        Earnings Explosiveness	        How violent this stock usually reacts
+        Each axis is normalized to 0–1, then weighted.
+    - timing_danger_bucket
 
 
 
