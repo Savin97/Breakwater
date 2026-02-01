@@ -21,12 +21,12 @@ from pathlib import Path
 import pandas as pd
 import yfinance as yf
 
-from data_utilities.clean_input import read_stocks_to_fetch
 from data_utilities.formatting import parse_date
 from data_utilities.helper_funcs import (chunk_list, 
-                                         sleep_backoff,
-                                         get_alpha_vantage_api_key )
-
+                                        sleep_backoff,
+                                        get_alpha_vantage_api_key,
+                                        check_cached_data_use,
+                                        read_stocks_to_fetch)
 
 
 BASE_URL = "https://www.alphavantage.co/query"
@@ -206,7 +206,9 @@ def fetch_stock_prices(provider: str) -> pd.DataFrame:
 
     if not stocks:
         raise ValueError("No stocks found.")
-
+    
+    #  TODO: check_cached_data_use
+    
     # TODO: Temp solution, caching should work differently in the production version
     if USE_CACHED_DATA_FLAG == True:
         if Path(PRICES_PATH).exists():

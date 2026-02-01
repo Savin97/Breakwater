@@ -1,8 +1,53 @@
 import time
 import os
+import pandas as pd
 from dotenv import load_dotenv
+from pathlib import Path
 
-from config import BACKOFF_SECONDS, DEFAULT_REACTION_WINDOW
+from config import (BACKOFF_SECONDS, 
+                    DEFAULT_REACTION_WINDOW,
+                    USE_CACHED_DATA_FLAG)
+
+def directory_checks():
+    Path("data").mkdir(exist_ok=True)
+    Path("output").mkdir(exist_ok=True)
+
+def read_stocks_to_fetch(path: Path) -> list[str]:
+    """
+        Reads stocks from a file. Supports:
+        - .txt: one stock per line
+        - .csv: column named symbol/ticker/stock 
+        Returns a list of all unique stocks (uppercase, no spaces)
+    """
+    if not path.exists():
+        raise FileNotFoundError(f"Stocks file not found: {path}")
+
+    if path.suffix.lower() == ".csv":
+        stock_prices_df = pd.read_csv(path)
+        col = None
+        for c in ("stock", "symbol", "ticker","Stock", "Symbol", "Ticker"):
+            if c in stock_prices_df.columns:
+                col = c
+                break
+        if col is None:
+            raise ValueError(f"CSV must contain a symbol/ticker/stock column. Found: {list(stock_prices_df.columns)}")
+        stocks = stock_prices_df[col].astype(str).str.strip().tolist()
+    else:
+        print("Reading stocks from text file")
+        stocks = [ln.strip() for ln in path.read_text().splitlines() if ln.strip()]
+        print(stocks)
+
+    # Basic cleanup
+    stocks = [t.replace(" ", "").upper() for t in stocks if t]
+    # dedupe preserve order
+    seen = set()
+    out = []
+    for stock in stocks:
+        if stock and stock != "NAN" and stock not in seen:
+            out.append(stock)
+            seen.add(stock)
+    return out
+
 
 def sleep_backoff(attempt: int) -> None:
     # exponential backoff with light jitter
@@ -48,3 +93,16 @@ def build_earnings_df(df):
     earnings_df = df.loc[earnings_mask]
     earnings_df = earnings_df.sort_values(["stock", "earnings_date"])
     return earnings_df
+
+
+def check_cached_data_use():
+
+    print(f"Cached Data Usage Switch is set to: {USE_CACHED_DATA_FLAG}\n")
+
+    if USE_CACHED_DATA_FLAG == False:
+        answer = input("USE_CACHED_DATA_FLAG is switched OFF - are you sure? Y/N ")
+        if answer.lower() == "n":
+            print("OK, Switch USE_CACHED_DATA_FLAG ON and retry.\nExecution Stopped.")
+            exit()
+        if answer.lower() == "y":
+            print("OK, Model won't use Cached Data. Proceeding...\n")

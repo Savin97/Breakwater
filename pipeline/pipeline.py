@@ -3,71 +3,41 @@
 from pipeline.stage1 import stage1
 from pipeline.stage2 import stage2
 from pipeline.stage3 import stage3
+from pipeline.stage4 import stage4
+from config import cols_to_drop_for_output
 
 def run_pipeline():
     """
         The engine pipeline stages:
-        1. Fetch stock prices, earnings data, EPS data.
-        2. Merge into a single DataFrame
-        3. Engineer features
+        1. Fetch stock prices, earnings data, EPS data; Merge into a single DataFrame
+        2. Engineer features
+        3. Calculate Risk Score and Provide Explanations
+        4. Back-test
     """
     
     inputs_df = stage1() 
     feature_engineering = stage2(inputs_df)
     scoring_df = stage3(feature_engineering)
-
+    back_testing_df = stage4(scoring_df)
+    
     inputs_df.to_csv("output/stage_1_df.csv", index=False)
-    print("\n----------------")
-    print("Stage 1 DF created in: output/stage_1_df.csv")
+    print("----------------\nStage 1 DF created in: output/stage_1_df.csv")
 
     feature_engineering.to_csv("output/stage_2_df.csv", index=False)
-    print("----------------")
-    print("Stage 2 DF created in: output/stage_2_df.csv")
+    print("----------------\nStage 2 DF created in: output/stage_2_df.csv")
 
     scoring_df.to_csv("output/stage_3_df.csv", index=False)
-    print("----------------")
-    print("Stage 3 DF created in: output/stage_3_df.csv")
-    cols_to_drop = [
-        # identifiers / bookkeeping
-        "fiscal_date_ending",
+    print("----------------\nStage 3 DF created in: output/stage_3_df.csv")
 
-        # raw price / returns
-        "daily_ret",
+    # TODO: only keeping earnings days so far
+    back_testing_df = back_testing_df[back_testing_df["is_earnings_day"] == 1]
 
-        # post-event outcome labels (leakage)
-        "reaction_1d",
-        "reaction_5d",
-        "is_up",
-        "is_down",
-        "is_nochange",
+    back_testing_df = back_testing_df.drop(columns=cols_to_drop_for_output)
+    back_testing_df.to_csv("output/back_testing_df.csv", index=False)
+    print("----------------\nBack testing DF created in: output/back_testing_df.csv")
 
-        # intermediate reaction statistics
-        "reaction_std",
-        "reaction_entropy",
-        "directional_bias",
-        "abs_reaction_median",
-        "abs_reaction_p75",
+    # output_df = scoring_df.drop(columns=cols_to_drop_for_output)
+    # output_df.to_csv("output/output_df.csv", index=False)
+    # print("----------------\noutput_df created in: output/output_df.csv", "\n----------------")
 
-        # raw features replaced by scores
-        "drift_30d",
-        "drift_60d",
-        "mom_5d",
-        "mom_20d",
-        "vol_10d",
-        "vol_30d",
-        "vol_ratio_10_to_30",
-        "vol_ratio_cross_percentile",
-
-        # sector internals already abstracted
-        "sector_drift_60d",
-        "sector_vol_10d",
-        "sector_vol_30d",
-        "sector_vol_ratio_pct",
-    ]
-    output_df = scoring_df.drop(columns=cols_to_drop)
-    output_df.to_csv("output/output_df.csv", index=False)
-    print("----------------")
-    print("output_df created in: output/output_df.csv")
-
-    print("----------------")
     return scoring_df

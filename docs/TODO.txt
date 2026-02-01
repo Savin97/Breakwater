@@ -1,76 +1,32 @@
-1. Improve caching mechanism for prices, earnings, eps - should work more like sector fetching checks cache.
-2. Strengthen data fetching - stock list (Currently S&P 500 scraped from wikipedia),
-prices, earnings, etc - tighten for fetching errors, downtime, alternate sources in case main one fails.
-2b. Also storage of this data - *parquet* instead of csv.
-4. REACTION_THRESHOLD - probably shouldn't be a static number (Check GPT)
+1. Data fetching should check config swithces - USE_CACHED == True or False?
 
-5. Stage 2 - Each feature must answer one question:
-“Why would this stock move more than usual around earnings?”
+2. Improve caching mechanism  - should work more like sector fetching checks cache.
+    stock list (Currently S&P 500 scraped from wikipedia),prices, earnings, etc:
+        fetching errors, 
+        downtime, 
+        alternate sources in case main one fails,
+        datatype checking
+    Also storage of this data - *parquet* instead of csv.
 
-2.1 Price-based regime features (pre-earnings context)
-Computed as-of each day, shifted safely.
+3. REACTION_THRESHOLD - probably shouldn't be a static number (Check GPT)
 
-Trend / Drift
 
-drift_60d — slow regime bias
-drift_20d — medium bias
-(optional) drift_5d — short-term sentiment
+- Move these OUT of df, create a separate table earnings_outcomes with:
+    """ Used for: evaluation, PDFs, credibility (“historically this stock moves X%”) """
+    reaction_3d,1d,5d
+    sector_mean_d
+    relative_to_sector
+    reportedEPS
+    estimatedEPS
+    surprise
+    surprise_bucket
 
-Volatility
+- Features to implement in the feature (Stage 2):
+    Structural risk features, these 3 explain why a move might be violent:
+    avg_dollar_volume (or proxy)
+    bid_ask_proxy (even a crude one)
+    gap_frequency
 
-vol_10d — short-term tension
-vol_30d — baseline volatility
-vol_ratio_10_30 = vol_10d / vol_30d
-
-Momentum
-
-mom_5d — earnings run-up / selloff
-mom_20d — medium narrative momentum
-
-2.2 Earnings-specific setup features (core to Breakwater)
-
-days_to_earnings
-is_earnings_week (≤5 days)
-is_earnings_window (≤10 days)
-
-Historical reaction
-
-abs_reaction_median_3d
-abs_reaction_p75_3d
-directional_bias (mean signed reaction)
-
-Consistency
-
-reaction_std
-reaction_entropy (chaotic vs predictable mover)
-
-These alone justify the product.
-
-2.3 Cross-sectional context (relative risk)
-Risk is relative, not absolute.
-
-sector_vol_30d
-stock_vs_sector_vol = vol_30d / sector_vol_30d
-sector_earnings_density
-(% of sector reporting this week)
-
-2.4 Structural risk features
-These 3 explain why a move might be violent:
-avg_dollar_volume (or proxy)
-bid_ask_proxy (even a crude one)
-gap_frequency
-
-beta (yes, but low weight)
-market_cap_bucket
-liquidity_proxy (avg dollar volume)
-gap_frequency (how often it gaps > X%)
-
-6. Move these OUT of df, create a separate table earnings_outcomes with:
-""" Used for: evaluation, PDFs, credibility (“historically this stock moves X%”) """
-reaction_3d,1d,5d
-sector_mean_d
-relative_to_sector
-reportedEPS
-estimatedEPS
-surprise
-surprise_bucket
+    market_cap_bucket
+    liquidity_proxy (avg dollar volume)
+    gap_frequency (how often it gaps > X%)

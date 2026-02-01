@@ -39,14 +39,14 @@ def engineer_vol_stress(input_df, ratio_col: str = "vol_ratio_10_to_30"):
             .rank(pct=True, method="average")
     )
 
-    df["vol_stress_elevated"] = df["vol_ratio_cross_percentile"] >= q_high
+    df["vol_stress_elevated"] = ( df["vol_ratio_cross_percentile"] >= q_high ).astype(int)
     # Might be a better implementaion 
     # (guards against only showing vol_stress_elevated as relative, not absolute):
     # vol_stress_elevated =
         # (vol_ratio_cross_percentile >= 0.80) &
         # (vol_ratio_10_to_30 >= 1.10)
 
-    df["vol_stress_extreme"] = df["vol_ratio_cross_percentile"] >= q_extreme
+    df["vol_stress_extreme"] = ( df["vol_ratio_cross_percentile"] >= q_extreme ).astype(int)
     
     return df
 

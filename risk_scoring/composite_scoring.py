@@ -42,9 +42,9 @@ def score_vol_expansion(df):
     # snap the score upward when conditions are structurally dangerous
     boost = 0.0
     boost = (
-        df["vol_stress_elevated"].fillna(False).astype(float) * 0.20 +
-        df["vol_stress_extreme"].fillna(False).astype(float)  * 0.40 +
-        df["sector_vol_stress_high"].fillna(False).astype(float) * 0.20
+        df["vol_stress_elevated"].fillna(0).astype(float) * 0.20 +
+        df["vol_stress_extreme"].fillna(0).astype(float)  * 0.40 +
+        df["sector_vol_stress_high"].fillna(0).astype(float) * 0.20
     )
     
     base = 0.4 * z1 + 0.35 * z2 + 0.25 * z3
