@@ -3,8 +3,6 @@
     Risk Scoring and recommendation stage
     Returns a separate DF
 """
-import pandas as pd
-
 from risk_scoring.scoring_features import (engineer_vol_stress, 
                                            engineer_momentum_pressure,
                                            engineer_earnings_explosiveness,

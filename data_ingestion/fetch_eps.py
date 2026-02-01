@@ -3,12 +3,13 @@ import os
 import pandas as pd
 from pathlib import Path
 
-from config import ( ALPHAVANTAGE_BASE_URL,
+from config import (ALPHAVANTAGE_BASE_URL,
                     STOCKS_START_DATE,
                     EPS_PATH,
-                    USE_CACHED_DATA_FLAG )
-from data_utilities.clean_input import read_stocks_to_fetch
-from data_utilities.helper_funcs import get_alpha_vantage_api_key
+                    USE_CACHED_DATA_FLAG,
+                    STOCK_NAMES_FILE_PATH)
+
+from data_utilities.helper_funcs import get_alpha_vantage_api_key, read_stocks_to_fetch
 
 def fetch_eps_single_stock(stock: str ) -> dict:
     """
@@ -71,8 +72,8 @@ def parse_quarterly_eps(data: dict) -> pd.DataFrame:
 
     return df
 
-def fetch_eps(stocks: list) -> pd.DataFrame:
-
+def fetch_eps() -> pd.DataFrame:
+    stocks = read_stocks_to_fetch(Path(STOCK_NAMES_FILE_PATH))
     if USE_CACHED_DATA_FLAG == True:
         if Path(EPS_PATH).exists():
             print(f"Using cached EPS Data from {EPS_PATH}\n")

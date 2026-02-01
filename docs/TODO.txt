@@ -1,7 +1,11 @@
 1. Improve caching mechanism for prices, earnings, eps - should work more like sector fetching checks cache.
-2. Strengthen data fetching - stock list (Currently S&P 500 scraped from wikipedia),
+
+2. Data fetching should check config swithces - USE_CACHED == True or False?
+
+3.Strengthen data fetching - stock list (Currently S&P 500 scraped from wikipedia),
 prices, earnings, etc - tighten for fetching errors, downtime, alternate sources in case main one fails.
-2b. Also storage of this data - *parquet* instead of csv.
+    Also storage of this data - *parquet* instead of csv.
+
 4. REACTION_THRESHOLD - probably shouldn't be a static number (Check GPT)
 
 5. Stage 2 - Each feature must answer one question:
