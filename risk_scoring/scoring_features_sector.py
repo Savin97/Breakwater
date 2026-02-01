@@ -12,6 +12,6 @@ def engineer_sector_vol_stress(input_df: pd.DataFrame, q_high = 0.9) -> pd.DataF
             .rank(pct=True, method="average")
     )
 
-    df["sector_vol_stress_high"] = df["sector_vol_ratio_pct"] >= q_high
+    df["sector_vol_stress_high"] = (df["sector_vol_ratio_pct"] >= q_high).astype(int)
 
     return df

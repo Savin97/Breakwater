@@ -8,6 +8,10 @@ from config import (BACKOFF_SECONDS,
                     DEFAULT_REACTION_WINDOW,
                     USE_CACHED_DATA_FLAG)
 
+def directory_checks():
+    Path("data").mkdir(exist_ok=True)
+    Path("output").mkdir(exist_ok=True)
+
 def read_stocks_to_fetch(path: Path) -> list[str]:
     """
         Reads stocks from a file. Supports:
