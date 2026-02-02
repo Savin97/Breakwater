@@ -12,8 +12,8 @@ def main():
     # earnings.to_csv("data/earnings_dates.csv",index=False)
 
     run_pipeline()    
-    #tweak
     print("Pipeline execution completed.\n--------------------")
     
+
 if __name__ == "__main__":
     main()
