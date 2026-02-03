@@ -10,6 +10,12 @@
 
 3. REACTION_THRESHOLD - probably shouldn't be a static number (Check GPT)
 
+4. What you should focus on this week:
+Make pipeline run cleanly end-to-end (dirs, caching, fail-fast checks)
+Implement real Stage 4 backtest + credibility tables
+Add explanations (reasons) in Stage 3
+Generate the first earnings-week PDF/HTML report
+
 
 - Move these OUT of df, create a separate table earnings_outcomes with:
     """ Used for: evaluation, PDFs, credibility (“historically this stock moves X%”) """
@@ -30,3 +36,28 @@
     market_cap_bucket
     liquidity_proxy (avg dollar volume)
     gap_frequency (how often it gaps > X%)
+
+
+Output:
+
+A good Breakwater report (worth $300–1,000+):
+    Answers a decision
+    “Do not hold through earnings”
+    “Only tradable with options”
+    “Size ≤ 0.5%”
+    “High portfolio correlation risk this week”
+
+    Is cross-sectional
+    ranks risks
+    highlights clusters
+    shows relative danger
+
+    Is opinionated
+    not neutral
+    not hedgey
+    not “could go up or down”
+
+    Is repeatable
+    same format
+    same semantics
+    same sections every time

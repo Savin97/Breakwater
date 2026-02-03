@@ -85,7 +85,10 @@ def stage4(stage3_df):
     decile_table["p_large_plus_ci_lo"] = [x[0] for x in rows]
     decile_table["p_large_plus_ci_hi"] = [x[1] for x in rows]
 
+    print(bt)
+    print("----------------------")
     print(decile_table)
+    print("----------------------")
 
     print(bt["timing_danger"].describe())
     print(bt["timing_danger"].nunique())
