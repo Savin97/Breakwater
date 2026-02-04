@@ -24,5 +24,5 @@ def stage3(stage2_df):
 
     if stage3_df is None:
         raise ValueError("\n---ERROR! Stage 3 Returned None.---\n")
-
+    
     return stage3_df

@@ -5,18 +5,23 @@
 """
 import pandas as pd
 
-from back_testing.back_testing import classify_large_earnings_move
+from back_testing.back_testing import classify_large_earnings_move_bucket
 from back_testing.back_testing_features import (engineer_abs_reaction_3d,
-                                                engineer_rolling_abs_reaction_p75_rolling,
-                                                engineer_rolling_abs_reaction_p90_rolling)
+                                                engineer_abs_reaction_p75_rolling,
+                                                engineer_abs_reaction_p90_rolling)
 
 def stage4(stage3_df):
     df = stage3_df.copy()
     df = engineer_abs_reaction_3d(df)
-    df = engineer_rolling_abs_reaction_p75_rolling(df)
-    df = engineer_rolling_abs_reaction_p90_rolling(df)
-    df = classify_large_earnings_move(df)
+    df = engineer_abs_reaction_p75_rolling(df)
+    df = engineer_abs_reaction_p90_rolling(df)
+    df = classify_large_earnings_move_bucket(df)
 
+
+    ### TODO: CHECKS - TEMPORARY!
+    print("\nCHECKS - TEMPORARY!\n")
+    
+    ## Diagnostic: timing_danger connection to earnings_move_bucket
     bt = df.copy()
     # Earnings-only rows (use your actual column name)
     bt = bt[bt["is_earnings_day"] == 1].copy()

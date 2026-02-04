@@ -32,7 +32,7 @@ def stage2(stage1_df):
     stage2_df = stage1_df.copy()
     stage2_df = stage2_df.sort_values(["stock","date"], kind="mergesort")
     stage2_df["date"] = parse_date(stage2_df["date"])
-
+    
     feature_steps = [
         engineer_daily_ret,
         engineer_drift,
