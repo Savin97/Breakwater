@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "n_earnings_rows": 3867,
+    "base_large_rate": 0.1238686320144815,
+    "base_extreme_rate": 0.03930695629687096,
+    "score_cols_evaluated": [
+      "timing_danger",
+      "earnings_explosiveness_score",
+      "vol_expansion_score",
+      "momentum_fragility_score",
+      "proximity_score"
+    ],
+    "missing_score_cols": []
+  },
+  "per_score_rank": {
+    "timing_danger": {
+      "spearman_score_vs_abs_move": 0.220153355137898,
+      "auc_large_move": 0.8772780250052977,
+      "auc_extreme_move": 0.903401451574876
+    },
+    "earnings_explosiveness_score": {
+      "spearman_score_vs_abs_move": 0.2033966539273752,
+      "auc_large_move": 0.9605802850995159,
+      "auc_extreme_move": 0.9897456239286829
+    },
+    "vol_expansion_score": {
+      "spearman_score_vs_abs_move": 0.0533509950200872,
+      "auc_large_move": 0.5563178281198778,
+      "auc_extreme_move": 0.5455744846638805
+    },
+    "momentum_fragility_score": {
+      "spearman_score_vs_abs_move": 0.15386465844493719,
+      "auc_large_move": 0.762787364467,
+      "auc_extreme_move": 0.8108300276262662
+    },
+    "proximity_score": {
+      "spearman_score_vs_abs_move": NaN,
+      "auc_large_move": 0.5,
+      "auc_extreme_move": 0.5
+    }
+  }
+}

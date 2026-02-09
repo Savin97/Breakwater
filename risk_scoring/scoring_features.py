@@ -158,9 +158,9 @@ def engineer_timing_danger(input_df, weights=[0.25,0.25,0.2,0.3]):
 
     timing_danger = (
         weights[0] * prox +
-        weights[0]  * vol  +
-        weights[0]  * mom  +
-        weights[0]  * exp
+        weights[1] * vol +
+        weights[2] * mom +
+        weights[3] * exp
     )
 
     scores = {

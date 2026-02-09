@@ -18,6 +18,9 @@ def run_pipeline():
     feature_engineering = stage2(inputs_df)
     scoring_df = stage3(feature_engineering)
     back_testing_df = stage4(scoring_df)
-    output_to_csv(inputs_df, feature_engineering, scoring_df, back_testing_df)
+    from back_testing.CHATGENERATED_stage5 import stage5_part_a, stage5_part_b
+    stage5_df = stage5_part_a(back_testing_df)
+    stage5_b_df = stage5_part_b(back_testing_df)
+    #output_to_csv(inputs_df, feature_engineering, scoring_df, back_testing_df, stage5_df)
 
     return 
