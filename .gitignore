@@ -19,6 +19,8 @@ data/
 *.env
 .ipynb_checkpoints/
 
-#*.csv
+*.csv
 secrets.json
 config_local.py
+back_testing/artifacts/
+

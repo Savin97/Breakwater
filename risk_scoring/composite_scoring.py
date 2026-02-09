@@ -106,8 +106,8 @@ def score_earnings_explosiveness(df):
         0.25 * e3 +   # large typical moves
         0.10 * e4     # chaos / unpredictability
     )
-
     earnings_explosiveness_score = 100 * np.clip(base, 0, 1)
+    
     return earnings_explosiveness_score
 
 def score_momentum_fragility(df):

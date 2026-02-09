@@ -29,11 +29,6 @@ Outputs:
   - bucket tables per score
   - optional CSV/JSON artifacts under back_testing/artifacts/
 """
-
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Dict, Optional, Tuple, List
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -713,12 +708,12 @@ def policy_backtest_one_score(
 
     base_large = float(large_label.mean())
     base_ext = float(extreme_label.mean())
-
+    print(len(s))
     out = []
     for q in quantiles:
         thr = _quantile_threshold(s, q)
+        print(f"threshold for q={q:.2f} is {thr:.4f}")
         flag = (s >= thr).astype(int)
-
         idx_flag = flag[flag == 1].index
         idx_hold = flag[flag == 0].index
 
@@ -749,6 +744,7 @@ def policy_backtest_one_score(
         stats_flag = _tail_stats(abs_move.loc[idx_flag])
         stats_hold = _tail_stats(abs_move.loc[idx_hold])
         stats_all = _tail_stats(abs_move)
+        print("flag_rate", float(len(idx_flag) / len(s)))
 
         out.append(
             {
@@ -958,7 +954,7 @@ def write_part_b_artifacts(results: Dict[str, object], cfg: BacktestBConfig, tag
 
     meta = results.get("meta", {})
     (out_dir / f"part_b__{tag}__meta.json").write_text(
-        pd.io.json.dumps(meta, indent=2), encoding="utf-8"
+        json.dumps(meta, indent=2), encoding="utf-8"
     )
 
     pol = results.get("policy_table")

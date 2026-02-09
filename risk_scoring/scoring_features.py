@@ -144,13 +144,6 @@ def engineer_timing_danger(input_df, weights=[0.25,0.25,0.2,0.3]):
     # weights = np.array([w_prox, w_vol, w_mom, w_exp], dtype=float)
     # weights = weights / weights.sum()
 
-    # timing_danger = (
-    #     weights[0] * prox +
-    #     weights[1] * vol +
-    #     weights[2] * mom +
-    #     weights[3] * exp
-    # )
-
     prox = score_proximity(df)
     vol  = score_vol_expansion(df)
     mom  = score_momentum_fragility(df)
