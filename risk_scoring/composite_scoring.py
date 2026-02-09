@@ -24,8 +24,9 @@ def score_proximity(df, horizon=30, power=1.5):
     boost += ((near & df.loc[pre_earnings_days, "is_earnings_week"]).astype(float))   * 0.08
 
     base[pre_earnings_days] = np.clip(x + boost, 0, 1)
-
-    return 100 * base
+    proximity_score = 100 * base
+    
+    return proximity_score
 
 
     # # Normalize signals
@@ -56,7 +57,7 @@ def score_vol_expansion(df):
         80-100 → volatility already breaking
     """
     # Normalize signals
-    z1 = df["vol_ratio_cross_percentile"].fillna(0).clip(0, 1)
+    z1 = df["vol_ratio_cross_sectional_pct"].fillna(0).clip(0, 1)
     z2 = ((df["stock_vs_sector_vol"].fillna(1) - 1) / 1.5).clip(0, 1)
     z3 = df["sector_vol_ratio_pct"].fillna(0).clip(0, 1)
 
@@ -89,6 +90,7 @@ def score_vol_expansion(df):
 def score_earnings_explosiveness(df):
     """ 
         When this stock moves on earnings, how violent can it get?
+        earnings_explosiveness_score identifies stocks prone to large earnings reactions.
     """
 
     # Normalize signals

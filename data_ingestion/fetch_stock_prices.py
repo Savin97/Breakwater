@@ -29,6 +29,77 @@ from data_utilities.helper_funcs import (chunk_list,
                                         read_stocks_to_fetch)
 
 
+def fetch_stock_prices(provider: str) -> pd.DataFrame:
+    """
+        Fetch stock prices for a list of stocks from a specified provider.
+        Outputs a DF: stock | date | price
+    """
+    stock_list = read_stocks_to_fetch()
+
+    if not stock_list:
+        raise ValueError("No stocks found.")
+    
+    #  TODO: check_cached_data_use
+    # TODO: Temp solution, caching should work differently in the production version
+    if USE_CACHED_DATA_FLAG == True:
+        if Path(PRICES_PATH).exists():
+            print(f"Using cached Prices from {PRICES_PATH}\n")
+            return pd.read_csv(PRICES_PATH)
+            
+    print("No cached Prices data, fetching NEW...")        
+    print(f"Provider: {provider}")
+    print(f"Stocks: {len(stock_list)}")
+    print(f"Date range: {STOCKS_START_DATE} → {STOCKS_END_DATE}")
+
+    parts = []
+    done = 0
+    total = len(stock_list)
+
+    if provider == "ALPHAVANTAGE":
+            print(f"Fetching Stock Prices...")
+            api_key = get_alpha_vantage_api_key()
+            prices_df = fetch_stocks_alpha_vantage(stock_list, api_key, outputsize="full")
+
+    elif provider == "yfinance":
+        for i,batch in enumerate(chunk_list(stock_list, DEFAULT_FETCH_CHUNK_SIZE), start=1):
+            print(f"Fetching Stock Prices in chunks, batch number {i}")
+            print(f"Chunk size: {DEFAULT_FETCH_CHUNK_SIZE}")
+            df_batch = fetch_stocks_yfinance(
+                stocks=batch
+            )
+            parts.append(df_batch)
+            done += len(batch)
+            got = df_batch["stock"].nunique() if not df_batch.empty else 0
+            print(f"Fetched prices for {got}/{len(batch)} stocks in this batch. Progress attempted {done}/{total}")
+
+            time.sleep(TIMEOUT_SECONDS)
+
+        prices_df = (
+            pd.concat(parts, ignore_index=True) if parts 
+            else pd.DataFrame(columns=["stock", "date", "price"])
+        )
+
+            
+    else:
+        prices_df = pd.DataFrame()
+        raise ValueError(f"Unknown provider: {provider}")
+        
+    if prices_df.empty:
+        raise RuntimeError("No data fetched (blocked/rate-limited or bad stocks list).")
+
+    prices_df = prices_df.drop_duplicates(subset=["stock", "date"], keep="last")
+
+    out_path = Path(PRICES_PATH)
+    prices_df.to_csv(out_path, index=False)
+
+    print(f"Saved Prices: {out_path}")
+    print(f"Rows: {len(prices_df):,}")
+    print(f"Stocks with data: {prices_df['stock'].nunique():,}\n")
+    return prices_df
+
+
+
+
 BASE_URL = "https://www.alphavantage.co/query"
 
 def fetch_stocks_alpha_vantage(stocks, api_key, outputsize="compact"):
@@ -196,72 +267,4 @@ def fetch_stocks_yfinance(stocks: list[str]) -> pd.DataFrame:
 
     raise RuntimeError(f"yfinance failed after retries: {last_err}")
 
-    
-def fetch_stock_prices(provider: str) -> pd.DataFrame:
-    """
-        Fetch stock prices for a list of stocks from a specified provider.
-        Outputs a DF: stock | date | price
-    """
-    stocks = read_stocks_to_fetch(Path(STOCK_NAMES_FILE_PATH))
 
-    if not stocks:
-        raise ValueError("No stocks found.")
-    
-    #  TODO: check_cached_data_use
-    
-    # TODO: Temp solution, caching should work differently in the production version
-    if USE_CACHED_DATA_FLAG == True:
-        if Path(PRICES_PATH).exists():
-            print(f"Using cached Prices from {PRICES_PATH}\n")
-            return pd.read_csv(PRICES_PATH)
-            
-    print("No cached Prices data, fetching NEW...")        
-    print(f"Provider: {provider}")
-    print(f"Stocks: {len(stocks)}")
-    print(f"Date range: {STOCKS_START_DATE} → {STOCKS_END_DATE}")
-
-    parts = []
-    done = 0
-    total = len(stocks)
-
-    if provider == "ALPHAVANTAGE":
-            print(f"Fetching Stock Prices...")
-            api_key = get_alpha_vantage_api_key()
-            prices_df = fetch_stocks_alpha_vantage(stocks, api_key, outputsize="full")
-
-    elif provider == "yfinance":
-        for i,batch in enumerate(chunk_list(stocks, DEFAULT_FETCH_CHUNK_SIZE), start=1):
-            print(f"Fetching Stock Prices in chunks, batch number {i}")
-            print(f"Chunk size: {DEFAULT_FETCH_CHUNK_SIZE}")
-            df_batch = fetch_stocks_yfinance(
-                stocks=batch
-            )
-            parts.append(df_batch)
-            done += len(batch)
-            got = df_batch["stock"].nunique() if not df_batch.empty else 0
-            print(f"Fetched prices for {got}/{len(batch)} stocks in this batch. Progress attempted {done}/{total}")
-
-            time.sleep(TIMEOUT_SECONDS)
-
-        prices_df = (
-            pd.concat(parts, ignore_index=True) if parts 
-            else pd.DataFrame(columns=["stock", "date", "price"])
-        )
-
-            
-    else:
-        prices_df = pd.DataFrame()
-        raise ValueError(f"Unknown provider: {provider}")
-        
-    if prices_df.empty:
-        raise RuntimeError("No data fetched (blocked/rate-limited or bad stocks list).")
-
-    prices_df = prices_df.drop_duplicates(subset=["stock", "date"], keep="last")
-
-    out_path = Path(PRICES_PATH)
-    prices_df.to_csv(out_path, index=False)
-
-    print(f"Saved Prices: {out_path}")
-    print(f"Rows: {len(prices_df):,}")
-    print(f"Stocks with data: {prices_df['stock'].nunique():,}\n")
-    return prices_df

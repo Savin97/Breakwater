@@ -37,7 +37,7 @@ sector_vol_10d
 sector_vol_30d
 stock_vs_sector_vol
 sector_earnings_density
-vol_ratio_cross_percentile
+vol_ratio_cross_sectional_pct
 vol_stress_elevated
 vol_stress_extreme
 sector_vol_ratio_pct

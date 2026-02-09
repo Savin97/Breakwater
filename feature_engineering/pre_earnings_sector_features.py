@@ -46,8 +46,10 @@ def engineer_sector_earnings_density(input_df):
     """
     df = input_df.sort_values(["sector", "date"])
 
-    df["sector_earnings_density"] = (df.groupby(["sector","date"])["is_earnings_week"]
-            .transform("mean")
+    df["sector_earnings_density"] = (
+        df.groupby(["sector","date"])["is_earnings_week"]
+        .transform("mean")
+        .fillna(0)
         )
     df = df.sort_values(["stock", "date"]).reset_index(drop=True)
     return df

@@ -6,7 +6,7 @@ from typing import Optional
 def today_yyyy_mm_dd() -> str:
     return date.today().strftime("%Y-%m-%d")
 
-def parse_date(column_name: pd.Series) -> Optional[date]:
+def parse_date(column_name) -> Optional[date]:
     """
         Parse 'YYYY-MM-DD' into datetime.date. 
         Returns None on failure.

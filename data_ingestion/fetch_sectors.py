@@ -129,7 +129,7 @@ def fetch_sectors_market_cap_beta() -> pd.DataFrame:
         Returns a DF
         stock sector sub_sector
     """
-    stocks = set(read_stocks_to_fetch(Path(STOCK_NAMES_FILE_PATH)))
+    stocks = set(read_stocks_to_fetch())
 
     if USE_CACHED_DATA_FLAG == True:
         # Check cache

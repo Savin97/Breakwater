@@ -3,7 +3,7 @@ import numpy as np
 
 def classify_large_earnings_move_bucket(input_df):
     """
-        large_earnings_move = 1 if abs(reaction_3d) ≥ rolling_p75(abs(reaction_3d), window=W)
+        large_earnings_move = 1 if abs_reaction_3d ≥ abs_reaction_p75_rolling
         window: 20-40 past earnings for that stock; 28
     """
     df = input_df.copy()

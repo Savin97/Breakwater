@@ -9,17 +9,142 @@ from back_testing.back_testing import classify_large_earnings_move_bucket
 from back_testing.back_testing_features import (engineer_abs_reaction_3d,
                                                 engineer_abs_reaction_p75_rolling,
                                                 engineer_abs_reaction_p90_rolling)
+from back_testing.testing_model_features import check_explosiveness_feature, three_way_regime_test
 
 def stage4(stage3_df):
     df = stage3_df.copy()
-    df = engineer_abs_reaction_3d(df)
-    df = engineer_abs_reaction_p75_rolling(df)
-    df = engineer_abs_reaction_p90_rolling(df)
-    df = classify_large_earnings_move_bucket(df)
-
+    features = [engineer_abs_reaction_3d,
+                engineer_abs_reaction_p75_rolling,
+                engineer_abs_reaction_p90_rolling,
+                classify_large_earnings_move_bucket]
+    for f in features:
+        df = f(df)
 
     ### TODO: CHECKS - TEMPORARY!
+    """ 
+        You now have your first defensible rule:
+        Tail risk increases materially when:
+        timing_danger is high
+        stock_vs_sector_vol ≥ 1
+    """
+    test = three_way_regime_test(df)
+    #test.to_csv("three_way_test.csv", index=False)
     print("\nCHECKS - TEMPORARY!\n")
+    subset = df[df["is_earnings_day"] == True].copy()
+
+    cond = (
+        (subset["timing_danger"] >= subset["timing_danger"].quantile(0.8)) &
+        (subset["stock_vs_sector_vol"] >= 1) &
+        (subset["earnings_explosiveness_score"] >= subset["earnings_explosiveness_score"].quantile(0.9))
+    )
+
+    print("Sample size:", cond.sum())
+    print("Large move rate:", subset.loc[cond, "is_large_reaction"].mean())
+    print("Extreme move rate:", subset.loc[cond, "is_extreme_reaction"].mean())
+
+    print("Baseline extreme:", subset["is_extreme_reaction"].mean())
+    print("Baseline large:", subset["is_large_reaction"].mean())
+
+    print(subset.loc[cond, "abs_reaction_3d"].describe())
+
+    print(subset.loc[cond].groupby("stock").size().describe())
+
+    for td_q in [0.7, 0.8]:
+        for ex_q in [0.8, 0.9]:
+            cond = (
+                (subset["timing_danger"] >= subset["timing_danger"].quantile(td_q)) &
+                (subset["earnings_explosiveness_score"] >= subset["earnings_explosiveness_score"].quantile(ex_q)) &
+                (subset["stock_vs_sector_vol"] >= 1)
+            )
+
+            if cond.sum() > 30:
+                print(td_q, ex_q,
+                    cond.sum(),
+                    subset.loc[cond, "is_extreme_reaction"].mean())
+
+
+
+
+
+    # conditional_hit_rate_analysis(df)
+    # check_timing_danger_connection_to_earnings_move_bucket(df)
+    #check_explosiveness_feature(df)
+
+
+    return df
+
+
+
+def conditional_hit_rate_analysis(df):
+    """ 
+        We already proved something important:
+        Unconditional timing_danger ≠ large move predictor
+        So now we ask the correct question:
+        In which regimes does earnings risk actually turn into realized large moves?
+        That means conditioning.
+    """
+    bt = df.copy()
+    bt = bt[bt["is_earnings_day"] == 1].copy()
+
+    # We want:
+    # vol_stress_extreme == 1
+    # Sector earnings crowding: sector_earnings_density >= median
+    # Stock-specific volatility dominance: stock_vs_sector_vol >= 1
+    bt["is_large_plus"] = (bt["earnings_move_bucket"] >= 1).astype(int)
+    bt["is_extreme"]    = (bt["earnings_move_bucket"] == 2).astype(int)
+
+    # median split for density
+    density_med = bt["sector_earnings_density"].median()
+    bt["dense_earnings"] = (bt["sector_earnings_density"] >= density_med).astype(int)
+
+    bt["high_individual_vol"] = (bt["stock_vs_sector_vol"] >= 1).astype(int)
+
+    danger_cut = bt["timing_danger"].quantile(0.9)
+    bt["high_danger"] = (bt["timing_danger"] >= danger_cut).astype(int)
+
+    def cond_table(df, mask, label):
+        sub = df[mask]
+        return {
+            "group": label,
+            "n": len(sub),
+            "p_large_plus": sub["is_large_plus"].mean(),
+            "p_extreme": sub["is_extreme"].mean(),
+        }
+
+    rows = []
+
+    # baseline
+    rows.append(cond_table(bt, bt.index == bt.index, "ALL"))
+
+    # danger only
+    rows.append(cond_table(bt, bt["high_danger"] == 1, "High danger"))
+
+    # danger + vol stress
+    rows.append(cond_table(
+        bt,
+        (bt["high_danger"] == 1) & (bt["vol_stress_extreme"] == 1),
+        "High danger + vol stress extreme"
+    ))
+
+    # danger + low density
+    rows.append(cond_table(
+        bt,
+        (bt["high_danger"] == 1) & (bt["dense_earnings"] == 0),
+        "High danger + low earnings density"
+    ))
+
+    # danger + idio vol
+    rows.append(cond_table(
+        bt,
+        (bt["high_danger"] == 1) & (bt["high_individual_vol"] == 1),
+        "High danger + high idio vol"
+    ))
+
+    temp_df = pd.DataFrame(rows)
+
+    temp_df.to_csv("temp_df.csv",index=False)
+
+def check_timing_danger_connection_to_earnings_move_bucket(df):
     
     ## Diagnostic: timing_danger connection to earnings_move_bucket
     bt = df.copy()
@@ -99,4 +224,11 @@ def stage4(stage3_df):
     print(bt["timing_danger"].nunique())
 
 
-    return df
+
+    # print(df_to_check[
+    #     ["proximity_score",
+    #     "vol_expansion_score",
+    #     "momentum_fragility_score",
+    #     "earnings_explosiveness_score",
+    #     "timing_danger"]
+    # ].corr())

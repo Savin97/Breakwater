@@ -6,7 +6,7 @@ def engineer_sector_vol_stress(input_df: pd.DataFrame, q_high = 0.9) -> pd.DataF
 
     """
     df = input_df.copy()
-
+    
     df["sector_vol_ratio_pct"] = (
         df.groupby(["sector", "date"])["vol_ratio_10_to_30"]
             .rank(pct=True, method="average")

@@ -99,7 +99,7 @@ def fetch_earnings_dates(sleep_between = 0.0, deduplicate = True) -> pd.DataFram
     """
         Fetch earnings dates for multiple stocks and stack into one DataFrame.
     """
-    stocks_list = read_stocks_to_fetch(Path(STOCK_NAMES_FILE_PATH))
+    stocks_list = read_stocks_to_fetch()
     print(f"{len(stocks_list)} Stocks to fetch.\n")
     
 

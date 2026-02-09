@@ -40,8 +40,8 @@ def engineer_drift(input_df):
     df = input_df.copy()
     group = df.groupby('stock')['daily_ret']
 
-    df[f'drift_{SHORT_TERM_DRIFT}d'] = group.transform(lambda x: x.rolling(SHORT_TERM_DRIFT).mean().shift(1))
-    df[f'drift_{LONG_TERM_DRIFT}d'] = group.transform(lambda x: x.rolling(LONG_TERM_DRIFT).mean().shift(1))
+    df[f'drift_30d'] = group.transform(lambda x: x.rolling(SHORT_TERM_DRIFT).mean().shift(1))
+    df[f'drift_60d'] = group.transform(lambda x: x.rolling(LONG_TERM_DRIFT).mean().shift(1))
 
     return df
 
@@ -49,10 +49,10 @@ def engineer_volatility(input_df):
     df = input_df.copy()
     group = df.groupby('stock')['daily_ret']
     # Volatility (short + baseline)
-    df[f'vol_{SHORT_TERM_VOLATILITY}d'] = group.transform(lambda x: x.rolling(SHORT_TERM_VOLATILITY).std().shift(1))
-    df[f'vol_{LONG_TERM_VOLATILITY}d'] = group.transform(lambda x: x.rolling(LONG_TERM_VOLATILITY).std().shift(1))
+    df[f'vol_10d'] = group.transform(lambda x: x.rolling(SHORT_TERM_VOLATILITY).std().shift(1))
+    df[f'vol_30d'] = group.transform(lambda x: x.rolling(LONG_TERM_VOLATILITY).std().shift(1))
     # Vol expansion signal | by default vol_ratio_10_to_30
-    df[f'vol_ratio_{SHORT_TERM_VOLATILITY}_to_{LONG_TERM_VOLATILITY}'] = (
+    df[f'vol_ratio_10_to_30'] = (
             df[f'vol_{SHORT_TERM_VOLATILITY}d'] / df[f'vol_{LONG_TERM_VOLATILITY}d']
     )
     return df

@@ -73,7 +73,7 @@ def parse_quarterly_eps(data: dict) -> pd.DataFrame:
     return df
 
 def fetch_eps() -> pd.DataFrame:
-    stocks = read_stocks_to_fetch(Path(STOCK_NAMES_FILE_PATH))
+    stocks = read_stocks_to_fetch()
     if USE_CACHED_DATA_FLAG == True:
         if Path(EPS_PATH).exists():
             print(f"Using cached EPS Data from {EPS_PATH}\n")

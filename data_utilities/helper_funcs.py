@@ -6,23 +6,24 @@ from pathlib import Path
 
 from config import (BACKOFF_SECONDS, 
                     DEFAULT_REACTION_WINDOW,
-                    USE_CACHED_DATA_FLAG)
+                    USE_CACHED_DATA_FLAG,
+                    STOCK_NAMES_FILE_PATH)
 
 def directory_checks():
     Path("data").mkdir(exist_ok=True)
     Path("output").mkdir(exist_ok=True)
 
-def read_stocks_to_fetch(path: Path) -> list[str]:
+def read_stocks_to_fetch() -> list[str]:
     """
         Reads stocks from a file. Supports:
         - .txt: one stock per line
         - .csv: column named symbol/ticker/stock 
         Returns a list of all unique stocks (uppercase, no spaces)
     """
-    if not path.exists():
-        raise FileNotFoundError(f"Stocks file not found: {path}")
+    path = Path(STOCK_NAMES_FILE_PATH)
 
     if path.suffix.lower() == ".csv":
+        print("Reading stocks from .csv file")
         stock_prices_df = pd.read_csv(path)
         col = None
         for c in ("stock", "symbol", "ticker","Stock", "Symbol", "Ticker"):
@@ -33,7 +34,7 @@ def read_stocks_to_fetch(path: Path) -> list[str]:
             raise ValueError(f"CSV must contain a symbol/ticker/stock column. Found: {list(stock_prices_df.columns)}")
         stocks = stock_prices_df[col].astype(str).str.strip().tolist()
     else:
-        print("Reading stocks from text file")
+        print("Reading stocks from .txt file")
         stocks = [ln.strip() for ln in path.read_text().splitlines() if ln.strip()]
         print(stocks)
 

@@ -29,7 +29,9 @@ def stage1():
     """
     directory_checks()   
     warnings.filterwarnings('ignore')
-    
+
+    #janky_solution()
+
     stock_prices = fetch_stock_prices(provider=PRICES_PROVIDER)
     earnings_dates = fetch_earnings_dates()
 
@@ -61,6 +63,17 @@ def stage1():
     df["earnings_date"] = parse_date(df["earnings_date"])
     df["price"] = parse_numeric(df["price"])
     
-
     return df
-    
+
+def janky_solution():
+    from config import partial_tickers_to_fetch
+    import pandas as pd
+    prices = pd.read_csv("data/stock_prices.csv")
+    earnings = pd.read_csv("data/earnings_dates.csv")
+    prices = prices[prices["date"]>= "2016-01-01"]
+    earnings = earnings[earnings["earnings_date"]>= "2016-01-01"]
+
+    prices = prices[prices["stock"].isin(partial_tickers_to_fetch)]
+    earnings = earnings[earnings["stock"].isin(partial_tickers_to_fetch)]
+    prices.to_csv("data/stock_prices.csv",index=False)
+    earnings.to_csv("data/earnings_dates.csv",index=False)

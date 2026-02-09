@@ -2,10 +2,31 @@
 import numpy as np
 import pandas as pd
 
+from config import (LARGE_EARNINGS_REACTION_THRESHOLD,
+                    EXTREME_EARNINGS_REACTION_THRESHOLD)
+
 from risk_scoring.composite_scoring import (score_proximity,
                                score_vol_expansion,
                                score_earnings_explosiveness,
                                score_momentum_fragility)
+
+def engineer_large_reaction(input_df):
+    """
+        Adds a binary column 'is_large_plus' indicating if the earnings move is large (≥ threshold).
+        Threshold can be set based on historical distribution of abs_reaction_3d or business needs.
+    """
+    df = input_df.copy()
+    df["is_large_reaction"] = (df["abs_reaction_median"] >= LARGE_EARNINGS_REACTION_THRESHOLD).astype(int)
+    return df
+
+def engineer_extreme_reaction(input_df):
+    """
+        Adds a binary column 'is_extreme' indicating if the earnings move is extreme (≥ threshold).
+        Threshold can be set based on historical distribution of abs_reaction_3d or business needs.
+    """
+    df = input_df.copy()
+    df["is_extreme_reaction"] = (df["abs_reaction_median"] >= EXTREME_EARNINGS_REACTION_THRESHOLD).astype(int)
+    return df
 
 def engineer_vol_stress(input_df, ratio_col: str = "vol_ratio_10_to_30"):
 
@@ -34,19 +55,19 @@ def engineer_vol_stress(input_df, ratio_col: str = "vol_ratio_10_to_30"):
     df[ratio_col] = replaced
 
     # Cross-sectional percentile rank per day
-    df["vol_ratio_cross_percentile"] = (
+    df["vol_ratio_cross_sectional_pct"] = (
         df.groupby("date")[ratio_col]
             .rank(pct=True, method="average")
     )
 
-    df["vol_stress_elevated"] = ( df["vol_ratio_cross_percentile"] >= q_high ).astype(int)
+    df["vol_stress_elevated"] = ( df["vol_ratio_cross_sectional_pct"] >= q_high ).astype(int)
     # Might be a better implementaion 
     # (guards against only showing vol_stress_elevated as relative, not absolute):
     # vol_stress_elevated =
-        # (vol_ratio_cross_percentile >= 0.80) &
+        # (vol_ratio_cross_sectional_pct >= 0.80) &
         # (vol_ratio_10_to_30 >= 1.10)
 
-    df["vol_stress_extreme"] = ( df["vol_ratio_cross_percentile"] >= q_extreme ).astype(int)
+    df["vol_stress_extreme"] = ( df["vol_ratio_cross_sectional_pct"] >= q_extreme ).astype(int)
     
     return df
 
@@ -86,7 +107,7 @@ def engineer_momentum_pressure(input_df, quantile = 0.8) -> pd.DataFrame:
 def engineer_earnings_explosiveness(input_df, epsilon = 1e-6):
     """
         Adds:
-        ####- earnings_explosiveness (raw)          = abs_reaction_median_3d
+        - earnings_explosiveness (raw)          = abs_reaction_median_3d
         - earnings_explosiveness_z (normalized) = abs_reaction_median_3d / max(vol_30d, epsilon)
         Median-based explosiveness = “typical risk”
         
@@ -110,7 +131,7 @@ def engineer_earnings_explosiveness(input_df, epsilon = 1e-6):
 
     return df
 
-def engineer_timing_danger(input_df, w_prox=0.25, w_vol=0.25, w_mom=0.20, w_exp=0.30,):
+def engineer_timing_danger(input_df, weights=[0.25,0.25,0.2,0.3]):
     """
         TimingDanger = w1 * ProximityRisk +
                         + w2 * VolExpansionRisk
@@ -136,10 +157,10 @@ def engineer_timing_danger(input_df, w_prox=0.25, w_vol=0.25, w_mom=0.20, w_exp=
     exp  = score_earnings_explosiveness(df)
 
     timing_danger = (
-        w_prox * prox +
-        w_vol  * vol  +
-        w_mom  * mom  +
-        w_exp  * exp
+        weights[0] * prox +
+        weights[0]  * vol  +
+        weights[0]  * mom  +
+        weights[0]  * exp
     )
 
     scores = {
