@@ -14,6 +14,7 @@ EARNINGS_PATH = "data/earnings_dates.csv"
 EPS_PATH = "data/eps_data.csv"
 SECTORS_PATH = "data/sector_data.csv"
 OUTPUT_PATH = "output/"
+DB_PATH = "data/breakwater.duckdb"
 ALPHAVANTAGE_BASE_URL = "https://www.alphavantage.co/query"
 
 # Global Parameters
@@ -35,7 +36,7 @@ EXTREME_EARNINGS_REACTION_THRESHOLD = 0.08 # Based on 90th percentile of abs_rea
 PRICES_PROVIDER = "ALPHAVANTAGE"
 ALPHAVANTAGE_CALLS_PER_MINUTE=75
 TIMEOUT_SECONDS = 30.0
-BACKOFF_SECONDS = 20.0
+BACKOFF_SECONDS = 20.0  
 MAX_RETRIES = 5
 DEFAULT_FETCH_CHUNK_SIZE = 50
 CORRECT_STOCK_COL_NAME = "stock"

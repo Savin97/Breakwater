@@ -54,6 +54,7 @@ def engineer_earnings_reactions(df):
         assert df.loc[~mask, f"reaction_{i}d"].isna().all() # No reactions on non-earnings days
     return df
 
+
 def engineer_reaction_class(df):
     """
         Engineer is_up,is_down,is_nochange features:

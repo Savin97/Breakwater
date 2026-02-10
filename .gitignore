@@ -11,6 +11,7 @@ output/
 **/output/
 data/   
 **/data/
+back_testing/artifacts/
 
 
 # OS stuff
