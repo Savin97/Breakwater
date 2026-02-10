@@ -1,12 +1,12 @@
-1. Data fetching should check config swithces - USE_CACHED == True or False?
-
-2. Improve caching mechanism  - should work more like sector fetching checks cache.
-    stock list (Currently S&P 500 scraped from wikipedia),prices, earnings, etc:
+1. Improve caching mechanism: 
+    - Data fetching should check config swithces - USE_CACHED == True or False?
+    - It should work more like sector fetching checks cache.
+        stock list (Currently S&P 500 scraped from wikipedia),prices, earnings, etc:
         fetching errors, 
         downtime, 
         alternate sources in case main one fails,
         datatype checking
-    Also storage of this data - *parquet* instead of csv.
+    - Also storage of this data - *parquet* instead of csv.
 
 3. REACTION_THRESHOLD - probably shouldn't be a static number (Check GPT)
 
@@ -19,7 +19,7 @@ Add explanations (reasons) in Stage 3
 Generate the first earnings-week PDF/HTML report
 
 
-- Move these OUT of df, create a separate table earnings_outcomes with:
+5. Move these OUT of df, create a separate table earnings_outcomes with:
     """ Used for: evaluation, PDFs, credibility (“historically this stock moves X%”) """
     reaction_3d,1d,5d
     sector_mean_d
@@ -29,7 +29,7 @@ Generate the first earnings-week PDF/HTML report
     surprise
     surprise_bucket
 
-- Features to implement in the feature (Stage 2):
+6.  Possible useful features to implement in the feature (Stage 2):
     Structural risk features, these 3 explain why a move might be violent:
     avg_dollar_volume (or proxy)
     bid_ask_proxy (even a crude one)
@@ -38,6 +38,24 @@ Generate the first earnings-week PDF/HTML report
     market_cap_bucket
     liquidity_proxy (avg dollar volume)
     gap_frequency (how often it gaps > X%)
+
+    From old project:
+    past_up_freq
+    past_down_freq
+    past_nochange_freq
+    past_consistency_3d
+    past_consistency_10d
+    prev_earnings_direction
+
+    relative_to_sector = drift_10d − sector_drift_10d
+    sector_volatility_score =
+        sector_vol_10d / rolling_median(sector_vol_10d, 120)
+
+    reaction_volatility =    # This is basically: “Does this stock usually move on earnings?”
+        (past_up_freq + past_down_freq) > past_nochange_freq
+
+
+
 
 
 Output:

@@ -3,7 +3,6 @@ stock
 date
 earnings_date
 
-
 Stock Drift |  | Capital flow / macro / theme pressure affecting all stocks in that bucket Earnings reactions are amplified when both Stock drift and Sector drift align.
 
 Pre-earninigs features:
