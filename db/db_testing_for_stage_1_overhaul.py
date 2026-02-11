@@ -68,59 +68,11 @@ def main():
         # 6) verify
         n = connection.execute("SELECT COUNT(*) FROM prices WHERE stock = ?;", [TEST_STOCK]).fetchone()[0]
         mind = connection.execute("SELECT MIN(date), MAX(date) FROM prices WHERE stock = ?;", [TEST_STOCK]).fetchone()
-
-
+    
     finally:
         connection.close()
     print("Inserted rows:", n)
     print("Min/Max date:", mind)
-
-def read_db():
-    DB_PATH = "data/breakwater.duckdb"
-
-    con = duckdb.connect(DB_PATH)
-    # Check table exists
-    tables = con.execute("SHOW TABLES").fetchall()
-    print("Tables:", tables)
-
-    # Row count
-    count = con.execute("SELECT COUNT(*) FROM prices").fetchone()[0]
-    print("Total rows in prices:", count)
-
-    # Sample rows
-    sample = con.execute("""
-        SELECT *
-        FROM prices
-        ORDER BY stock, date
-        LIMIT 10
-    """).df()
-    
-    print("\nSample rows:")
-    print(sample)
-
-    # AAPL stats
-    aapl_stats = con.execute("""
-        SELECT
-            COUNT(*) AS n_rows,
-            MIN(date) AS min_date,
-            MAX(date) AS max_date
-        FROM prices
-        WHERE stock = 'AAPL'
-    """).df()
-
-    print("\nAAPL coverage:")
-    print(aapl_stats)
-
-    df = con.execute("""
-        SELECT stock, COUNT(*) AS n
-        FROM prices
-        GROUP BY stock
-        ORDER BY n DESC
-    """).df()
-
-    print(df.head())
-
-    con.close()
 
 def test_db():
     con = duckdb.connect("data/breakwater.duckdb")
@@ -143,11 +95,9 @@ def test_db():
     print("rows:", len(df))
     print("min/max:", df["date"].min(), df["date"].max())
 
-    check.to_csv("check.csv", index=False)
     print("rows:", len(check))
 
 
 if __name__ == "__main__":
     main()
-    read_db()
     test_db()
