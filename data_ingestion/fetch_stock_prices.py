@@ -29,7 +29,7 @@ from data_utilities.helper_funcs import (chunk_list,
                                         read_stocks_to_fetch)
 
 
-def sfetch_stock_prices(provider: str) -> pd.DataFrame:
+def fetch_stock_prices(provider: str) -> pd.DataFrame:
     """
         Fetch stock prices for a list of stocks from a specified provider.
         Outputs a DF: stock | date | price

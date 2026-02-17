@@ -17,8 +17,8 @@ def run_pipeline():
     inputs_df = stage1() 
     feature_engineering = stage2(inputs_df)
     scoring_df = stage3(feature_engineering)
-    back_testing_df = stage4(scoring_df)
+    backtesting_df = stage4(scoring_df)
     
-    #output_to_csv(inputs_df, feature_engineering, scoring_df, back_testing_df)
+    #output_to_csv(inputs_df, feature_engineering, scoring_df, backtesting_df)
 
     return 

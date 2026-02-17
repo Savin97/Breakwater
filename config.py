@@ -18,7 +18,7 @@ DB_PATH = "data/breakwater.duckdb"
 ALPHAVANTAGE_BASE_URL = "https://www.alphavantage.co/query"
 
 # Global Parameters
-STOCKS_START_DATE = "2021-01-01"
+STOCKS_START_DATE = "2000-01-01"
 STOCKS_END_DATE = "2026-01-01"
 DEFAULT_REACTION_WINDOW = "reaction_3d" # Model will use 3 days after earnings
 REACTION_THRESHOLD = 0.007

@@ -6,12 +6,12 @@
 import pandas as pd
 import numpy as np
 
-from back_testing.back_testing import back_testing_suite
-from back_testing.back_testing_features import (engineer_abs_reaction_3d,
+from backtesting.backtesting import backtesting_suite
+from backtesting.backtesting_features import (engineer_abs_reaction_3d,
                                                 engineer_abs_reaction_p75_rolling,
                                                 engineer_abs_reaction_p90_rolling,
                                                 classify_large_earnings_move_bucket)
-from back_testing.testing_model_features import (check_explosiveness_feature, 
+from backtesting.testing_model_features import (check_explosiveness_feature, 
                                                  three_way_regime_test,
                                                  conditional_hit_rate_analysis)
 
@@ -94,7 +94,7 @@ def stage4(stage3_df):
     # print("\nBreakwater Regime:")
     # print(breakwater_regime_test(df))
         
-    # back_testing_suite(df)
+    # backtesting_suite(df)
     ### TODO: CHECKS - TEMPORARY!
     # print("\n\nCHECKS ")
     """ 

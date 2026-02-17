@@ -11,7 +11,8 @@ output/
 **/output/
 data/   
 **/data/
-back_testing/artifacts/
+backtesting
+/artifacts/
 
 
 # OS stuff
@@ -23,5 +24,6 @@ back_testing/artifacts/
 *.csv
 secrets.json
 config_local.py
-back_testing/artifacts/
+backtesting
+/artifacts/
 
