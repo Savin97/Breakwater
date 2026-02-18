@@ -23,22 +23,28 @@ def create_prices_if_not_exists(con):
             ingested_at TIMESTAMP
         );
     """)
+    # uniqueness constraint - only one row per (stock, date) pair, no duplicates allowed
+    con.execute("CREATE UNIQUE INDEX IF NOT EXISTS prices_stock_date_uq ON prices(stock, date)")
+    
 
-def create_earnings_date_if_not_exists(db_path):
+def create_earnings_table_if_not_exists(db_path):
     con = duckdb.connect(db_path)
     con.execute("""
-                    CREATE TABLE IF NOT EXISTS earnings_dates (
+                    CREATE TABLE IF NOT EXISTS earnings (
                     stock TEXT,
                     earnings_date DATE,
-                    fiscal_date_ending DATE,
+                    fiscal_end_date DATE,
+                    reported_eps DOUBLE,
+                    estimated_eps DOUBLE,
+                    surprise_percentage DOUBLE,
                     ingested_at TIMESTAMP
                 ); """)
     con.execute("""
         CREATE UNIQUE INDEX IF NOT EXISTS earnings_unique
-        ON earnings_dates(stock, earnings_date, fiscal_date_ending);
+        ON earnings(stock, earnings_date, fiscal_end_date);
     """)
     con.close()
-    print("earnings_dates table ready.")
+    print("earnings table ready.")
 
 def stock_already_in_db(con, stock: str) -> bool:
     n = con.execute("SELECT COUNT(*) FROM prices WHERE stock = ?;", [stock]).fetchone()[0]
@@ -75,7 +81,7 @@ def test_db():
         GROUP BY stock
         ORDER BY stock
     """).df()   
-    df.to_csv("count_db_test.csv",index=False)
+    #df.to_csv("count_db_test.csv",index=False)
     
     testing_if_all_fetched = con.execute("""
         WITH mx AS (SELECT MAX(date) AS global_max FROM prices)
@@ -105,6 +111,44 @@ def test_db():
     print(con.execute("SELECT COUNT(DISTINCT stock) FROM prices").fetchone())
     print(con.execute("SELECT DISTINCT stock FROM prices ORDER BY stock").fetchdf())
     print(con.execute("SELECT COUNT(*) FROM prices").fetchone())
+
+    print("\n\n---------------------\n")
+    df = con.execute("""
+        SELECT stock, COUNT(*) n, MIN(earnings_date) mind, MAX(earnings_date) maxd
+        FROM earnings
+        GROUP BY stock
+        ORDER BY stock
+    """).df()   
+    #df.to_csv("count_db_test.csv",index=False)
+    
+    testing_if_all_fetched = con.execute("""
+        WITH mx AS (SELECT MAX(earnings_date) AS global_max FROM earnings)
+        SELECT e.stock, MAX(e.earnings_date) AS max_date
+        FROM earnings e, mx
+        GROUP BY e.stock, mx.global_max
+        HAVING MAX(e.earnings_date) < mx.global_max
+        ORDER BY max_date
+        """).fetchdf()
+    
+    last_5_stocks = (con.execute(
+        """
+            WITH last_5_stocks AS (
+            SELECT stock
+            FROM earnings
+            GROUP BY stock
+            ORDER BY MAX(ingested_at) DESC
+            LIMIT 5
+            )
+            SELECT *
+            FROM earnings
+            WHERE stock IN (SELECT stock FROM last_5_stocks)
+            ORDER BY stock DESC, ingested_at DESC;
+        """).fetchdf())
+
+    print(testing_if_all_fetched.head())
+    print(con.execute("SELECT COUNT(DISTINCT stock) FROM earnings").fetchone())
+    print(con.execute("SELECT DISTINCT stock FROM earnings ORDER BY stock").fetchdf())
+    print(con.execute("SELECT COUNT(*) FROM earnings").fetchone())
 
     con.close()
 

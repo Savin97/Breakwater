@@ -92,8 +92,8 @@ def engineer_abs_reaction_median(input_df):
         Captures Typical size of earnings moves
         Robust to outliers
 
-        High → this stock usually moves on earnings
-        Low → earnings are often a non-event
+        High -> this stock usually moves on earnings
+        Low -> earnings are often a non-event
         Intuition:
             - Median answers: "What usually happens on earnings?"
 
@@ -134,7 +134,7 @@ def engineer_abs_reaction_p75(input_df):
         • Strictly non-leaky: statistics at time t are computed from events < t
         via shift(1)
         • Expanding window over the stock's earnings history
-        • First earnings event per stock has no past history → NaN (by design)
+        • First earnings event per stock has no past history -> NaN (by design)
         Values are populated only on earnings rows; non-earnings rows remain NaN.
         
     """

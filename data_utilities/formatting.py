@@ -32,3 +32,8 @@ def change_column_name(df, list_of_col_names, correct_col_name):
             df = df.rename(columns = {col_name: correct_col_name})
             return df
     return df
+
+def to_float_or_none(x):
+    if x in (None, "None", ""):
+        return None
+    return float(x)

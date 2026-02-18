@@ -7,7 +7,7 @@
 from config import ( STOCKS_START_DATE,
                     STOCKS_END_DATE, 
                     PRICES_PATH, 
-                    STOCK_NAMES_FILE_PATH,
+                    STOCK_LIST_PATH,
                     TIMEOUT_SECONDS,
                     BACKOFF_SECONDS,
                     MAX_RETRIES,
@@ -49,7 +49,7 @@ def fetch_stock_prices(provider: str) -> pd.DataFrame:
     print("No cached Prices data, fetching NEW...")        
     print(f"Provider: {provider}")
     print(f"Stocks: {len(stock_list)}")
-    print(f"Date range: {STOCKS_START_DATE} → {STOCKS_END_DATE}")
+    print(f"Date range: {STOCKS_START_DATE} -> {STOCKS_END_DATE}")
 
     parts = []
     done = 0

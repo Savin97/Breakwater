@@ -7,7 +7,7 @@ from config import (ALPHAVANTAGE_BASE_URL,
                     STOCKS_START_DATE,
                     EPS_PATH,
                     USE_CACHED_DATA_FLAG,
-                    STOCK_NAMES_FILE_PATH)
+                    STOCK_LIST_PATH)
 
 from data_utilities.helper_funcs import get_alpha_vantage_api_key, read_stocks_to_fetch
 

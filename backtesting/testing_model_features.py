@@ -214,7 +214,7 @@ def check_timing_danger_connection_to_earnings_move_bucket(df):
         # extreme = bucket == 2
 
         # Interpretation rules:
-        # p_large_plus should generally increase from D1 → D10.
+        # p_large_plus should generally increase from D1 -> D10.
         # lift_large_plus in D10:
         # ~1.0 = no signal
         # 1.3–1.7 = usable

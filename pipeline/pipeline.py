@@ -4,6 +4,7 @@ from pipeline.stage1 import stage1
 from pipeline.stage2 import stage2
 from pipeline.stage3 import stage3
 from pipeline.stage4 import stage4
+from pipeline.stage5 import stage5
 from pipeline.output import output_to_csv
 
 def run_pipeline():
@@ -16,9 +17,9 @@ def run_pipeline():
     """
     inputs_df = stage1() 
     feature_engineering = stage2(inputs_df)
-    scoring_df = stage3(feature_engineering)
-    backtesting_df = stage4(scoring_df)
-    
-    #output_to_csv(inputs_df, feature_engineering, scoring_df, backtesting_df)
+    risk_scoring = stage3(feature_engineering)
+    backtesting = stage4(risk_scoring)
+    report = stage5(risk_scoring)
+    #output_to_csv(inputs_df, feature_engineering, risk_scoring, backtesting)
 
-    return 
+    return report

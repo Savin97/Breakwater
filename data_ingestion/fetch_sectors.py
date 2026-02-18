@@ -4,7 +4,7 @@ import numpy as np
 from pathlib import Path
 import yfinance as yf
 
-from config import STOCK_NAMES_FILE_PATH, SECTORS_PATH, USE_CACHED_DATA_FLAG
+from config import STOCK_LIST_PATH, SECTORS_PATH, USE_CACHED_DATA_FLAG
 from data_utilities.helper_funcs import read_stocks_to_fetch
 
 # def fetch_single_sector(stock: str) -> dict:

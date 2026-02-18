@@ -5,18 +5,17 @@ from pathlib import Path
 
 from db.getting_data import (ingest_all_stocks,
                              ingest_all_earnings_dates)
-from db.auxilary_functions import (create_prices_if_not_exists,
-                                   create_earnings_date_if_not_exists,
-                                   test_db)
+from db.auxilary_functions import (test_db)
+
 DB_PATH = "data/breakwater.duckdb"
 
-def main():
+def db_main():
     # connect + ensure table exists
     con = duckdb.connect(DB_PATH)
     try:
         os.makedirs("db/db_output", exist_ok=True)
-        create_prices_if_not_exists(con)
-        ingest_all_earnings_dates()
+        #ingest_all_stocks()
+        #ingest_all_earnings_dates()
         # Describe all tables
         print(con.execute("""SELECT
                             table_name,
@@ -24,10 +23,12 @@ def main():
                             data_type
                             FROM information_schema.columns
                             ORDER BY table_name, ordinal_position; """).fetchall())
+        con.execute("""SELECT *
+                            FROM earnings
+                            ORDER BY (stock,earnings_date); """).fetch_df().to_csv("db_df.csv",index=False)
+        test_db() 
     finally:
         con.close()
 
-if __name__ == "__main__":
-    main()
 
  

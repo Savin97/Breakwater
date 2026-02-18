@@ -8,7 +8,7 @@ USE_CACHED_SECTOR_DATA_FLAG = True
 USE_CACHED_EPS_DATA_FLAG = True
 
 # Paths
-STOCK_NAMES_FILE_PATH = "data/stock_list.csv"
+STOCK_LIST_PATH = "data/stock_list.csv"
 PRICES_PATH = "data/stock_prices.csv"
 EARNINGS_PATH = "data/earnings_dates.csv"
 EPS_PATH = "data/eps_data.csv"

@@ -7,7 +7,7 @@ from pathlib import Path
 from config import (BACKOFF_SECONDS, 
                     DEFAULT_REACTION_WINDOW,
                     USE_CACHED_DATA_FLAG,
-                    STOCK_NAMES_FILE_PATH)
+                    STOCK_LIST_PATH)
 
 def directory_checks():
     Path("data").mkdir(exist_ok=True)
@@ -20,7 +20,7 @@ def read_stocks_to_fetch() -> list[str]:
         - .csv: column named symbol/ticker/stock 
         Returns a list of all unique stocks (uppercase, no spaces)
     """
-    path = Path(STOCK_NAMES_FILE_PATH)
+    path = Path(STOCK_LIST_PATH)
 
     if path.suffix.lower() == ".csv":
         print("Reading stocks from .csv file")

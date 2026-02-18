@@ -31,7 +31,7 @@ def engineer_extreme_reaction(input_df):
 def engineer_vol_stress(input_df, ratio_col: str = "vol_ratio_10_to_30"):
 
     """
-        If vol_ratio_10_to_30 is high, recent vol spiked relative to the recent baseline → “stress”.
+        If vol_ratio_10_to_30 is high, recent vol spiked relative to the recent baseline -> “stress”.
         Define “stress” as “top X%”.
         Typical starting points:
         Top 20% = “elevated”

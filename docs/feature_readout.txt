@@ -17,10 +17,10 @@ Days to next earnings (Calendar days) = (next_earnings_date - date).days
 earnings_proximity = min(
     abs(days_from_last_earnings),
     abs(days_to_next_earnings)
-) # very low → stock is “hot” | mid → digestion phase | high → normal regime
+) # very low -> stock is “hot” | mid -> digestion phase | high -> normal regime
 
-is_earnings_week → days_to_earnings ∈ [0,7]
-is_earnings_window → [-2,+3]
+is_earnings_week -> days_to_earnings ∈ [0,7]
+is_earnings_window -> [-2,+3]
 
 abs_reaction_median_3d
 abs_reaction_p75_3d | The earnings move size that this stock exceeds only in its top 25% of past 
@@ -40,7 +40,7 @@ abs_reaction_p75_3d | The earnings move size that this stock exceeds only in its
 
 
 sector_earnings_count_5d - # of distinct stocks in the same sector with earnings within ±N calendar days
-sector_earnings_count_10d - high count → crowded tape | low count → idiosyncratic reaction more likely
+sector_earnings_count_10d - high count -> crowded tape | low count -> idiosyncratic reaction more likely
 
 sector_earnings_density = (
     sector_earnings_count_5d / sector_size

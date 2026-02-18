@@ -30,7 +30,7 @@ def score_proximity(df, horizon=30, power=1.5):
 
 
     # # Normalize signals
-    # # days_to_earnings >= 30  → 0   # days_to_earnings <= 0   → 100
+    # # days_to_earnings >= 30  -> 0   # days_to_earnings <= 0   -> 100
     # base = 1 - np.clip(df["days_to_earnings"] / 30 , 0, 1)
 
     # # Non-linear pressure near earnings
@@ -51,10 +51,10 @@ def score_vol_expansion(df):
         Vol Expansion Risk = “Is volatility already stretched before earnings?”        
         Range: 0-100
         Meaning:
-        0-30 → calm
-        30-60 → warming up
-        60-80 → unstable
-        80-100 → volatility already breaking
+        0-30 -> calm
+        30-60 -> warming up
+        60-80 -> unstable
+        80-100 -> volatility already breaking
     """
     # Normalize signals
     z1 = df["vol_ratio_cross_sectional_pct"].fillna(0).clip(0, 1)
@@ -123,9 +123,9 @@ def score_momentum_fragility(df):
         "crowded_trend": 1.0,
     }
     #Interpretation: 
-    # pressure → crowding / exhaustion
-    # bias → one-sided positioning
-    # sector drift → late-cycle momentum
+    # pressure -> crowding / exhaustion
+    # bias -> one-sided positioning
+    # sector drift -> late-cycle momentum
 
     bias_scale = df["directional_bias"].abs().quantile(0.90)
 

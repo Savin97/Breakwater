@@ -92,8 +92,8 @@ def engineer_reaction_entropy(df) -> pd.DataFrame:
                 H = - sum_over_i( p_i * log(p_i) )
 
             Properties:
-                minimum ≈ 0 → all reactions same bucket
-                higher → more chaotic
+                minimum ≈ 0 -> all reactions same bucket
+                higher -> more chaotic
 
             Entropy needs a probability distribution, we'll use a stable default of 
             5 bins and compute a histogram.

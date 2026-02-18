@@ -26,9 +26,9 @@ from config import (STOCKS_START_DATE,
                     BACKOFF_SECONDS,
                     EARNINGS_PATH,
                     USE_CACHED_DATA_FLAG,
-                    STOCK_NAMES_FILE_PATH)
+                    STOCK_LIST_PATH)
 
-from data_ingestion.api_functions import get_earnings_dates_from_api, handle_api_fetching_errors
+from data_ingestion.api_functions import get_full_earnings_data_from_api, handle_api_fetching_errors
 from data_utilities.formatting import parse_date
 from data_utilities.helper_funcs import read_stocks_to_fetch, get_alpha_vantage_api_key
 
@@ -42,7 +42,7 @@ def fetch_earnings_dates_for_stock(stock: str) -> pd.DataFrame:
     start_date = parse_date(STOCKS_START_DATE)
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            data = get_earnings_dates_from_api(stock)
+            data = get_earnings_data_from_api(stock)
         except Exception as exc:
             last_err = exc
             if attempt == MAX_RETRIES:
@@ -83,7 +83,6 @@ def fetch_earnings_dates(sleep_between = 0.0, deduplicate = True) -> pd.DataFram
     stocks_list = read_stocks_to_fetch()
     print(f"{len(stocks_list)} Stocks to fetch.\n")
     
-
     if USE_CACHED_DATA_FLAG == True:
         if Path(EARNINGS_PATH).exists():
             print(f"Using cached Earnings Data from {EARNINGS_PATH}\n")
