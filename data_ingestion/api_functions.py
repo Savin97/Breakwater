@@ -6,28 +6,15 @@ from config import (ALPHAVANTAGE_BASE_URL,
                     TIMEOUT_SECONDS,
                     BACKOFF_SECONDS)
 
-from data_utilities.formatting import parse_date
 from data_utilities.helper_funcs import get_alpha_vantage_api_key
 
-def get_full_earnings_data_from_api(stock):
+def get_earnings_data_from_api(stock, output_size = "full"):
     api_key = get_alpha_vantage_api_key()
     params = {
         "function": "EARNINGS", 
         "symbol": stock, 
         "apikey": api_key,
-        "outputsize": "full"}  
-    r = requests.get(ALPHAVANTAGE_BASE_URL, params=params, timeout=TIMEOUT_SECONDS)
-    r.raise_for_status()
-    data = r.json()       
-    return data 
-
-def get_recent_earnings_data_from_api(stock):
-    api_key = get_alpha_vantage_api_key()
-    params = {
-        "function": "EARNINGS", 
-        "symbol": stock, 
-        "apikey": api_key,
-        "outputsize": "compact"}  
+        "outputsize": output_size}  
     r = requests.get(ALPHAVANTAGE_BASE_URL, params=params, timeout=TIMEOUT_SECONDS)
     r.raise_for_status()
     data = r.json()       

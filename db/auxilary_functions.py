@@ -91,21 +91,6 @@ def test_db():
         HAVING MAX(p.date) < mx.global_max
         ORDER BY max_date
         """).fetchdf()
-    
-    last_5_stocks = (con.execute(
-        """
-            WITH last_5_stocks AS (
-            SELECT stock
-            FROM prices
-            GROUP BY stock
-            ORDER BY MAX(ingested_at) DESC
-            LIMIT 5
-            )
-            SELECT *
-            FROM prices
-            WHERE stock IN (SELECT stock FROM last_5_stocks)
-            ORDER BY stock DESC, ingested_at DESC;
-        """).fetchdf())
 
     print(testing_if_all_fetched.head())
     print(con.execute("SELECT COUNT(DISTINCT stock) FROM prices").fetchone())
@@ -129,21 +114,6 @@ def test_db():
         HAVING MAX(e.earnings_date) < mx.global_max
         ORDER BY max_date
         """).fetchdf()
-    
-    last_5_stocks = (con.execute(
-        """
-            WITH last_5_stocks AS (
-            SELECT stock
-            FROM earnings
-            GROUP BY stock
-            ORDER BY MAX(ingested_at) DESC
-            LIMIT 5
-            )
-            SELECT *
-            FROM earnings
-            WHERE stock IN (SELECT stock FROM last_5_stocks)
-            ORDER BY stock DESC, ingested_at DESC;
-        """).fetchdf())
 
     print(testing_if_all_fetched.head())
     print(con.execute("SELECT COUNT(DISTINCT stock) FROM earnings").fetchone())
@@ -193,3 +163,11 @@ def fetch_one_stock_into_db(db, TEST_STOCK = "AAPL"):
     mind = connection.execute("SELECT MIN(date), MAX(date) FROM prices WHERE stock = ?;", [TEST_STOCK]).fetchone()
     print("Inserted rows:", n)
     print("Min/Max date:", mind)
+
+def get_max_dates_by_stock(con, table: str, date_col: str) -> dict[str, object]:
+    rows = con.execute(f"""
+        SELECT stock, MAX({date_col}) AS max_date
+        FROM {table}
+        GROUP BY stock
+    """).fetchall()
+    return {stock: max_date for stock, max_date in rows}
