@@ -8,13 +8,12 @@ from config import (ALPHAVANTAGE_BASE_URL,
 
 from data_utilities.helper_funcs import get_alpha_vantage_api_key
 
-def get_earnings_data_from_api(stock, output_size = "full"):
+def get_earnings_data_from_api(stock):
     api_key = get_alpha_vantage_api_key()
     params = {
         "function": "EARNINGS", 
         "symbol": stock, 
-        "apikey": api_key,
-        "outputsize": output_size}  
+        "apikey": api_key}  
     r = requests.get(ALPHAVANTAGE_BASE_URL, params=params, timeout=TIMEOUT_SECONDS)
     r.raise_for_status()
     data = r.json()       
