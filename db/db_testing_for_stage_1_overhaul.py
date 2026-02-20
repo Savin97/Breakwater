@@ -11,24 +11,10 @@ DB_PATH = "data/breakwater.duckdb"
 
 def db_main():
     # connect + ensure table exists
-    con = duckdb.connect(DB_PATH)
-    try:
-        os.makedirs("db/db_output", exist_ok=True)
-        #ingest_all_stocks()
-        #ingest_all_earnings_dates()
-        # Describe all tables
-        print(con.execute("""SELECT
-                            table_name,
-                            column_name,
-                            data_type
-                            FROM information_schema.columns
-                            ORDER BY table_name, ordinal_position; """).fetchall())
-        con.execute("""SELECT *
-                            FROM earnings
-                            ORDER BY (stock,earnings_date); """).fetch_df().to_csv("db_df.csv",index=False)
-        test_db() 
-    finally:
-        con.close()
+    os.makedirs("db/db_output", exist_ok=True)
+    # ingest_all_stocks()
+    # ingest_all_earnings_dates()
+    #test_db() 
 
 
  

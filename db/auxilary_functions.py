@@ -75,13 +75,26 @@ def fetch_recent_daily_adjusted(stock: str) -> dict:
 def test_db():
     con = duckdb.connect("data/breakwater.duckdb")
     print("\n\n---------------------\n")
+
+    # Describe all tables
+    print(con.execute("""SELECT
+                    table_name,
+                    column_name,
+                    data_type
+                    FROM information_schema.columns
+                    ORDER BY table_name, ordinal_position; """).fetchall())
+    con.execute("""SELECT *
+                        FROM earnings
+                        ORDER BY (stock,earnings_date); """).fetch_df().to_csv("db_df.csv",index=False)
     df = con.execute("""
         SELECT stock, COUNT(*) n, MIN(date) mind, MAX(date) maxd
         FROM prices
         GROUP BY stock
         ORDER BY stock
     """).df()   
-    #df.to_csv("count_db_test.csv",index=False)
+    
+    df.to_csv("count_db_test.csv",index=False)
+    print("created test db in count_db_test.csv")
     
     testing_if_all_fetched = con.execute("""
         WITH mx AS (SELECT MAX(date) AS global_max FROM prices)
