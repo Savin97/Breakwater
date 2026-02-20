@@ -28,7 +28,7 @@ from config import (STOCKS_START_DATE,
                     USE_CACHED_DATA_FLAG,
                     STOCK_LIST_PATH)
 
-from data_ingestion.api_functions import get_full_earnings_data_from_api, handle_api_fetching_errors
+from data_ingestion.api_functions import get_earnings_data_from_api, handle_api_fetching_errors
 from data_utilities.formatting import parse_date
 from data_utilities.helper_funcs import read_stocks_to_fetch, get_alpha_vantage_api_key
 
