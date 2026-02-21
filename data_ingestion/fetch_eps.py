@@ -6,7 +6,6 @@ from pathlib import Path
 from config import (ALPHAVANTAGE_BASE_URL,
                     STOCKS_START_DATE,
                     EPS_PATH,
-                    USE_CACHED_DATA_FLAG,
                     STOCK_LIST_PATH)
 
 from data_utilities.helper_funcs import get_alpha_vantage_api_key, read_stocks_to_fetch
@@ -74,10 +73,9 @@ def parse_quarterly_eps(data: dict) -> pd.DataFrame:
 
 def fetch_eps() -> pd.DataFrame:
     stocks = read_stocks_to_fetch()
-    if USE_CACHED_DATA_FLAG == True:
-        if Path(EPS_PATH).exists():
-            print(f"Using cached EPS Data from {EPS_PATH}\n")
-            return pd.read_csv(EPS_PATH)
+    if Path(EPS_PATH).exists():
+        print(f"Using cached EPS Data from {EPS_PATH}\n")
+        return pd.read_csv(EPS_PATH)
         
         
     print("No cached EPS data, fetching NEW...")

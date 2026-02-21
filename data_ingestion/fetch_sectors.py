@@ -4,7 +4,7 @@ import numpy as np
 from pathlib import Path
 import yfinance as yf
 
-from config import STOCK_LIST_PATH, SECTORS_PATH, USE_CACHED_DATA_FLAG
+from config import STOCK_LIST_PATH, SECTORS_PATH
 from data_utilities.helper_funcs import read_stocks_to_fetch
 
 # def fetch_single_sector(stock: str) -> dict:
@@ -131,28 +131,23 @@ def fetch_sectors_market_cap_beta() -> pd.DataFrame:
     """
     stocks = set(read_stocks_to_fetch())
 
-    if USE_CACHED_DATA_FLAG == True:
-        # Check cache
-        if Path(SECTORS_PATH).exists():
-            print("Using cached Sectors Data from data/sector_data.csv")
-            cached_df = pd.read_csv(SECTORS_PATH)
+    if Path(SECTORS_PATH).exists():
+        print("Using cached Sectors Data from data/sector_data.csv")
+        cached_df = pd.read_csv(SECTORS_PATH)
 
-            # Stocks that aren't acturally complete
-            complete_mask = (
-                cached_df["sector"].notna()
-                & cached_df["sub_sector"].notna()
-                & cached_df["market_cap_log"].notna()
-                & cached_df["beta"].notna()
-            )
+        # Stocks that aren't acturally complete
+        complete_mask = (
+            cached_df["sector"].notna()
+            & cached_df["sub_sector"].notna()
+            & cached_df["market_cap_log"].notna()
+            & cached_df["beta"].notna()
+        )
 
-            cached_stocks = set(cached_df.loc[complete_mask, "stock"])
-        else:
-            cached_df = pd.DataFrame(columns=["stock", "sector", "sub_sector","market_cap_log","beta"])
-            cached_stocks = set()
-        stocks_to_fetch = sorted(stocks - cached_stocks)
+        cached_stocks = set(cached_df.loc[complete_mask, "stock"])
     else:
-        stocks_to_fetch = sorted(stocks)
-        cached_df = pd.DataFrame()
+        cached_df = pd.DataFrame(columns=["stock", "sector", "sub_sector","market_cap_log","beta"])
+        cached_stocks = set()
+    stocks_to_fetch = sorted(stocks - cached_stocks)
 
     rows = []
 

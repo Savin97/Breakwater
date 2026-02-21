@@ -14,12 +14,20 @@ def run_pipeline():
         2. Engineer features
         3. Calculate Risk Score and Provide Explanations
         4. Back test
+
+        NEW pipeline order:
+        1. Build/Update DB
+        2. Import from DB, merge and filter data( by start date, end date, stocks, etc)
+        3. Engineer features
+        4. Calculate Risk Score and Provide Explanations
+        5. Report Generation
+        - Side step: Backtesting
     """
     inputs_df = stage1() 
-    feature_engineering = stage2(inputs_df)
-    risk_scoring = stage3(feature_engineering)
-    backtesting = stage4(risk_scoring)
-    report = stage5(risk_scoring)
-    #output_to_csv(inputs_df, feature_engineering, risk_scoring, backtesting)
+    # feature_engineering = stage2(inputs_df)
+    # risk_scoring = stage3(feature_engineering)
+    # backtesting = stage4(risk_scoring)
+    # report = stage5(risk_scoring)
+    # output_to_csv(inputs_df, feature_engineering, risk_scoring, backtesting)
 
-    return report
+    # return report

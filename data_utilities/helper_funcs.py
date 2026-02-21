@@ -6,7 +6,6 @@ from pathlib import Path
 
 from config import (BACKOFF_SECONDS, 
                     DEFAULT_REACTION_WINDOW,
-                    USE_CACHED_DATA_FLAG,
                     STOCK_LIST_PATH)
 
 def directory_checks():
@@ -96,8 +95,7 @@ def build_earnings_df(df):
     return earnings_df
 
 
-def check_cached_data_use():
-
+def check_cached_data_use(USE_CACHED_DATA_FLAG):
     print(f"Cached Data Usage Switch is set to: {USE_CACHED_DATA_FLAG}\n")
 
     if USE_CACHED_DATA_FLAG == False:

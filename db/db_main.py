@@ -7,7 +7,7 @@ from db.auxilary_functions import (test_db)
 
 def db_main():
     os.makedirs("db/db_output", exist_ok=True)
-    ingest_all_earnings_dates()
+    #ingest_all_earnings_dates()
     # ingest_all_stocks()
     test_db() 
 

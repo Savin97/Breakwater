@@ -25,7 +25,6 @@ from config import (STOCKS_START_DATE,
                     MAX_RETRIES,
                     BACKOFF_SECONDS,
                     EARNINGS_PATH,
-                    USE_CACHED_DATA_FLAG,
                     STOCK_LIST_PATH)
 
 from data_ingestion.api_functions import get_earnings_data_from_api, handle_api_fetching_errors
@@ -83,10 +82,9 @@ def fetch_earnings_dates(sleep_between = 0.0, deduplicate = True) -> pd.DataFram
     stocks_list = read_stocks_to_fetch()
     print(f"{len(stocks_list)} Stocks to fetch.\n")
     
-    if USE_CACHED_DATA_FLAG == True:
-        if Path(EARNINGS_PATH).exists():
-            print(f"Using cached Earnings Data from {EARNINGS_PATH}\n")
-            return pd.read_csv(EARNINGS_PATH)
+    if Path(EARNINGS_PATH).exists():
+        print(f"Using cached Earnings Data from {EARNINGS_PATH}\n")
+        return pd.read_csv(EARNINGS_PATH)
         
     print("No cached Earnings data, fetching NEW...")
     print("Fetching Earnings Dates")

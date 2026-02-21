@@ -1,12 +1,4 @@
 # config.py
-
-# Switches
-USE_CACHED_DATA_FLAG = True
-USE_CACHED_PRICES_DATA_FLAG = True
-USE_CACHED_EARNINGS_DATA_FLAG = True
-USE_CACHED_SECTOR_DATA_FLAG = True
-USE_CACHED_EPS_DATA_FLAG = True
-
 # Paths
 STOCK_LIST_PATH = "data/stock_list.csv"
 PRICES_PATH = "data/stock_prices.csv"
@@ -32,7 +24,7 @@ LARGE_EARNINGS_REACTION_THRESHOLD = 0.05 # Based on 75th percentile of abs_react
 EXTREME_EARNINGS_REACTION_THRESHOLD = 0.08 # Based on 90th percentile of abs_reaction_3d
 
 
-#   - API Parameters
+# API Parameters
 PRICES_PROVIDER = "ALPHAVANTAGE"
 ALPHAVANTAGE_CALLS_PER_MINUTE=75
 TIMEOUT_SECONDS = 30.0

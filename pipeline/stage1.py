@@ -3,8 +3,7 @@ import warnings
 
 from config import (CORRECT_STOCK_COL_NAME,
                     LIST_OF_POSSIBLE_STOCK_COL_NAMES,
-                    PRICES_PROVIDER,)
-
+                    PRICES_PROVIDER)
 from data_utilities.formatting import parse_date, parse_numeric, change_column_name
 from data_ingestion.fetch_stock_prices import fetch_stock_prices
 from data_ingestion.fetch_earnings import fetch_earnings_dates
@@ -26,66 +25,19 @@ def stage1():
         Beta
 
         Merge into one DF and return it.
+
+        DuckDB version:
+        1. Create DB/Make sure it exists.
+        2. Create prices, earnings, sector tables / make sure they exist.
+        3. Update tables or choose to leave them as-is (introduce a switch for this)
+        4. Import tables as needed for the pipeline. For example, if start date is set to 2020-01-01 until today, then
+        the pipeline should take what it needs from the database and put it in a pandas df.
+        5. Merge DFs to one df.
+        6. The result should be a df that has cols
+        stock price date earnings_date estimated_eps reported_eps surprise_percentage
     """
     directory_checks()   
     warnings.filterwarnings('ignore')
-
-    # def check_stock_prices():
-    #     from pathlib import Path
-    #     pass
-    #     # if Path("data/stock_prices.csv").exists():
-    #     """
-    #         check_prices_file()
-    #         if the file already exists, check if it has
-    #             1. the correct columns: stock, date, price
-    #             2. data from STOCKS_START_DATE to STOCKS_END_DATE
-    #             if it has full data - pd.read_csv and return 
-    #             if it has partial data:
-    #                 - if it has the correct columns but only partial date range, fetch the rest and append
-    #                 - if it doesn't -  delete and re-fetch
-            
-
-    #     """
-    #     # else:
-    #         # if the file doesn't exist - fetch new and save 
-    #         # stock_prices = fetch_stock_prices(provider=PRICES_PROVIDER)
-
-    # def check_earnings_dates():
-    #     from pathlib import Path
-    #     pass
-    #     # if Path("data/earnings_dates.csv").exists():
-    #     """
-    #         check_earnings_file()
-    #         if the file already exists, check if it has
-    #             1. the correct columns: stock, date, earnings_date
-    #             2. data from STOCKS_START_DATE to STOCKS_END_DATE
-    #             if it has full data - pd.read_csv and return 
-    #             if it has partial data:
-    #                 - if it has the correct columns but only partial date range, fetch the rest and append
-    #                 - if it doesn't -  delete and re-fetch
-    #     """
-    #     # else:
-    #         # if the file doesn't exist - fetch new and save 
-    #         # earnings_dates = fetch_earnings_dates()
-
-    # def check_sector_data():
-    #     from pathlib import Path
-    #     pass
-    #     # if Path("data/sector_data.csv").exists():
-    #     """
-    #         check_sector_data_file()
-    #         if the file already exists, check if it has
-    #             1. the correct columns: stock, date, sector, sub_sector, market_cap, beta
-    #             2. data from STOCKS_START_DATE to STOCKS_END_DATE
-    #             if it has full data - pd.read_csv and return 
-    #             if it has partial data:
-    #                 - if it has the correct columns but only partial date range, fetch the rest and append
-    #                 - if it doesn't -  delete and re-fetch
-    #     """
-    #     # else:
-    #         # if the file doesn't exist - fetch new and save 
-    #         # sector_market_cap_beta_df = fetch_sector_data()
-
 
     stock_prices = fetch_stock_prices(provider=PRICES_PROVIDER)
     earnings_dates = fetch_earnings_dates()
@@ -117,16 +69,3 @@ def stage1():
     df["price"] = parse_numeric(df["price"])
     
     return df
-
-def janky_solution():
-    from config import partial_tickers_to_fetch
-    import pandas as pd
-    prices = pd.read_csv("data/stock_prices.csv")
-    earnings = pd.read_csv("data/earnings_dates.csv")
-    prices = prices[prices["date"]>= "2016-01-01"]
-    earnings = earnings[earnings["earnings_date"]>= "2016-01-01"]
-
-    prices = prices[prices["stock"].isin(partial_tickers_to_fetch)]
-    earnings = earnings[earnings["stock"].isin(partial_tickers_to_fetch)]
-    prices.to_csv("data/stock_prices.csv",index=False)
-    earnings.to_csv("data/earnings_dates.csv",index=False)

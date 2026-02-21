@@ -9,7 +9,6 @@ from datetime import datetime, date
 from db.auxilary_functions import (create_prices_if_not_exists,
                                    create_earnings_table_if_not_exists,
                                    stock_already_in_prices_db,
-                                   stock_already_in_earnings_db,
                                    fetch_daily_adjusted,
                                    get_max_dates_by_stock)
 from data_ingestion.api_functions import (get_earnings_data_from_api)
@@ -163,40 +162,23 @@ def ingest_all_earnings_dates():
     # Ensure table exists with your schema
     create_earnings_table_if_not_exists(con)
 
-    global_max_earnings_date = con.execute("SELECT MAX(earnings_date) FROM earnings").fetchone()[0] # type: ignore
-    max_earnings_date_by_stock = get_max_dates_by_stock(con, "earnings", "earnings_date")
-    print("Earnings DB global max earnings_date:", global_max_earnings_date)
-
     # cache current max earnings_date per stock
-    earn_max_by_stock = get_max_dates_by_stock(con, "earnings", "earnings_date")
+    max_earnings_date_by_stock = get_max_dates_by_stock(con, "earnings", "earnings_date")
 
-    # heuristic freshness window (quarterly): if you already have something in last 120 days, skip
+    # heuristic freshness window (quarterly): if you already have something in last 80 days, skip
     today = datetime.now().date()
-    fresh_window_days = 90
+    fresh_window_days = 80
 
     for i, stock in enumerate(stocks, start=1):  
-        stock_earn_max_date = earn_max_by_stock.get(stock)
-        # print(today, type(today))
-        # print(stock_earn_max_date, type(stock_earn_max_date))
-        # print((today-stock_earn_max_date).days)
-        # if stock_earn_max_date is not None and (today - stock_earn_max_date).days <= fresh_window_days:
-        #     already += 1
-        #     print(f"{stock} is up to date")
-        #     if i % 50 == 0:
-        #         print(f"[{i}/{len(stocks)}] skipped(fresh): {already}, inserted: {inserted}, failed: {failed}")
-        #     continue
-            
+        stock_earn_max_date = max_earnings_date_by_stock.get(stock)
 
-        # if stock_earn_max_date is not None and (today - stock_earn_max_date).days <= fresh_window_days:
-        #     already += 1
-        #     if i % 50 == 0:
-        #         print(f"[{i}/{len(stocks)}] skipped(fresh): {already}, inserted: {inserted}, failed: {failed}")
-        #     continue
+        if stock_earn_max_date is not None and (today - stock_earn_max_date).days <= fresh_window_days:
+            already += 1
+            print(f"{stock} is up to date")
+            if i % 50 == 0:
+                print(f"[{i}/{len(stocks)}] skipped(fresh): {already}, inserted: {inserted}, failed: {failed}")
+            continue
 
-        # if stock_already_in_earnings_db(con, stock):
-        #     already += 1
-        #     if i % 50 == 0:
-        #         print(f"[{i}/{len(stocks)}] already in DB: {already}, inserted: {inserted}, failed: {failed}")
         data = get_earnings_data_from_api(stock)    
         print(f"[{i}/{len(stocks)}] Fetching earnings data for {stock}...")
         try:
@@ -226,10 +208,7 @@ def ingest_all_earnings_dates():
             df["fiscal_end_date"] = pd.to_datetime(df["fiscal_end_date"]).dt.date
             
             df = df[df["earnings_date"] >= cutoff]
-            df = df[df["fiscal_end_date"] >= cutoff]    # full ingest case
-
-            # if stock_earn_max is not None:
-            #     df = df[df["earnings_date"] > stock_earn_max]
+            df = df[df["fiscal_end_date"] >= cutoff] 
 
             if df.empty:
                 already += 1

@@ -1,8 +1,8 @@
 Breakwater
 An earnings risk model.
-First, ingest historical stock prices (Currently 2025-), Earnings dates, EPS data, Sector & Sub-sector data, Market cap, Beta.
+First - ingest historical stock prices (Currently 2025-), Earnings dates, EPS data, Sector & Sub-sector data, Market cap, Beta.
 
-Second, Engineer Features:
+Second - Engineer Features:
     Return_1d,3d,5d, daily pct_change:
     ret_1d,ret_3d,ret_5d - price_t+1d,3d,5d - price / price
     daily return - df.groupby('stock')['price'].pct_change()
@@ -16,7 +16,9 @@ Second, Engineer Features:
     3d Sector Drift
     3d Sector Volatility
 
-Third, 
+Third - score stock risk based on features (maybe explosiveness, regime stability, etc)
+Four - Backtesting results
+Five - Generate reports
 
 Pipeline:
 main.py

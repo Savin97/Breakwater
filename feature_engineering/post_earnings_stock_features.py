@@ -71,16 +71,15 @@ def engineer_reaction_std(df):
         min periods required is min_periods=3
     """
     earnings_df = build_earnings_df(df)
-    earnings_df["reaction_std"] = (earnings_df.groupby("stock")[DEFAULT_REACTION_WINDOW]
-                          .transform(lambda x: x.abs().shift(1).rolling(window=8, min_periods=3).std(ddof=1) )
+    earnings_df["reaction_std"] = (
+        earnings_df.groupby("stock")[DEFAULT_REACTION_WINDOW]
+            .transform(lambda x: x.abs().shift(1).rolling(window=8, min_periods=3).std(ddof=1) )
     )
-
     df = df.merge(
         earnings_df[["stock","earnings_date","reaction_std"]],
         on=["stock","earnings_date"],
         how="left"
     )
-
     return df
 
 def engineer_reaction_entropy(df) -> pd.DataFrame:

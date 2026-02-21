@@ -2,33 +2,6 @@
 import pandas as pd
 
 def check_explosiveness_feature(df):
-    # Check correlation structure of timing_danger and its components
-    subset = df[df["is_earnings_day"] == True].copy()
-
-    subset["is_extreme_reaction"] = (
-        subset["abs_reaction_3d"] >= 0.08
-    ).astype(int)
-
-    print("Extreme move rate:", subset["is_extreme_reaction"].mean())
-
-    subset["explosive_bucket"] = pd.qcut(
-        subset["earnings_explosiveness_score"],
-        5,
-        duplicates="drop"
-    )
-
-    print(
-        subset.groupby("explosive_bucket")["is_extreme_reaction"].mean()
-    )
-    print(subset.groupby("explosive_bucket").size())
-
-    top = subset[subset["earnings_explosiveness_score"] >= subset["earnings_explosiveness_score"].quantile(0.8)]
-    bottom = subset[subset["earnings_explosiveness_score"] <= subset["earnings_explosiveness_score"].quantile(0.2)]
-
-    print("Top bucket extreme rate:", top["is_extreme_reaction"].mean())
-    print("Bottom bucket extreme rate:", bottom["is_extreme_reaction"].mean())
-
-
     """ 
         Extreme move rate: 0.10421515386604603
         explosive_bucket
@@ -66,6 +39,31 @@ def check_explosiveness_feature(df):
         Some stocks are simply “earnings explosives.”
 
     """
+    # Check correlation structure of timing_danger and its components
+    subset = df[df["is_earnings_day"] == True].copy()
+
+    subset["is_extreme_reaction"] = (
+        subset["abs_reaction_3d"] >= 0.08
+    ).astype(int)
+
+    print("Extreme move rate:", subset["is_extreme_reaction"].mean())
+
+    subset["explosive_bucket"] = pd.qcut(
+        subset["earnings_explosiveness_score"],
+        5,
+        duplicates="drop"
+    )
+
+    print(
+        subset.groupby("explosive_bucket")["is_extreme_reaction"].mean()
+    )
+    print(subset.groupby("explosive_bucket").size())
+
+    top = subset[subset["earnings_explosiveness_score"] >= subset["earnings_explosiveness_score"].quantile(0.8)]
+    bottom = subset[subset["earnings_explosiveness_score"] <= subset["earnings_explosiveness_score"].quantile(0.2)]
+
+    print("Top bucket extreme rate:", top["is_extreme_reaction"].mean())
+    print("Bottom bucket extreme rate:", bottom["is_extreme_reaction"].mean())
 
 def three_way_regime_test(df):
     """
@@ -281,3 +279,109 @@ def check_corr_of_features(df):
         "earnings_explosiveness_score",
         "timing_danger"]
     ].corr())
+
+def breakwater_regime_test(df):
+    bt = df.copy()
+    bt = bt[bt["is_earnings_day"] == 1].copy()
+
+    bt["is_large_plus"] = (bt["earnings_move_bucket"] >= 1).astype(int)
+    bt["is_extreme"]    = (bt["earnings_move_bucket"] == 2).astype(int)
+
+    # timing danger top decile
+    danger_cutoff = bt["timing_danger"].quantile(0.9)
+    bt["high_danger"] = (bt["timing_danger"] >= danger_cutoff)
+
+    # explosiveness top decile
+    explosiveness_cutoff = bt["earnings_explosiveness_score"].quantile(0.9)
+    bt["high_explosive"] = (bt["earnings_explosiveness_score"] >= explosiveness_cutoff)
+
+    bt["vol_vs_sector"] = (bt["stock_vs_sector_vol"] >= 1)
+
+    regime = (bt["vol_vs_sector"]
+    )
+
+    subset = bt[regime]
+
+    results = {
+        "n_events": len(subset),
+        "extreme_rate": subset["is_extreme"].mean(),
+        "large_plus_rate": subset["is_large_plus"].mean(),
+    }
+
+    return results
+
+def volatility_only_regime_test(df):
+    """
+        Test whether volatility alone can generate high extreme-move rates.
+    """
+
+    bt = df.copy()
+    bt = bt[bt["is_earnings_day"] == 1].copy()
+
+    # Labels
+    bt["is_large_plus"] = (bt["earnings_move_bucket"] >= 1).astype(int)
+    bt["is_extreme"]    = (bt["earnings_move_bucket"] == 2).astype(int)
+
+    # --- Define volatility regime ---
+
+    # Top decile volatility
+    vol_cutoff = bt["vol_30d"].quantile(0.9)
+    bt["high_vol"] = (bt["vol_30d"] >= vol_cutoff)
+
+    # Stock moving more than sector
+    bt["vol_vs_sector"] = (bt["stock_vs_sector_vol"] >= 1)
+
+    regime = bt["high_vol"] & bt["vol_vs_sector"]
+
+    subset = bt[regime]
+
+    results = {
+        "n_events": len(subset),
+        "extreme_rate": subset["is_extreme"].mean(),
+        "large_plus_rate": subset["is_large_plus"].mean(),
+    }
+
+    return results
+
+def evaluate_high_risk_earnings_regime(df):
+    """
+        Define a “high-risk regime” where all three conditions hold:
+        timing_danger in top 20%
+        stock_vs_sector_vol >= 1
+        earnings_explosiveness_score in top 10%
+
+        Prints regime statistics and robustness checks.
+    """
+    subset = df[df["is_earnings_day"] == True].copy()
+
+    cond = (
+        (subset["timing_danger"] >= subset["timing_danger"].quantile(0.8)) &
+        (subset["stock_vs_sector_vol"] >= 1) &
+        (subset["earnings_explosiveness_score"] >= subset["earnings_explosiveness_score"].quantile(0.9))
+    )
+
+    print("Sample size:", cond.sum())
+    print("Large move rate:", subset.loc[cond, "is_large_reaction"].mean())
+    print("Extreme move rate:", subset.loc[cond, "is_extreme_reaction"].mean())
+
+    print("Baseline extreme:", subset["is_extreme_reaction"].mean())
+    print("Baseline large:", subset["is_large_reaction"].mean())
+
+    print(subset.loc[cond, "abs_reaction_3d"].describe())
+
+    print(subset.loc[cond].groupby("stock").size().describe())
+
+    for td_q in [0.7, 0.8]:
+        for ex_q in [0.8, 0.9]:
+            cond = (
+                (subset["timing_danger"] >= subset["timing_danger"].quantile(td_q)) &
+                (subset["earnings_explosiveness_score"] >= subset["earnings_explosiveness_score"].quantile(ex_q)) &
+                (subset["stock_vs_sector_vol"] >= 1)
+            )
+
+            if cond.sum() > 30:
+                print(td_q, ex_q,
+                    cond.sum(),
+                    subset.loc[cond, "is_extreme_reaction"].mean())
+
+    return df

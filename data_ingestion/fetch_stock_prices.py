@@ -12,7 +12,6 @@ from config import ( STOCKS_START_DATE,
                     BACKOFF_SECONDS,
                     MAX_RETRIES,
                     DEFAULT_FETCH_CHUNK_SIZE,
-                    USE_CACHED_DATA_FLAG,
                     ALPHAVANTAGE_CALLS_PER_MINUTE)
 import sys
 import time
@@ -41,10 +40,9 @@ def fetch_stock_prices(provider: str) -> pd.DataFrame:
     
     #  TODO: check_cached_data_use
     # TODO: Temp solution, caching should work differently in the production version
-    if USE_CACHED_DATA_FLAG == True:
-        if Path(PRICES_PATH).exists():
-            print(f"Using cached Prices from {PRICES_PATH}\n")
-            return pd.read_csv(PRICES_PATH)
+    if Path(PRICES_PATH).exists():
+        print(f"Using cached Prices from {PRICES_PATH}\n")
+        return pd.read_csv(PRICES_PATH)
             
     print("No cached Prices data, fetching NEW...")        
     print(f"Provider: {provider}")

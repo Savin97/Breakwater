@@ -35,11 +35,9 @@ def engineer_daily_ret(input_df):
     
     return df
 
-
 def engineer_drift(input_df):
     df = input_df.copy()
     group = df.groupby('stock')['daily_ret']
-
     df[f'drift_30d'] = group.transform(lambda x: x.rolling(SHORT_TERM_DRIFT).mean().shift(1))
     df[f'drift_60d'] = group.transform(lambda x: x.rolling(LONG_TERM_DRIFT).mean().shift(1))
 

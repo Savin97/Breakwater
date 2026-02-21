@@ -1,5 +1,4 @@
 # back_testing/back_testing_features.py
-
 import numpy as np
 
 def engineer_abs_reaction_3d(df):
@@ -8,7 +7,6 @@ def engineer_abs_reaction_3d(df):
     df.loc[earnings_df, "abs_reaction_3d"] = (
         df.loc[earnings_df, "reaction_3d"].abs()
     )
-
     return df
 
 def engineer_abs_reaction_p75_rolling(df, window=28, percentile=0.75):

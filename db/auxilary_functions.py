@@ -1,17 +1,10 @@
 # db/auxilary_functions.py
 import pandas as pd
 import requests
-import os
-from pathlib import Path
-from dotenv import load_dotenv
 import duckdb
 
-
-ALPHAVANTAGE_BASE_URL = "https://www.alphavantage.co/query"
-API_KEY = os.getenv("ALPHAVANTAGE_API_KEY")
-ENV_PATH = Path(__file__).resolve().parents[1] / ".env"  # breakwater/.env
-loaded = load_dotenv(dotenv_path=ENV_PATH, override=True)
-API_KEY = os.getenv("ALPHAVANTAGE_API_KEY")
+from config import ALPHAVANTAGE_BASE_URL
+from data_utilities.helper_funcs import get_alpha_vantage_api_key
 
 def create_prices_if_not_exists(con):
     # ensure table exists (match your schema)
@@ -25,7 +18,6 @@ def create_prices_if_not_exists(con):
     """)
     # uniqueness constraint - only one row per (stock, date) pair, no duplicates allowed
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS prices_stock_date_uq ON prices(stock, date)")
-    
 
 def create_earnings_table_if_not_exists(con):
     con.execute("""
@@ -48,12 +40,8 @@ def stock_already_in_prices_db(con, stock: str) -> bool:
     n = con.execute("SELECT COUNT(*) FROM prices WHERE stock = ?;", [stock]).fetchone()[0]
     return n > 0
 
-def stock_already_in_earnings_db(con, stock: str) -> bool:
-    n = con.execute("SELECT 1 FROM earnings WHERE stock = ? LIMIT 1", [stock]).fetchone() is not None
-    return n > 0
-
-
 def fetch_daily_adjusted(stock: str, outputsize = "full") -> dict:
+    API_KEY = get_alpha_vantage_api_key
     params = {
         "function": "TIME_SERIES_DAILY_ADJUSTED",
         "symbol": stock,
@@ -68,6 +56,7 @@ def test_db():
     print("\n\n---------------------\n")
 
     # Describe all tables
+    print("Table description in the DB:")
     print(con.execute("""SELECT
                     table_name,
                     column_name,
@@ -76,16 +65,16 @@ def test_db():
                     ORDER BY table_name, ordinal_position; """).fetchall())
     con.execute("""SELECT *
                         FROM earnings
-                        ORDER BY (stock,earnings_date); """).fetch_df().to_csv("db_df.csv",index=False)
+                        ORDER BY stock,earnings_date; """).fetch_df().to_csv("earnings_db_df.csv",index=False)
     df = con.execute("""
         SELECT stock, COUNT(*) n, MIN(date) mind, MAX(date) maxd
         FROM prices
         GROUP BY stock
         ORDER BY stock
-    """).df()   
-    
+    """).fetch_df()   
     df.to_csv("count_db_test.csv",index=False)
-    print("created test db in count_db_test.csv")
+
+    print("\ncreated test db in count_db_test.csv\n")
     
     testing_if_all_fetched = con.execute("""
         WITH mx AS (SELECT MAX(date) AS global_max FROM prices)
@@ -131,6 +120,7 @@ def test_db():
 
 def fetch_one_stock_into_db(db, TEST_STOCK = "AAPL"):
     HISTORY_START_DATE = "2000-01-01"
+    API_KEY = get_alpha_vantage_api_key
     connection = duckdb.connect(db)
     # 2) fetch 1 stock (full)
     params = {
