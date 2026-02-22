@@ -1,9 +1,9 @@
 # pipeline/pipeline.py
-
 from pipeline.stage1 import stage1
 from pipeline.stage2 import stage2
 from pipeline.stage3 import stage3
 from pipeline.stage4 import stage4
+from pipeline.backtesting_stage import backtesting_stage
 from pipeline.stage5 import stage5
 from pipeline.output import output_to_csv
 
@@ -23,7 +23,8 @@ def run_pipeline():
         5. Report Generation
         - Side step: Backtesting
     """
-    inputs_df = stage1() 
+    stage1()
+    stage2() 
     # feature_engineering = stage2(inputs_df)
     # risk_scoring = stage3(feature_engineering)
     # backtesting = stage4(risk_scoring)

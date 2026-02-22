@@ -6,7 +6,7 @@ import duckdb
 from config import ALPHAVANTAGE_BASE_URL
 from data_utilities.helper_funcs import get_alpha_vantage_api_key
 
-def create_prices_if_not_exists(con):
+def create_prices_table_if_not_exists(con):
     # ensure table exists (match your schema)
     con.execute("""
         CREATE TABLE IF NOT EXISTS prices (
@@ -18,6 +18,7 @@ def create_prices_if_not_exists(con):
     """)
     # uniqueness constraint - only one row per (stock, date) pair, no duplicates allowed
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS prices_stock_date_uq ON prices(stock, date)")
+    print("Prices table ready.")
 
 def create_earnings_table_if_not_exists(con):
     con.execute("""
@@ -34,14 +35,29 @@ def create_earnings_table_if_not_exists(con):
         CREATE UNIQUE INDEX IF NOT EXISTS earnings_unique
         ON earnings(stock, earnings_date, fiscal_end_date);
     """)
-    print("earnings table ready.")
+    print("Earnings table ready.")
+
+def create_sectors_table_if_not_exists(con):
+    con.execute("""
+                    CREATE TABLE IF NOT EXISTS sectors (
+                    stock TEXT,
+                    company_name TEXT,
+                    sector TEXT,
+                    sub_sector TEXT,
+                    ingested_at TIMESTAMP
+                ); """)
+    con.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS sectors_unique
+        ON sectors(stock);
+    """)
+    print("Sectors table ready.")
 
 def stock_already_in_prices_db(con, stock: str) -> bool:
     n = con.execute("SELECT COUNT(*) FROM prices WHERE stock = ?;", [stock]).fetchone()[0]
     return n > 0
 
 def fetch_daily_adjusted(stock: str, outputsize = "full") -> dict:
-    API_KEY = get_alpha_vantage_api_key
+    API_KEY = get_alpha_vantage_api_key()
     params = {
         "function": "TIME_SERIES_DAILY_ADJUSTED",
         "symbol": stock,
@@ -51,76 +67,14 @@ def fetch_daily_adjusted(stock: str, outputsize = "full") -> dict:
     r = requests.get(ALPHAVANTAGE_BASE_URL, params=params, timeout=30)
     return r.json()
 
-def test_db():
-    con = duckdb.connect("data/breakwater.duckdb")
-    print("\n\n---------------------\n")
+def create(stock):
+    pass
 
-    # Describe all tables
-    print("Table description in the DB:")
-    print(con.execute("""SELECT
-                    table_name,
-                    column_name,
-                    data_type
-                    FROM information_schema.columns
-                    ORDER BY table_name, ordinal_position; """).fetchall())
-    con.execute("""SELECT *
-                        FROM earnings
-                        ORDER BY stock,earnings_date; """).fetch_df().to_csv("earnings_db_df.csv",index=False)
-    df = con.execute("""
-        SELECT stock, COUNT(*) n, MIN(date) mind, MAX(date) maxd
-        FROM prices
-        GROUP BY stock
-        ORDER BY stock
-    """).fetch_df()   
-    df.to_csv("count_db_test.csv",index=False)
-
-    print("\ncreated test db in count_db_test.csv\n")
-    
-    testing_if_all_fetched = con.execute("""
-        WITH mx AS (SELECT MAX(date) AS global_max FROM prices)
-        SELECT p.stock, MAX(p.date) AS max_date
-        FROM prices p, mx
-        GROUP BY p.stock, mx.global_max
-        HAVING MAX(p.date) < mx.global_max
-        ORDER BY max_date
-        """).fetchdf()
-
-    print(testing_if_all_fetched.head())
-    print(con.execute("SELECT COUNT(DISTINCT stock) FROM prices").fetchone())
-    print(con.execute("SELECT DISTINCT stock FROM prices ORDER BY stock").fetchdf())
-    print(con.execute("SELECT COUNT(*) FROM prices").fetchone())
-
-    print("\n\n---------------------\nEarnings Table\n")
-    df = con.execute("""
-        SELECT stock, COUNT(*) n, MIN(earnings_date) mind, MAX(earnings_date) maxd
-        FROM earnings
-        GROUP BY stock
-        ORDER BY stock
-    """).df()   
-    df.to_csv("count_db_test.csv",index=False)
-    
-    testing_if_all_fetched = con.execute("""
-        WITH mx AS (SELECT MAX(earnings_date) AS global_max FROM earnings)
-        SELECT e.stock, MAX(e.earnings_date) AS max_earnings_date
-        FROM earnings e, mx
-        GROUP BY e.stock, mx.global_max
-        HAVING MAX(e.earnings_date) < mx.global_max
-        ORDER BY max_earnings_date
-        """).fetchdf()
-
-    print(testing_if_all_fetched.head())
-    print("Number of unique stocks in earnings: ", con.execute("SELECT COUNT(DISTINCT stock) FROM earnings").fetchone())
-    print(con.execute("SELECT DISTINCT stock FROM earnings ORDER BY stock").fetchdf())
-    print("Number of rows in earnings: ", con.execute("SELECT COUNT(*) FROM earnings").fetchone())
-
-    con.close()
-
-    #print("rows:", len(df))
-    #print("min/max:", df["date"].min(), df["date"].max())
 
 def fetch_one_stock_into_db(db, TEST_STOCK = "AAPL"):
+    # Fetch prices of one stock
     HISTORY_START_DATE = "2000-01-01"
-    API_KEY = get_alpha_vantage_api_key
+    API_KEY = get_alpha_vantage_api_key()
     connection = duckdb.connect(db)
     # 2) fetch 1 stock (full)
     params = {
@@ -165,3 +119,69 @@ def get_max_dates_by_stock(con, table: str, date_col: str) -> dict[str, object]:
         GROUP BY stock
     """).fetchall()
     return {stock: max_date for stock, max_date in rows}
+
+def test_db(con):
+    print("\n\n---------------------\n")
+
+    # Describe all tables
+    print("Table description in the DB:")
+    print(con.execute("""SELECT
+                    table_name,
+                    column_name,
+                    data_type
+                    FROM information_schema.columns
+                    ORDER BY table_name, ordinal_position; """).fetchall())
+    con.execute("""SELECT *
+                        FROM earnings
+                        ORDER BY stock,earnings_date; """).fetch_df().to_csv("earnings_db_df.csv",index=False)
+    prices_count_df = con.execute("""
+        SELECT stock, COUNT(*) n, MIN(date) mind, MAX(date) maxd
+        FROM prices
+        GROUP BY stock
+        ORDER BY stock
+    """).fetch_df()   
+    prices_count_df.to_csv("count_prices_db_test.csv",index=False)
+
+    print("\ncreated test db in count_db_test.csv\n")
+    
+    testing_if_all_fetched = con.execute("""
+        WITH mx AS (SELECT MAX(date) AS global_max FROM prices)
+        SELECT p.stock, MAX(p.date) AS max_date
+        FROM prices p, mx
+        GROUP BY p.stock, mx.global_max
+        HAVING MAX(p.date) < mx.global_max
+        ORDER BY max_date
+        """).fetchdf()
+
+    print(testing_if_all_fetched.head())
+    print(con.execute("SELECT COUNT(DISTINCT stock) FROM prices").fetchone())
+    print(con.execute("SELECT DISTINCT stock FROM prices ORDER BY stock").fetchdf())
+    print(con.execute("SELECT COUNT(*) FROM prices").fetchone())
+
+    print("\n\n---------------------\nEarnings Table\n")
+    earnings_count_df = con.execute("""
+        SELECT stock, COUNT(*) n, MIN(earnings_date) mind, MAX(earnings_date) maxd
+        FROM earnings
+        GROUP BY stock
+        ORDER BY stock
+    """).df()   
+    earnings_count_df.to_csv("count_earnings_db_test.csv",index=False)
+    
+    testing_if_all_fetched = con.execute("""
+        WITH mx AS (SELECT MAX(earnings_date) AS global_max FROM earnings)
+        SELECT e.stock, MAX(e.earnings_date) AS max_earnings_date
+        FROM earnings e, mx
+        GROUP BY e.stock, mx.global_max
+        HAVING MAX(e.earnings_date) < mx.global_max
+        ORDER BY max_earnings_date
+        """).fetchdf()
+
+    print(testing_if_all_fetched.head())
+    print("Number of unique stocks in earnings: ", con.execute("SELECT COUNT(DISTINCT stock) FROM earnings").fetchone())
+    print(con.execute("SELECT DISTINCT stock FROM earnings ORDER BY stock").fetchdf())
+    print("Number of rows in earnings: ", con.execute("SELECT COUNT(*) FROM earnings").fetchone())
+
+    con.close()
+
+    #print("rows:", len(df))
+    #print("min/max:", df["date"].min(), df["date"].max())

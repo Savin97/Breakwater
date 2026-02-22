@@ -6,7 +6,7 @@ import pandas as pd
 import pandas_market_calendars as mcal
 from datetime import datetime, date
 
-from db.auxilary_functions import (create_prices_if_not_exists,
+from db.auxilary_functions import (create_prices_table_if_not_exists,
                                    create_earnings_table_if_not_exists,
                                    stock_already_in_prices_db,
                                    fetch_daily_adjusted,
@@ -19,6 +19,7 @@ from config import (DB_PATH,
                     STOCKS_START_DATE,
                     STOCK_LIST_PATH,
                     ALPHAVANTAGE_CALLS_PER_MINUTE)
+
 def trading_days_since(last_date, calendar="NYSE"):
                 cal = mcal.get_calendar(calendar)
                 schedule = cal.schedule(start_date=last_date, end_date=date.today())
@@ -26,12 +27,11 @@ def trading_days_since(last_date, calendar="NYSE"):
 
 def ingest_all_stocks():
     already = inserted = failed = 0
-    FAILED_LOG_PATH = "db/db_output/failed_price_ingestion.txt"
+    FAILED_LOG_PATH = "debugging/failed_price_ingestion.txt"
     API_KEY = get_alpha_vantage_api_key()
     min_sleep = 60.0 / float(ALPHAVANTAGE_CALLS_PER_MINUTE)
     stocks = pd.read_csv(STOCK_LIST_PATH)["stock"].astype(str).str.strip().tolist()
     cutoff = pd.to_datetime(STOCKS_START_DATE).date()
-    os.makedirs("db/db_output", exist_ok=True)
 
     if not API_KEY:
         raise RuntimeError("Set ALPHAVANTAGE_API_KEY env var first.")
@@ -41,7 +41,7 @@ def ingest_all_stocks():
 
     con = duckdb.connect(DB_PATH)
     # Ensure table exists with your schema
-    create_prices_if_not_exists(con)
+    create_prices_table_if_not_exists(con)
 
     global_max_date = con.execute("SELECT MAX(date) FROM prices").fetchone()[0] # type: ignore
     max_date_by_stock = get_max_dates_by_stock(con, "prices", "date")
@@ -53,28 +53,30 @@ def ingest_all_stocks():
             already += 1
             stock_max_date = max_date_by_stock.get(stock)
             
-            if i % 50 == 0:
-                print(f"[{i}/{len(stocks)}] already in DB: {already}, inserted: {inserted}, failed: {failed}")
+        #     if i % 50 == 0:
+        #         print(f"[{i}/{len(stocks)}] already in DB: {already}, inserted: {inserted}, failed: {failed}")
             
-            # TODO: 18/2/26 implement "stale-ticker" detection rule
-            if trading_days_since(global_max_date) > 5: # >10 trading days
-                with open(FAILED_LOG_PATH, "a", encoding="utf-8") as f:
-                    f.write(f"{stock}\t{"Appears to be delisted, (last price: {stock_max_date})"}\n")
-                # You could log something like:
-                # DAY appears delisted (last price: 2026-02-03)
-                # stock = "inactive" # mark ticker as inactive
-                continue # skip ingestion attempts
+        #     # TODO: 18/2/26 implement "stale-ticker" detection rule
+        #     # if trading_days_since(global_max_date) > 5: # >10 trading days
+        #     #     with open(FAILED_LOG_PATH, "a", encoding="utf-8") as f:
+        #     #         f.write(f"{stock}\t{"Appears to be delisted, (last price: {stock_max_date})"}\n")
+        #     #     # You could log something like:
+        #     #     # DAY appears delisted (last price: 2026-02-03)
+        #     #     # stock = "inactive" # mark ticker as inactive
+        #     #     continue # skip ingestion attempts
             
-            if stock_max_date >= global_max_date:
-                print(f"{stock} is up to date")
-                continue
-            else:
-                print(f"[{i}/{len(stocks)}] Fetching {stock} ...")
-                data = fetch_daily_adjusted(stock, "compact")
-        else:
-            print(f"[{i}/{len(stocks)}] Fetching {stock} ...")
-            data = fetch_daily_adjusted(stock, "full")
+        #     if stock_max_date >= global_max_date:
+        #         print(f"{stock} is up to date")
+        #         continue
+        #     else:
+        #         print(f"[{i}/{len(stocks)}] Fetching {stock} ...")
+        #         data = fetch_daily_adjusted(stock, "compact")
+        # else:
+        #     print(f"[{i}/{len(stocks)}] Fetching {stock} ...")
+        #     data = fetch_daily_adjusted(stock, "full")
 
+        print(f"[{i}/{len(stocks)}] Fetching {stock} ...")
+        data = fetch_daily_adjusted(stock, "full")
         # parse JSON -> dataframe rows -> insert into prices
 
         try:
@@ -145,12 +147,11 @@ def ingest_all_stocks():
 
 def ingest_all_earnings_dates():
     already = inserted = failed = 0
-    FAILED_EARNINGS_LOG_PATH = "db/db_output/failed_earnings_ingestion.txt"    
+    FAILED_EARNINGS_LOG_PATH = "debugging/failed_earnings_ingestion.txt"    
     API_KEY = get_alpha_vantage_api_key()
     min_sleep = 60.0 / float(ALPHAVANTAGE_CALLS_PER_MINUTE)
     stocks = pd.read_csv(STOCK_LIST_PATH)["stock"].astype(str).str.strip().tolist()
     cutoff = pd.to_datetime(STOCKS_START_DATE).date()
-    os.makedirs("db/db_output", exist_ok=True)
 
     if not API_KEY:
         raise RuntimeError("Set ALPHAVANTAGE_API_KEY env var first.")
@@ -167,7 +168,7 @@ def ingest_all_earnings_dates():
 
     # heuristic freshness window (quarterly): if you already have something in last 80 days, skip
     today = datetime.now().date()
-    fresh_window_days = 80
+    fresh_window_days = 0
 
     for i, stock in enumerate(stocks, start=1):  
         stock_earn_max_date = max_earnings_date_by_stock.get(stock)
@@ -244,7 +245,7 @@ def ingest_all_earnings_dates():
                 f.write(f"{stock}\t{err}\n")
         # always sleep a bit to respect rate limits
         time.sleep(min_sleep)
-
+    
     con.close()
     print("\nIngesting Earnings Done.")
     print("already in DB:", already)

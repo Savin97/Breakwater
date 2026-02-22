@@ -23,7 +23,6 @@ LONG_TERM_MOMENTUM = 20 # 20 past days
 LARGE_EARNINGS_REACTION_THRESHOLD = 0.05 # Based on 75th percentile of abs_reaction_3d
 EXTREME_EARNINGS_REACTION_THRESHOLD = 0.08 # Based on 90th percentile of abs_reaction_3d
 
-
 # API Parameters
 PRICES_PROVIDER = "ALPHAVANTAGE"
 ALPHAVANTAGE_CALLS_PER_MINUTE=75
@@ -33,8 +32,6 @@ MAX_RETRIES = 5
 DEFAULT_FETCH_CHUNK_SIZE = 50
 CORRECT_STOCK_COL_NAME = "stock"
 LIST_OF_POSSIBLE_STOCK_COL_NAMES = ["ticker", "Ticker", "Symbol", "symbol", "Stock", "stock"]
-
-
 
 # Parameter for output, change later
 cols_to_drop_for_output = [

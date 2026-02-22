@@ -1,40 +1,29 @@
 # pipeline/stage4.py
-"""    
-    Stage 4 - Back testing
-    Produces credibility tables (calibration, lift, hit rates, bucket stats, stability by year/sector).
-"""
-from backtesting.backtesting import backtesting_suite
-from backtesting.backtesting_features import (engineer_abs_reaction_3d,
-                                              engineer_abs_reaction_p75_rolling,
-                                              engineer_abs_reaction_p90_rolling,
-                                              classify_large_earnings_move_bucket)
-from backtesting.testing_functions import (check_explosiveness_feature, 
-                                           three_way_regime_test,
-                                           conditional_hit_rate_analysis,
-                                           volatility_only_regime_test,
-                                           breakwater_regime_test)
+from risk_scoring.scoring_features import (engineer_large_reaction,
+                                           engineer_extreme_reaction,
+                                           engineer_vol_stress, 
+                                           engineer_momentum_pressure,
+                                           engineer_earnings_explosiveness,
+                                           engineer_timing_danger)
+from risk_scoring.scoring_features_sector import engineer_sector_vol_stress
 
 def stage4(stage3_df):
-    df = stage3_df.copy()
-    features = [engineer_abs_reaction_3d,
-                engineer_abs_reaction_p75_rolling,
-                engineer_abs_reaction_p90_rolling,
-                classify_large_earnings_move_bucket]
-    for f in features:
-        df = f(df)
-
-    print("Volatility Only:\n")
-    print(volatility_only_regime_test(df))
-    print("\nBreakwater Regime:\n")
-    print(breakwater_regime_test(df))
-    print("\nBreakwater Regime:\n")    
-    backtesting_suite(df)
-    print("\nThree way regime test:\n")
-    print(three_way_regime_test(df))
-    """ 
-        You now have your first defensible rule:
-        Tail risk increases materially when:
-        timing_danger is high
-        stock_vs_sector_vol ≥ 1
     """
-    
+        Risk Scoring and recommendation stage
+        Returns a separate DF
+    """
+    stage4_df = stage3_df.copy()
+    features = [
+        engineer_large_reaction,
+        engineer_extreme_reaction,
+        engineer_vol_stress,
+        engineer_sector_vol_stress,
+        engineer_momentum_pressure,
+        engineer_earnings_explosiveness,
+        engineer_timing_danger
+    ]
+    for f in features:
+        stage4_df = f(stage4_df)
+    if stage4_df is None:
+        raise ValueError("\n---ERROR! Stage 3 Returned None.---\n")
+    return stage4_df

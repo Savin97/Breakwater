@@ -1,6 +1,8 @@
 # data_ingestion/api_functions.py
 import requests
 import time
+import pandas as pd
+import yfinance as yf
 
 from config import (ALPHAVANTAGE_BASE_URL, 
                     TIMEOUT_SECONDS,
@@ -9,6 +11,7 @@ from config import (ALPHAVANTAGE_BASE_URL,
 from data_utilities.helper_funcs import get_alpha_vantage_api_key
 
 def get_earnings_data_from_api(stock):
+    # get_earnings_data_from Alpha Vantage
     api_key = get_alpha_vantage_api_key()
     params = {
         "function": "EARNINGS", 
@@ -18,6 +21,38 @@ def get_earnings_data_from_api(stock):
     r.raise_for_status()
     data = r.json()       
     return data 
+
+
+def get_earnings_dates_yf(ticker: str, limit : int = 12):
+    t = yf.Ticker(ticker)
+    t = yf.Ticker("wmb")
+    df = t.get_earnings_dates(limit=limit)
+    if df is None or df.empty:
+        return pd.DataFrame(columns=[
+            "earnings_date",
+            "estimated_eps",
+            "reported_eps",
+            "surprise_percentage"
+        ])
+
+    df = df.reset_index()
+
+    df = df.rename(columns={
+        "Earnings Date": "earnings_date",
+        "EPS Estimate": "estimated_eps",
+        "Reported EPS": "reported_eps",
+        "Surprise(%)": "surprise_percentage"
+    })
+
+    #Keep only relevant columns
+    df = df[[
+        "earnings_date",
+        "estimated_eps",
+        "reported_eps",
+        "surprise_percentage"
+    ]]
+
+    df["earnings_date"] = pd.to_datetime(df["earnings_date"]).dt.date
 
 def handle_api_fetching_errors(stock, data):
     last_err = None

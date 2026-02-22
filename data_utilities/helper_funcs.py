@@ -11,6 +11,8 @@ from config import (BACKOFF_SECONDS,
 def directory_checks():
     Path("data").mkdir(exist_ok=True)
     Path("output").mkdir(exist_ok=True)
+    Path("debugging").mkdir(exist_ok=True)
+
 
 def read_stocks_to_fetch() -> list[str]:
     """

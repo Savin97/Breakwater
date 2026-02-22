@@ -1,73 +1,102 @@
-# stage2.py
-from data_utilities.formatting import parse_date
-from feature_engineering.pre_earnings_stock_features import (engineer_daily_ret,
-                                                             engineer_drift, 
-                                                             engineer_volatility, 
-                                                             engineer_momentum,
-                                                             engineer_abs_reaction_median, 
-                                                             engineer_abs_reaction_p75,
-                                                             engineer_earnings_windows )
-from feature_engineering.post_earnings_stock_features import (engineer_earnings_reactions,
-                                                              engineer_reaction_class,
-                                                              engineer_reaction_std,
-                                                              engineer_reaction_entropy,
-                                                              engineer_directional_bias)
-from feature_engineering.pre_earnings_sector_features import (engineer_sector_drift_vol,
-                                                              engineer_stock_vs_sector_vol,
-                                                              engineer_sector_earnings_density)
-
-def stage2(stage1_df):
-    """ 
-        Pipeline Stage 2 - Feature Engineering
-        Input is a df with columns
-        stock  date  price  earnings_date  fiscal_date_ending reported_eps  estimated_eps  surprise_percentage
-
-        Stage 2 adds:
-        daily_ret = price/yesterday's price
-        drift_30d,60d = mean of rolling 30/60 day daily_ret, shift(1)
-        vol_10d,30d = STD of rolling 10/30 day daily_ret, shift(1)
-        vol_ratio_10_to_30 = vol_10d / vol_30d
-        mom_5d,20d = sum of rolling 5/20 day daily_ret, shift(1)
-        days_to_earnings = next earnings_date - today's date
-        is_earnings_day = 1 if days_to_earnings == 0, else it's 0
-        is_earnings_week = 1 if days_to_earnings is between(0, 5), else it's 0
-        is_earnings_window = 1 if days_to_earnings is between(0, 10), else it's 0
-        reaction_1d,3d,5d = stock price 1d/3d/5d after earnings_date
-        is_up/is_down/is_nochange = reaction_3d above, below REACTION_THRESHOLD
-        reaction_std = rolling std of |reaction_3d| values, shift(1), min_periods = 3, window = 8 periods
-        reaction_entropy = Shannon entropy of the histogram of absolute past reactions, gives how unpredictable and distributionally diverse the stock is
-        directional_bias = For each earnings event, expanding mean of past signed reactions for that stock, no leakage.
-        abs_reaction_median = Median of |reaction_3d| over past earnings, shift(1)
-        abs_reaction_p75 = 75th percentile of historical |reaction_3d| earnings reactions for each stock, using only past earnings events
-        sector_drift_60d = mean of drift_60d values for that sector's stocks
-        sector_vol_10d,30d = mean of vol_10d/30d values for that sector's stocks
-        stock_vs_sector_vol = ratio vol_30d / sector_vol_30d
-        sector_earnings_density = fraction of stocks in the sector whose earnings are within the next week, mean of is_earnings_week per sector
+# pipeline/stage2.py
+import duckdb
+from config import (CORRECT_STOCK_COL_NAME,
+                    LIST_OF_POSSIBLE_STOCK_COL_NAMES,
+                    PRICES_PROVIDER,
+                    DB_PATH)
+from data_utilities.formatting import parse_date, parse_numeric, change_column_name
+from data_ingestion.fetch_stock_prices import fetch_stock_prices
+from data_ingestion.fetch_earnings import fetch_earnings_dates
+from data_ingestion.fetch_eps import fetch_eps
+from data_ingestion.fetch_sectors import fetch_sectors_market_cap_beta
+from data_utilities.merging import (merge_prices_earnings_dates, 
+                                    merge_main_df_with_eps_df, 
+                                    map_sector_data_to_main_df)
+from data_utilities.helper_funcs import read_stocks_to_fetch
+def stage2():
     """
-    stage2_df = stage1_df.copy()
-    stage2_df = stage2_df.sort_values(["stock","date"], kind="mergesort")
-    stage2_df["date"] = parse_date(stage2_df["date"])
-    feature_steps = [
-        engineer_daily_ret,
-        engineer_drift,
-        engineer_volatility,
-        engineer_momentum,
-        engineer_earnings_windows,
-        engineer_earnings_reactions,
-        engineer_reaction_class,
-        engineer_reaction_std,
-        engineer_reaction_entropy,
-        engineer_directional_bias,
-        engineer_abs_reaction_median,
-        engineer_abs_reaction_p75,
-        engineer_sector_drift_vol,
-        engineer_stock_vs_sector_vol,
-        engineer_sector_earnings_density
-    ]
-    for feature in feature_steps:
-        stage2_df = feature(stage2_df)
-    # stage2_df.to_csv("stage2_df.csv", index=False)
-    # exit()
-    if stage2_df is None:
-        raise ValueError("\n---ERROR! Stage 2 Returned None.---\n")
-    return stage2_df
+        First stage of the pipeline - Data Ingestion:
+        Fetch historical stock prices,
+        Earnings dates,
+        EPS data, 
+        Sector & Sub-sector data, 
+        Market cap, 
+        Beta
+
+        Merge into one DF and return it.
+
+        DuckDB version:
+        1. Import tables as needed for the pipeline. For example, if start date is set to 2020-01-01 until today, then
+        the pipeline should take what it needs from the database and put it in a pandas df.
+        2. Merge DFs to one df.
+        3. The result should be a df that has cols
+        stock price date earnings_date estimated_eps reported_eps surprise_percentage
+    """
+    con = duckdb.connect(DB_PATH)
+    prices_df = con.execute("SELECT * FROM prices ORDER BY stock,date").fetch_df()
+    earnings_df = con.execute("SELECT * FROM earnings ORDER BY stock,earnings_date").fetch_df()
+    stock_list = read_stocks_to_fetch()
+    import yfinance as yf, pandas as pd, requests
+    sector_df = pd.DataFrame()
+    sector_list = []
+    URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+    #for i,stock in enumerate(stock_list,start=1):
+    #print(f"({i}/{len(stock_list)}) Fetching {stock} sector info...")
+    headers = {
+    "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        )
+    }
+    r = requests.get(URL, headers=headers, timeout=30)
+    r.raise_for_status()  # will show you 403/429 clearly if it still happens
+
+    tables = pd.read_html(r.text)
+    sp500 = tables[0]
+    sp500_changes = tables[1] # TODO: might be useful later for organizing changes in the stock list
+    sp500 = sp500.rename(columns={
+        "Symbol": "stock",
+        "Security": "name",
+        "GICS Sector": "sector",
+        "GICS Sub-Industry": "sub_sector"
+    })
+    #print(sp500)
+    #print(sp500[sp500["stock"]=="MMM"])
+    #print(sp500["stock"].dtype)
+    #print(sp500["stock"].values)
+    sp500.sort_values("stock")
+    sp500["stock"] = sp500["stock"].str.replace(".", "-", regex=False)
+    # Fetch symbols only
+    for stock in stock_list:
+        if stock not in sp500["stock"].values:
+            print(f"{stock} Not in table")
+
+
+
+    # stock_prices = fetch_stock_prices(provider=PRICES_PROVIDER)
+    # earnings_dates = fetch_earnings_dates()
+
+    # stock_prices = change_column_name(stock_prices, LIST_OF_POSSIBLE_STOCK_COL_NAMES, CORRECT_STOCK_COL_NAME )
+    # earnings_dates = change_column_name(earnings_dates, LIST_OF_POSSIBLE_STOCK_COL_NAMES, CORRECT_STOCK_COL_NAME )
+    
+    # # Sort to prep for merge_asof
+    # stock_prices["date"] = parse_date(stock_prices["date"])
+    # earnings_dates["earnings_date"] = parse_date(earnings_dates["earnings_date"])
+
+    # stock_prices = stock_prices.sort_values("date")
+    # earnings_dates = earnings_dates.sort_values("earnings_date")
+    
+    # df = merge_prices_earnings_dates(stock_prices, earnings_dates) # df that holds stock prices, earnings dates, EPS data merged
+
+    # sector_market_cap_beta_df = fetch_sectors_market_cap_beta()
+    
+    # df = map_sector_data_to_main_df(df, sector_market_cap_beta_df)
+
+    # # Sort, make sure "price" is numeric, make sure dates are datetime just in case
+    # df = df.sort_values(["stock", "date"]).reset_index(drop=True)
+    # df["date"] = parse_date(df["date"])
+    # df["earnings_date"] = parse_date(df["earnings_date"])
+    # df["price"] = parse_numeric(df["price"])
+    
+    #return df
