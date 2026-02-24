@@ -2,7 +2,7 @@
 import duckdb
 import warnings
 
-from db.auxilary_functions import create_prices_table_if_not_exists, create_earnings_table_if_not_exists,create_sectors_table_if_not_exists, test_db
+from db.auxilary_functions import create_prices_table_if_not_exists, create_earnings_table_if_not_exists,create_sectors_data_table_if_not_exists, test_db
 from db.getting_data import ingest_all_stocks, ingest_all_earnings_dates
 from data_utilities.helper_funcs import directory_checks
 from config import DB_PATH
@@ -14,16 +14,17 @@ def stage1():
         2. Create prices, earnings, sector tables / make sure they exist.
         3. Update tables or choose to leave them as-is (introduce a switch for this)
     """
-    directory_checks()   
+    print("Stage 1 - Building / Updating DB...")
+    directory_checks()
     warnings.filterwarnings('ignore')
     con = duckdb.connect(DB_PATH)
     create_prices_table_if_not_exists(con)
     create_earnings_table_if_not_exists(con)
-    create_sectors_table_if_not_exists(con)
+    create_sectors_data_table_if_not_exists(con)
     # ingest_all_stocks()
     # ingest_all_earnings_dates()
     # test_db(con)
-    return 
+    return
 
     # TODO: check to add for corrupted "ingested_at" values
     # if (df_to_insert["ingested_at"] < "2000-01-01").any():

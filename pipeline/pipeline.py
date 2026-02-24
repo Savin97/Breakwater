@@ -24,11 +24,11 @@ def run_pipeline():
         - Side step: Backtesting
     """
     stage1()
-    stage2() 
-    # feature_engineering = stage2(inputs_df)
-    # risk_scoring = stage3(feature_engineering)
-    # backtesting = stage4(risk_scoring)
-    # report = stage5(risk_scoring)
+    df = stage2() 
+    feature_engineering = stage3(df)
+    risk_scoring = stage4(feature_engineering)
+    report = stage5(risk_scoring)
+    # backtesting_df = backtesting_stage(risk_scoring)
     # output_to_csv(inputs_df, feature_engineering, risk_scoring, backtesting)
 
     # return report

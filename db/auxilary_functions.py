@@ -2,6 +2,7 @@
 import pandas as pd
 import requests
 import duckdb
+import time
 
 from config import ALPHAVANTAGE_BASE_URL
 from data_utilities.helper_funcs import get_alpha_vantage_api_key
@@ -37,26 +38,22 @@ def create_earnings_table_if_not_exists(con):
     """)
     print("Earnings table ready.")
 
-def create_sectors_table_if_not_exists(con):
+def create_sectors_data_table_if_not_exists(con):
     con.execute("""
-                    CREATE TABLE IF NOT EXISTS sectors (
-                    stock TEXT,
-                    company_name TEXT,
-                    sector TEXT,
-                    sub_sector TEXT,
-                    ingested_at TIMESTAMP
-                ); """)
-    con.execute("""
-        CREATE UNIQUE INDEX IF NOT EXISTS sectors_unique
-        ON sectors(stock);
-    """)
-    print("Sectors table ready.")
+        CREATE TABLE IF NOT EXISTS stock_data (
+        stock TEXT PRIMARY KEY,
+        company_name TEXT,
+        sector TEXT,
+        sub_sector TEXT,
+        ingested_at TIMESTAMP
+    ); """)
+    print("Stock Data table ready.")
 
 def stock_already_in_prices_db(con, stock: str) -> bool:
     n = con.execute("SELECT COUNT(*) FROM prices WHERE stock = ?;", [stock]).fetchone()[0]
     return n > 0
 
-def fetch_daily_adjusted(stock: str, outputsize = "full") -> dict:
+def fetch_daily_adjusted(stock: str, outputsize = "full", max_attempts=5):
     API_KEY = get_alpha_vantage_api_key()
     params = {
         "function": "TIME_SERIES_DAILY_ADJUSTED",
@@ -64,12 +61,31 @@ def fetch_daily_adjusted(stock: str, outputsize = "full") -> dict:
         "outputsize": outputsize,
         "apikey": API_KEY,
     }
-    r = requests.get(ALPHAVANTAGE_BASE_URL, params=params, timeout=30)
-    return r.json()
+    for attempt in range(max_attempts):
+        try:
+            r = requests.get(ALPHAVANTAGE_BASE_URL, params=params,timeout=(5, 30))
+            r.raise_for_status()
+            data = r.json()
+            # handle AlphaVantage rate limit / bad payload
+            # retryable AlphaVantage responses
+            if isinstance(data, dict) and ("Note" in data or "Information" in data):
+                raise RuntimeError(f"AV throttled: {data.get('Note') or data.get('Information')}")
 
-def create(stock):
-    pass
+            # non-retryable AV response (bad symbol, etc.)
+            if isinstance(data, dict) and "Error Message" in data:
+                return data
 
+            # success or unexpected -> retry
+            if not isinstance(data, dict) or "Time Series (Daily)" not in data:
+                raise RuntimeError(f"Bad payload keys: {list(data.keys()) if isinstance(data, dict) else type(data)}")
+
+            return data
+        except Exception as e:
+            if attempt == max_attempts - 1:
+                raise
+            sleep_time = min(2 ** attempt, 60)  # backoff
+            print(f"Exception {e} raised.\nRetry {attempt+1}/{max_attempts} for {stock} in {sleep_time}s")
+            time.sleep(sleep_time)
 
 def fetch_one_stock_into_db(db, TEST_STOCK = "AAPL"):
     # Fetch prices of one stock

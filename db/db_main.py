@@ -6,10 +6,9 @@ from db.getting_data import (ingest_all_stocks,
 from db.auxilary_functions import (test_db)
 
 def db_main():
-    #ingest_all_earnings_dates()
+    # ingest_all_earnings_dates()
     # ingest_all_stocks()
-    test_db() 
-
+    pass
 
 
  

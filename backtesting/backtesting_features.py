@@ -2,10 +2,10 @@
 import numpy as np
 
 def engineer_abs_reaction_3d(df):
-    earnings_df = df["is_earnings_day"] == True
+    earnings_mask = df["is_earnings_day"] == True
     # Absolute reaction
-    df.loc[earnings_df, "abs_reaction_3d"] = (
-        df.loc[earnings_df, "reaction_3d"].abs()
+    df.loc[earnings_mask, "abs_reaction_3d"] = (
+        df.loc[earnings_mask, "reaction_3d"].abs()
     )
     return df
 

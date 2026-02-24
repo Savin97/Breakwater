@@ -26,8 +26,6 @@ from data_utilities.helper_funcs import (chunk_list,
                                         get_alpha_vantage_api_key,
                                         check_cached_data_use,
                                         read_stocks_to_fetch)
-
-
 def fetch_stock_prices(provider: str) -> pd.DataFrame:
     """
         Fetch stock prices for a list of stocks from a specified provider.
@@ -37,8 +35,7 @@ def fetch_stock_prices(provider: str) -> pd.DataFrame:
 
     if not stock_list:
         raise ValueError("No stocks found.")
-    
-    #  TODO: check_cached_data_use
+
     # TODO: Temp solution, caching should work differently in the production version
     if Path(PRICES_PATH).exists():
         print(f"Using cached Prices from {PRICES_PATH}\n")
@@ -94,8 +91,6 @@ def fetch_stock_prices(provider: str) -> pd.DataFrame:
     print(f"Rows: {len(prices_df):,}")
     print(f"Stocks with data: {prices_df['stock'].nunique():,}\n")
     return prices_df
-
-
 
 
 BASE_URL = "https://www.alphavantage.co/query"

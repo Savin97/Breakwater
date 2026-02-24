@@ -14,7 +14,9 @@ def backtesting_suite(backtesting_df):
         report_train=True
     )
     print(stage5_year_by_year_holds_thresh[
-        ["split","year","N_earnings","baseline_extreme_rate","n_regime","regime_extreme_rate","lift"]
+        ["split","year","N_earnings","baseline_extreme_rate",
+        "n_regime","regime_extreme_rate","lift", 
+        "regime_share_of_events","regime_capture_of_extremes"]
     ].to_string(index=False))
 
     def add_joint_regime_flag(df,threshold):

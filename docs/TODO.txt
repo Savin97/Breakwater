@@ -54,7 +54,22 @@ Generate the first earnings-week PDF/HTML report
     reaction_volatility =    # This is basically: “Does this stock usually move on earnings?”
         (past_up_freq + past_down_freq) > past_nochange_freq
 
+7.If you want true quarter-specific predictive signal,
+You now need features that vary quarter-to-quarter:
 
+dispersion in analyst revisions
+
+option-implied skew shifts pre-earnings
+
+short interest change
+
+vol_ratio_10_to_30 spike
+
+sector co-movement breakdown
+
+recent surprise volatility acceleration
+
+Right now your engine is mostly static.
 
 
 

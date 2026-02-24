@@ -143,6 +143,7 @@ def engineer_abs_reaction_p75(input_df):
     earnings_df = earnings_df.sort_values(["stock", "earnings_date"])
 
     # write back only on earnings rows
+    #TODO: FIX -1 back to 1!!!!!!!!!!!!!!!!!!!!!!!!
     earnings_df["abs_reaction_p75"] = (
         earnings_df.groupby("stock")[DEFAULT_REACTION_WINDOW]
         .transform(lambda x:x.abs().shift(1).expanding().quantile(0.75) ) 

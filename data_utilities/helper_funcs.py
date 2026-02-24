@@ -22,7 +22,6 @@ def read_stocks_to_fetch() -> list[str]:
         Returns a list of all unique stocks (uppercase, no spaces)
     """
     path = Path(STOCK_LIST_PATH)
-
     if path.suffix.lower() == ".csv":
         print("Reading stocks from .csv file")
         stock_prices_df = pd.read_csv(path)

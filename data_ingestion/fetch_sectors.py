@@ -90,7 +90,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 def fetch_single_sector(stock: str, retries: int = 2, base_sleep: float = 0.6) -> dict:
-    print(f"Fetching {stock} Sector Data\n")
+    print(f"Fetching {stock} Sector Data")
 
     for attempt in range(retries + 1):
         try:

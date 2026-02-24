@@ -12,7 +12,8 @@ def stage4(stage3_df):
         Risk Scoring and recommendation stage
         Returns a separate DF
     """
-    stage4_df = stage3_df.copy()
+    print("Stage 4...")
+    df = stage3_df.copy()
     features = [
         engineer_large_reaction,
         engineer_extreme_reaction,
@@ -23,7 +24,9 @@ def stage4(stage3_df):
         engineer_timing_danger
     ]
     for f in features:
-        stage4_df = f(stage4_df)
-    if stage4_df is None:
+        df = f(df)
+    if df is None:
         raise ValueError("\n---ERROR! Stage 3 Returned None.---\n")
-    return stage4_df
+    with open("columns.txt","w") as report:
+        report.write(str(list(df.columns)))
+    return df
