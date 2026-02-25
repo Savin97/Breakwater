@@ -137,6 +137,11 @@ def engineer_timing_danger(input_df, weights=[0.25,0.25,0.2,0.3]):
                         + w2 * VolExpansionRisk
                         + w3 * MomentumFragility
                         + w4 * EarningsExplosiveness
+        How likely is this earnings event to produce a big move, given:
+        (a) where earnings is in time
+        (b) how stretched volatility already is
+        (c) how fragile the recent price action is
+        (d) how violent this stock tends to be on earnings historically
     """
     df = input_df.copy()
 
@@ -168,6 +173,12 @@ def engineer_timing_danger(input_df, weights=[0.25,0.25,0.2,0.3]):
 
     return df
     
+def engineer_timing_danger_score(df):
+    df["timing_danger_score"] = (
+        100 * (df["timing_danger"] - df["timing_danger"].min()) /
+        (df["timing_danger"].max() - df["timing_danger"].min())
+    ) 
+    return df
     
 # def timing_danger_bucket(td):
 #     # td: Series or scalar in [0, 100]

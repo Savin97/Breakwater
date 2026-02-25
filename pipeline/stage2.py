@@ -32,7 +32,7 @@ def stage2():
         3. The result should be a df that has cols
         stock price date earnings_date estimated_eps reported_eps surprise_percentage
     """
-    print("Stage 2...")
+    print("--------------------\nStage 2 - Data Ingestion...")
     con = duckdb.connect(DB_PATH)
     prices_df = con.execute("SELECT stock,price,date FROM prices ORDER BY stock,date").fetch_df()
     earnings_df = con.execute("SELECT stock,earnings_date FROM earnings ORDER BY stock,earnings_date").fetch_df()

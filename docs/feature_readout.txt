@@ -68,7 +68,7 @@ Scoring Features:
 
 Market Features:
 momentum_pressure_regime:
-    Momentum Pressure captures how unusually stretched a stock’s price action
+    Momentum Pressure captures how unusually stretched a stock's price action
     is relative to its cross-sectional peers on the same date, combining
     short-term crowding and longer-term trend extension into a single
     interpretable feature.

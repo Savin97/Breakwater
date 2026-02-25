@@ -1,5 +1,98 @@
-# back_testing/temp_testing_functions.py
+# backtesting/testing_functions.py
 import pandas as pd
+import numpy as np
+import matplotlib
+
+from backtesting.features_for_backtesting import add_joint_regime_flag
+
+"""
+    Backtesting & Regime Evaluation Utilities for Breakwater
+
+    This module contains diagnostic, validation, and regime-testing functions
+    used to evaluate Breakwater's earnings-period risk framework.
+
+    Purpose
+    -------
+    Provide tools to:
+    • Validate individual feature predictive power
+    • Test multi-factor “high-risk” regimes
+    • Compare regime performance vs volatility-only baselines
+    • Measure precision/recall of extreme-move detection
+    • Run train/test and walk-forward robustness checks
+    • Inspect distributional stability and lift statistics
+
+    ---------------------------------------------------------------------------
+    FEATURE DIAGNOSTICS
+    ---------------------------------------------------------------------------
+
+    check_explosiveness_feature(df)
+        Tests earnings_explosiveness_score via quantile bucketing and compares
+        large/extreme move rates across buckets.
+
+    check_timing_danger_connection_to_earnings_move_bucket(df)
+        Decile analysis of timing_danger vs large/extreme move outcomes,
+        including lift vs baseline and confidence intervals.
+
+    check_corr_of_features(df)
+        Prints correlation matrix between core components:
+        proximity, volatility expansion, momentum fragility,
+        explosiveness, and timing_danger.
+
+    check_timing_danger_score_metric(df)
+        Evaluates distribution, dispersion, and bucketed reaction behavior
+        of the timing_danger score (including normalization diagnostics).
+
+    ---------------------------------------------------------------------------
+    REGIME TESTING
+    ---------------------------------------------------------------------------
+
+    three_way_regime_test(df)
+        Tests the 3-factor regime hypothesis:
+        high timing_danger + elevated idiosyncratic vol +
+        high explosiveness, and compares hit rates vs baseline.
+
+    breakwater_regime_test(df)
+        Computes regime statistics (event count, large/extreme rates)
+        for the defined Breakwater regime mask.
+
+    volatility_only_regime_test(df)
+        Baseline comparison using volatility-only conditions
+        (high vol_30d + elevated idiosyncratic vol).
+
+    evaluate_high_risk_earnings_regime(df)
+        Defines a stricter “high-risk” regime and runs threshold grids
+        to evaluate sensitivity of extreme-move concentration.
+
+    comparing_regime_results_to_volatility_only(df)
+        Stress-tests regime performance vs volatility-only signals,
+        including shuffled-label checks and stability diagnostics.
+
+    ---------------------------------------------------------------------------
+    CLASSIFICATION METRICS
+    ---------------------------------------------------------------------------
+
+    regime_confusion_metrics(df)
+        Computes TP/FN/FP/TN, precision, recall for regime flags
+        predicting extreme reactions.
+
+    (Threshold sweep block)
+        Iterates multiple quantile thresholds and evaluates confusion
+        metrics for each regime definition.
+
+    ---------------------------------------------------------------------------
+    ROBUSTNESS & OUT-OF-SAMPLE VALIDATION
+    ---------------------------------------------------------------------------
+
+    check_timing_danger_train_test(df)
+        Pre/post split validation ensuring normalization and bucket
+        edges are trained only on prior data.
+
+    yearly_oos_report(df, ...)
+        Walk-forward yearly OOS test computing correlation,
+        bucket separation, and lift statistics per year.
+
+    All evaluations are performed on earnings-day events unless otherwise specified.
+"""
 
 def check_explosiveness_feature(df):
     """ 
@@ -217,7 +310,7 @@ def check_timing_danger_connection_to_earnings_move_bucket(df):
         # ~1.0 = no signal
         # 1.3–1.7 = usable
         # 2.0+ = strong
-        # p_extreme is rarer, so it’ll be noisier; lift matters more than smoothness.
+        # p_extreme is rarer, so it'll be noisier; lift matters more than smoothness.
     bt["is_large_plus"] = (bt["earnings_move_bucket"] >= 1).astype(int)
     bt["is_extreme"]    = (bt["earnings_move_bucket"] == 2).astype(int)
 
@@ -271,7 +364,7 @@ def check_timing_danger_connection_to_earnings_move_bucket(df):
 
 def check_corr_of_features(df):
     # only earnings ??? 
-    df_to_check = df[df["is_earnings_day"] == 1].copy
+    df_to_check = df[df["is_earnings_day"] == 1].copy()
     print(df_to_check[
         ["proximity_score",
         "vol_expansion_score",
@@ -385,3 +478,259 @@ def evaluate_high_risk_earnings_regime(df):
                     subset.loc[cond, "is_extreme_reaction"].mean())
 
     return df
+
+
+def regime_confusion_metrics(input_df):
+    df = input_df.copy()
+    for threshold in [0.5, 0.7, 0.8, 0.85, 0.9, 0.95]:
+        print(f"\n--- Joint Regime Flag at {threshold} Quantile ---")
+        df = add_joint_regime_flag(df, threshold)
+        earnings = df[df["is_earnings_day"] == 1].copy()
+
+        extreme = earnings["is_extreme_reaction"] == 1
+        regime = earnings["is_joint_regime"] == 1
+
+        TP = ((regime) & (extreme)).sum()
+        FN = ((~regime) & (extreme)).sum()
+        FP = ((regime) & (~extreme)).sum()
+        TN = ((~regime) & (~extreme)).sum()
+
+        recall = TP / (TP + FN)
+        precision = TP / (TP + FP)
+
+        print("TP:", TP)
+        print("FN:", FN)
+        print("FP:", FP)
+        print("TN:", TN)
+        print("recall:", recall)
+        print("precision:", precision)
+        print(regime.sum(), "events flagged")
+        print(len(earnings), "total earnings events")
+
+def comparing_regime_results_to_volatility_only(df):
+    earn = df[df.is_earnings_day == 1].sort_values(["stock","date"]).copy()
+
+    # For each stock, compare current p75 with previous event p75
+    earn["p75_diff"] = (
+        earn.groupby("stock")["abs_reaction_p75"]
+        .diff()
+    )
+    print(earn[["stock","date","abs_reaction_3d","abs_reaction_p75","p75_diff"]].head(20))
+
+    # Test 2 
+    earn["extreme_shuffled"] = np.random.permutation(earn["is_extreme_reaction"].values)
+    threshold = 0.9
+    exp_thr = earn["earnings_explosiveness_score"].quantile(threshold)
+    frag_thr = earn["momentum_fragility_score"].quantile(threshold)
+
+    earn["is_joint_regime"] = (
+        (df["earnings_explosiveness_score"] >= exp_thr) &
+        (df["momentum_fragility_score"] >= frag_thr) &
+        (df["is_earnings_day"])
+    ).astype(int)
+
+    regime = earn["is_joint_regime"] == 1
+
+    TP = ((regime) & (earn["extreme_shuffled"] == 1)).sum()
+    FP = ((regime) & (earn["extreme_shuffled"] == 0)).sum()
+
+    print("Shuffled precision:", TP / (TP + FP))
+
+    # Test 3
+    median_year = earn["date"].dt.year.median()
+
+    first_half = earn[earn["date"].dt.year <= median_year]
+    second_half = earn[earn["date"].dt.year > median_year]
+
+    def regime_precision(sub):
+        regime = sub["is_joint_regime"] == 1
+        extreme = sub["is_extreme_reaction"] == 1
+        TP = ((regime) & (extreme)).sum()
+        FP = ((regime) & (~extreme)).sum()
+        return TP / (TP + FP)
+
+    print("First half precision:", regime_precision(first_half))
+    print("Second half precision:", regime_precision(second_half))
+
+    # Top volatility test
+    threshold = 0.98
+
+    vol_thr = earn["vol_30d"].quantile(threshold)
+    regime_vol_top2 = earn["vol_30d"] >= vol_thr
+    print(regime_vol_top2)
+
+    regime_vol_top2 = earn["vol_30d"] >= vol_thr
+    extreme = earn["is_extreme_reaction"] == 1
+
+    TP = ((regime_vol_top2) & (extreme)).sum()
+    FP = ((regime_vol_top2) & (~extreme)).sum()
+
+    precision = TP / (TP + FP)
+
+    print("Top 2% vol events:", regime_vol_top2.sum())
+    print("Extreme rate (precision):", precision)
+
+def check_timing_danger_score_metric(input_df):
+    df = input_df.copy()
+    df["abs_reaction_3d"] = df["reaction_3d"].abs()
+    df["timing_danger_score"] = (
+            100 * (df["timing_danger"] - df["timing_danger"].min()) /
+            (df["timing_danger"].max() - df["timing_danger"].min())
+        )
+    test_score_df = df[["stock", "date","earnings_date","abs_reaction_3d", "timing_danger_score"]].dropna()
+    s = test_score_df["timing_danger_score"]
+    stats = {
+        "count": s.count(),
+        "min": s.min(),
+        "max": s.max(),
+        "mean": s.mean(),
+        "median": s.median(),
+        "std": s.std(),
+        "p10": s.quantile(0.10),
+        "p25": s.quantile(0.25),
+        "p75": s.quantile(0.75),
+        "p90": s.quantile(0.90),
+        "p95": s.quantile(0.95),
+    }
+    print(stats)
+    counts, bins = np.histogram(s, bins=30)
+
+    for i in range(len(counts)):
+        print(f"{bins[i]:.4f} to {bins[i+1]:.4f} : {counts[i]}")
+    per_day_dispersion = (
+    test_score_df
+        .groupby("earnings_date")["timing_danger_score"]
+        .agg(["mean", "std", "min", "max", "count"])
+    )
+    per_stock = (
+        test_score_df
+        .groupby("stock")["timing_danger_score"]
+        .agg(["mean", "std", "count"])
+    )
+    top_10 = s.quantile(0.90)
+    bottom_10 = s.quantile(0.10)
+
+    high_tail_rate = (s >= top_10).mean()
+    print(high_tail_rate)
+    low_tail_rate = (s <= bottom_10).mean()
+    print(low_tail_rate)
+    corr = test_score_df[["timing_danger_score", "abs_reaction_3d"]].corr()
+    print(corr)
+
+    test_score_df["bucket"] = pd.qcut(
+        test_score_df["timing_danger_score"], 
+        q=5, 
+        labels=False
+    )
+
+    bucket_stats = test_score_df.groupby("bucket")["abs_reaction_3d"].mean()
+    print(bucket_stats)
+
+def check_timing_danger_train_test(df):
+    test_score_df = df[["stock", "date","earnings_date","abs_reaction_3d", "timing_danger"]].dropna().copy()
+    pre_2015 = test_score_df[test_score_df["date"] < "2015-01-01"].copy()
+    post_2015 = test_score_df[test_score_df["date"] >= "2015-01-01"].copy()
+
+    def normalize_with_train(s, train_min, train_max):
+        denom = train_max - train_min
+        if denom == 0:
+            return pd.Series(50, index=s.index)
+        return 100 * (s - train_min) / denom
+    train_min = pre_2015["timing_danger"].min()
+    train_max = pre_2015["timing_danger"].max()
+    pre_2015["score_oos"] = normalize_with_train(
+        pre_2015["timing_danger"], train_min, train_max
+    )
+
+    post_2015["score_oos"] = normalize_with_train(
+        post_2015["timing_danger"], train_min, train_max
+    ).clip(0, 100)
+    pre_corr = pre_2015[["score_oos", "abs_reaction_3d"]].corr().iloc[0,1]
+    print("Train corr:", pre_corr)
+
+    pre_2015["bucket"] = pd.qcut(pre_2015["score_oos"], q=5, labels=False)
+    print(pre_2015.groupby("bucket")["abs_reaction_3d"].mean())
+    train_edges = pd.qcut(
+        pre_2015["score_oos"],
+        q=5,
+        retbins=True,
+        labels=False
+    )[1]
+
+    post_2015["bucket"] = pd.cut(
+        post_2015["score_oos"],
+        bins=train_edges,
+        labels=False,
+        include_lowest=True
+    )
+    post_corr = post_2015[["score_oos", "abs_reaction_3d"]].corr().iloc[0,1]
+    print("Test corr:", post_corr)
+
+    print(post_2015.groupby("bucket")["abs_reaction_3d"].mean())
+
+def yearly_oos_report(df, date_col="date", score_col="timing_danger", target_col="abs_reaction_3d", q=5):
+    d = df[[date_col, score_col, target_col]].dropna().copy()
+    d[date_col] = pd.to_datetime(d[date_col])
+
+    years = sorted(d[date_col].dt.year.unique())
+    rows = []
+
+    for y in years[1:]:  # start from 2nd year (need prior data to train)
+        train = d[d[date_col] < pd.Timestamp(f"{y}-01-01")]
+        test  = d[(d[date_col] >= pd.Timestamp(f"{y}-01-01")) & (d[date_col] < pd.Timestamp(f"{y+1}-01-01"))]
+
+        if len(train) < 500 or len(test) < 100:
+            continue
+
+        train_min = train[score_col].min()
+        train_max = train[score_col].max()
+        denom = train_max - train_min
+        if denom == 0:
+            continue
+
+        # Normalize using train params only
+        train_score = 100 * (train[score_col] - train_min) / denom
+        test_score  = 100 * (test[score_col]  - train_min) / denom
+
+        # Clip to avoid out-of-range due to new extremes
+        train_score = train_score.clip(0, 100)
+        test_score  = test_score.clip(0, 100)
+
+        # Freeze bucket edges from train
+        _, edges = pd.qcut(train_score, q=q, retbins=True, duplicates="drop")
+
+        test_bucket = pd.cut(test_score, bins=edges, labels=False, include_lowest=True)
+
+        test_eval = pd.DataFrame({
+            "score": test_score,
+            "bucket": test_bucket,
+            "target": test[target_col].values
+        }).dropna(subset=["bucket"])
+
+        if len(test_eval) < 100:
+            continue
+
+        corr = test_eval[["score", "target"]].corr().iloc[0, 1]
+
+        bucket_means = test_eval.groupby("bucket")["target"].mean()
+        # separation metrics
+        top = bucket_means.max()
+        bot = bucket_means.min()
+        lift_abs = top - bot
+        lift_ratio = (top / bot) if bot != 0 else np.nan
+
+        rows.append({
+            "year": y,
+            "n_test": len(test_eval),
+            "corr": corr,
+            "bot_bucket_mean": bot,
+            "top_bucket_mean": top,
+            "lift_abs": lift_abs,
+            "lift_ratio": lift_ratio,
+        })
+
+    yearly = pd.DataFrame(rows).sort_values("year")
+    print(yearly)
+    print("Avg corr:", yearly["corr"].mean())
+    print("Median corr:", yearly["corr"].median())
+    print("Pct years corr>0.15:", (yearly["corr"] > 0.15).mean())

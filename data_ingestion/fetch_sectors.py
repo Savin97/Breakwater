@@ -97,15 +97,11 @@ def fetch_single_sector(stock: str, retries: int = 2, base_sleep: float = 0.6) -
             info = yf.Ticker(stock).info  # slow/flaky but OK for now
             sector = info.get("sector")
             sub_sector = info.get("industryDisp") or info.get("industry")
-            market_cap = info.get("marketCap", None)
-            beta = info.get("beta", None)
 
             return {
                 "stock": stock,
                 "sector": sector,
-                "sub_sector": sub_sector,
-                "market_cap_log": np.log(market_cap),
-                "beta": beta
+                "sub_sector": sub_sector
             }
 
         except Exception as e:
@@ -119,9 +115,7 @@ def fetch_single_sector(stock: str, retries: int = 2, base_sleep: float = 0.6) -
             return {
                 "stock": stock,
                 "sector": None,
-                "sub_sector": None,
-                "market_cap_log": None,
-                "beta": None
+                "sub_sector": None
             }
 
 def fetch_sectors_market_cap_beta() -> pd.DataFrame:
@@ -130,28 +124,19 @@ def fetch_sectors_market_cap_beta() -> pd.DataFrame:
         stock sector sub_sector
     """
     stocks = set(read_stocks_to_fetch())
+    cached_df = pd.read_csv(SECTORS_PATH)
 
-    if Path(SECTORS_PATH).exists():
-        print("Using cached Sectors Data from data/sector_data.csv")
-        cached_df = pd.read_csv(SECTORS_PATH)
+    # Stocks that aren't acturally complete
+    complete_mask = (
+        cached_df["sector"].notna()
+        & cached_df["sub_sector"].notna()
+    )
 
-        # Stocks that aren't acturally complete
-        complete_mask = (
-            cached_df["sector"].notna()
-            & cached_df["sub_sector"].notna()
-            & cached_df["market_cap_log"].notna()
-            & cached_df["beta"].notna()
-        )
-
-        cached_stocks = set(cached_df.loc[complete_mask, "stock"])
-    else:
-        cached_df = pd.DataFrame(columns=["stock", "sector", "sub_sector","market_cap_log","beta"])
-        cached_stocks = set()
+    cached_stocks = set(cached_df.loc[complete_mask, "stock"])
     stocks_to_fetch = sorted(stocks - cached_stocks)
-
     rows = []
 
-    max_workers = 5  # good default; bump to 12-16 if you have <300 tickers and it’s stable
+    max_workers = 5  # good default; bump to 12-16 if you have <300 tickers and it's stable
 
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
         futures = {ex.submit(fetch_single_sector, stock): stock for stock in stocks_to_fetch}
@@ -165,9 +150,7 @@ def fetch_sectors_market_cap_beta() -> pd.DataFrame:
                 rows.append({
                     "stock": stock,
                     "sector": None,
-                    "sub_sector": None,
-                    "market_cap_log": None,
-                    "beta": None
+                    "sub_sector": None
                 })
 
             if i % 25 == 0 or i == len(stocks_to_fetch):

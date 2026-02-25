@@ -44,7 +44,7 @@ def stage3(stage2_df):
         stock_vs_sector_vol = ratio vol_30d / sector_vol_30d
         sector_earnings_density = fraction of stocks in the sector whose earnings are within the next week, mean of is_earnings_week per sector
     """
-    print("Stage 3...")
+    print("--------------------\nStage 3 - Feature Engineering...")
     stage3_df = stage2_df.copy()
     stage3_df = stage3_df.sort_values(["stock","date"], kind="mergesort")
     stage3_df["date"] = parse_date(stage3_df["date"])

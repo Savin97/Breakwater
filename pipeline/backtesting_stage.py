@@ -1,20 +1,16 @@
 # pipeline/backtesting_stage.py
-"""    
-    Backtesting Stage
-    Produces credibility tables (calibration, lift, hit rates, bucket stats, stability by year/sector).
-"""
 from backtesting.backtesting import backtesting_suite
-from backtesting.backtesting_features import (engineer_abs_reaction_3d,
+from backtesting.features_for_backtesting import (engineer_abs_reaction_3d,
                                               engineer_abs_reaction_p75_rolling,
                                               engineer_abs_reaction_p90_rolling,
                                               classify_large_earnings_move_bucket)
-from backtesting.testing_functions import (check_explosiveness_feature, 
-                                           three_way_regime_test,
-                                           conditional_hit_rate_analysis,
-                                           volatility_only_regime_test,
-                                           breakwater_regime_test)
 
 def backtesting_stage(input_df):
+    """    
+        Backtesting Stage
+        Produces credibility tables (calibration, lift, hit rates, bucket stats, stability by year/sector).
+    """
+    print("Backtesting Stage...")
     df = input_df.copy()
     features = [engineer_abs_reaction_3d,
                 engineer_abs_reaction_p75_rolling,
@@ -22,7 +18,9 @@ def backtesting_stage(input_df):
                 classify_large_earnings_move_bucket]
     for f in features:
         df = f(df)
-
+    backtesting_suite(df)
+    print("-------------------------------\nBacktesting Done.")
+    return
     # print("Volatility Only:\n")
     # print(volatility_only_regime_test(df))
     # print("\nBreakwater Regime:\n")
@@ -41,15 +39,15 @@ def backtesting_stage(input_df):
     import pandas as pd
 
     def forward_eval_onefactor(
-        df,
-        feature_col,
-        train_years=range(2005, 2011),
-        test_years=range(2011, 2026),
-        q=0.90,
-        label_col="is_extreme_reaction",
-        earn_col="is_earnings_day",
-        date_col="date",
-    ):
+            df,
+            feature_col,
+            train_years=range(2005, 2011),
+            test_years=range(2011, 2026),
+            q=0.90,
+            label_col="is_extreme_reaction",
+            earn_col="is_earnings_day",
+            date_col="date",
+        ):
         earn = df[df[earn_col] == 1].dropna(subset=[date_col, label_col, feature_col]).copy()
         earn["year"] = pd.to_datetime(earn[date_col]).dt.year
         earn["y"] = earn[label_col].astype(int)
@@ -94,15 +92,15 @@ def backtesting_stage(input_df):
 
 
     def forward_eval_twofactor_and(
-        df,
-        feat1, feat2,
-        train_years=range(2005, 2011),
-        test_years=range(2011, 2026),
-        q=0.90,
-        label_col="is_extreme_reaction",
-        earn_col="is_earnings_day",
-        date_col="date",
-    ):
+            df,
+            feat1, feat2,
+            train_years=range(2005, 2011),
+            test_years=range(2011, 2026),
+            q=0.90,
+            label_col="is_extreme_reaction",
+            earn_col="is_earnings_day",
+            date_col="date",
+        ):
         earn = df[df[earn_col] == 1].dropna(subset=[date_col, label_col, feat1, feat2]).copy()
         earn["year"] = pd.to_datetime(earn[date_col]).dt.year
         earn["y"] = earn[label_col].astype(int)
@@ -145,19 +143,19 @@ def backtesting_stage(input_df):
             return pd.DataFrame(rows).sort_values("year")
 
         return pd.concat([stats(train, "TRAIN"), stats(test, "TEST")], ignore_index=True), (thr1, thr2)
-    backtesting_df = df.copy()
-    # 1) Expanding prior only
-    prior_stats, prior_thr = forward_eval_onefactor(backtesting_df, "abs_reaction_p75", q=0.90)
-    print("PRIOR thr:", prior_thr)
-    print(prior_stats[prior_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
+    # backtesting_df = df.copy()
+    # # 1) Expanding prior only
+    # prior_stats, prior_thr = forward_eval_onefactor(backtesting_df, "abs_reaction_p75", q=0.90)
+    # print("PRIOR thr:", prior_thr)
+    # print(prior_stats[prior_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
 
-    # 2) Rolling prior only (if you have it)
-    roll_stats, roll_thr = forward_eval_onefactor(backtesting_df, "abs_reaction_p75_rolling", q=0.90)
-    print("ROLL thr:", roll_thr)
-    print(roll_stats[roll_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
+    # # 2) Rolling prior only (if you have it)
+    # roll_stats, roll_thr = forward_eval_onefactor(backtesting_df, "abs_reaction_p75_rolling", q=0.90)
+    # print("ROLL thr:", roll_thr)
+    # print(roll_stats[roll_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
 
-    # 3) Prior + fragility (your current core)
-    pf_stats, (p_thr, f_thr) = forward_eval_twofactor_and(backtesting_df, "abs_reaction_p75", "momentum_fragility_score", q=0.90)
-    print("PRIOR+FRAG thrs:", p_thr, f_thr)
-    print(pf_stats[pf_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
+    # # 3) Prior + fragility (your current core)
+    # pf_stats, (p_thr, f_thr) = forward_eval_twofactor_and(backtesting_df, "abs_reaction_p75", "momentum_fragility_score", q=0.90)
+    # print("PRIOR+FRAG thrs:", p_thr, f_thr)
+    # print(pf_stats[pf_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
         
