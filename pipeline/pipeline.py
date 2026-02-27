@@ -3,8 +3,8 @@ from pipeline.stage1 import stage1
 from pipeline.stage2 import stage2
 from pipeline.stage3 import stage3
 from pipeline.stage4 import stage4
-from pipeline.backtesting_stage import backtesting_stage
 from pipeline.stage5 import stage5
+from pipeline.backtesting_stage import backtesting_stage
 from pipeline.output import output_to_csv
 
 def run_pipeline():
