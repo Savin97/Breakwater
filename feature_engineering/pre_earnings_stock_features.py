@@ -110,8 +110,11 @@ def engineer_abs_reaction_median(input_df):
         .transform(lambda x: x.abs().shift(1).expanding().median() ) 
         )
     
-    # TODO: .to_numpy might be dangerous. It assumes positional alignment, not logical alignment.
+    
     df.loc[earnings_mask, "abs_reaction_median"] = earnings_df["abs_reaction_median"].to_numpy()
+    # TODO: .to_numpy might be dangerous. It assumes positional alignment, not logical alignment.
+    # Switch previous line with the following one:
+    df.loc[earnings_mask, "abs_reaction_median"] = earnings_df["abs_reaction_median"]
     assert earnings_mask.sum() == len(earnings_df), "Mismatch: earnings rows vs earnings_df"
 
     return df
