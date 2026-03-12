@@ -1,6 +1,3 @@
-
-
-#!/usr/bin/env python3
 """
 year_by_year_regime_eval.py
 

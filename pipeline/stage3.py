@@ -1,21 +1,26 @@
 # pipeline/stage3.py
-from data_utilities.formatting import parse_date
-from feature_engineering.pre_earnings_stock_features import (engineer_daily_ret,
-                                                             engineer_drift, 
-                                                             engineer_volatility, 
-                                                             engineer_momentum,
-                                                             engineer_abs_reaction_median, 
-                                                             engineer_abs_reaction_p75,
-                                                             engineer_earnings_windows )
-from feature_engineering.post_earnings_stock_features import (engineer_earnings_reactions,
-                                                              engineer_reaction_class,
-                                                              engineer_reaction_std,
-                                                              engineer_reaction_entropy,
-                                                              engineer_directional_bias)
-from feature_engineering.pre_earnings_sector_features import (engineer_sector_drift_vol,
-                                                              engineer_stock_vs_sector_vol,
-                                                              engineer_sector_earnings_density)
-
+from data_ingestion.data_utilities import parse_date
+from feature_engineering.pre_earnings_stock_features import (
+    engineer_daily_ret,
+    engineer_drift, 
+    engineer_volatility, 
+    engineer_momentum,
+    engineer_abs_reaction_median, 
+    engineer_abs_reaction_p75,
+    engineer_abs_reaction_p75_rolling,
+    engineer_abs_reaction_p90_rolling,
+    engineer_earnings_windows)
+from feature_engineering.post_earnings_stock_features import (
+    engineer_earnings_reactions,
+    engineer_reaction_class,
+    engineer_abs_reaction_3d,
+    engineer_reaction_std,
+    engineer_reaction_entropy,
+    engineer_directional_bias)
+from feature_engineering.pre_earnings_sector_features import (
+    engineer_sector_drift_vol,
+    engineer_stock_vs_sector_vol,
+    engineer_sector_earnings_density)
 def stage3(stage2_df):
     """ 
         Pipeline Stage 3 - Feature Engineering
@@ -59,16 +64,18 @@ def stage3(stage2_df):
         engineer_reaction_std,
         engineer_reaction_entropy,
         engineer_directional_bias,
+        engineer_abs_reaction_3d,
         engineer_abs_reaction_median,
         engineer_abs_reaction_p75,
+        engineer_abs_reaction_p75_rolling,
+        engineer_abs_reaction_p90_rolling,
         engineer_sector_drift_vol,
         engineer_stock_vs_sector_vol,
         engineer_sector_earnings_density
     ]
     for feature in feature_steps:
         stage3_df = feature(stage3_df)
-    # stage3_df.to_csv("stage3_df.csv", index=False)
-    # exit()
     if stage3_df is None:
-        raise ValueError("\n---ERROR! Stage 2 Returned None.---\n")
+        raise ValueError("\n---ERROR! Stage 3 Returned None.---\n")
+    print("Stage 3 DONE")
     return stage3_df

@@ -16,5 +16,5 @@ def stage5(df):
             "risk_lift": "risk_lift"
             }
         generate_report(stock, data_for_report)
-    print("Stage 5 Done.")
+    print("Stage 5 DONE")
     return df

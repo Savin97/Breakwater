@@ -6,7 +6,6 @@
         downtime, 
         alternate sources in case main one fails,
         datatype checking
-    - Also storage of this data - *parquet* instead of csv.
 
 3. REACTION_THRESHOLD - probably shouldn't be a static number (Check GPT)
 

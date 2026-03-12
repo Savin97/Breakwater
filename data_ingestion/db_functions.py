@@ -1,12 +1,4 @@
 # db/auxilary_functions.py
-import pandas as pd
-import requests
-import duckdb
-import time
-
-from config import ALPHAVANTAGE_BASE_URL
-from data_utilities.helper_funcs import get_alpha_vantage_api_key
-
 def create_prices_table_if_not_exists(con):
     # ensure table exists (match your schema)
     con.execute("""
@@ -53,81 +45,6 @@ def stock_already_in_prices_db(con, stock: str) -> bool:
     n = con.execute("SELECT COUNT(*) FROM prices WHERE stock = ?;", [stock]).fetchone()[0]
     return n > 0
 
-def fetch_daily_adjusted(stock: str, outputsize = "full", max_attempts=5):
-    API_KEY = get_alpha_vantage_api_key()
-    params = {
-        "function": "TIME_SERIES_DAILY_ADJUSTED",
-        "symbol": stock,
-        "outputsize": outputsize,
-        "apikey": API_KEY,
-    }
-    for attempt in range(max_attempts):
-        try:
-            r = requests.get(ALPHAVANTAGE_BASE_URL, params=params,timeout=(5, 30))
-            r.raise_for_status()
-            data = r.json()
-            # handle AlphaVantage rate limit / bad payload
-            # retryable AlphaVantage responses
-            if isinstance(data, dict) and ("Note" in data or "Information" in data):
-                raise RuntimeError(f"AV throttled: {data.get('Note') or data.get('Information')}")
-
-            # non-retryable AV response (bad symbol, etc.)
-            if isinstance(data, dict) and "Error Message" in data:
-                return data
-
-            # success or unexpected -> retry
-            if not isinstance(data, dict) or "Time Series (Daily)" not in data:
-                raise RuntimeError(f"Bad payload keys: {list(data.keys()) if isinstance(data, dict) else type(data)}")
-
-            return data
-        except Exception as e:
-            if attempt == max_attempts - 1:
-                raise
-            sleep_time = min(2 ** attempt, 60)  # backoff
-            print(f"Exception {e} raised.\nRetry {attempt+1}/{max_attempts} for {stock} in {sleep_time}s")
-            time.sleep(sleep_time)
-
-def fetch_one_stock_into_db(db, TEST_STOCK = "AAPL"):
-    # Fetch prices of one stock
-    HISTORY_START_DATE = "2000-01-01"
-    API_KEY = get_alpha_vantage_api_key()
-    connection = duckdb.connect(db)
-    # 2) fetch 1 stock (full)
-    params = {
-        "function": "TIME_SERIES_DAILY_ADJUSTED",
-        "symbol": "AAPL",
-        "outputsize": "full",
-        "apikey": API_KEY,
-    }
-    r = requests.get(ALPHAVANTAGE_BASE_URL, params=params, timeout=30.0)
-    data = r.json()
-    if "Error Message" in data:
-        raise ValueError ("API Error:", data["Error Message"])
-    ts = data["Time Series (Daily)"] 
-    
-    # 3) parse to DataFrame (price = adjusted close)
-    rows = []
-    for date_str, ohlc in ts.items():
-        price = float(ohlc["5. adjusted close"])
-        rows.append(("AAPL", date_str, price, "10/2/26"))
-    
-    df = pd.DataFrame(rows, columns=["stock", "date", "price", "ingested_on"])
-    df["date"] = pd.to_datetime(df["date"]).dt.date
-
-    # 4) keep only from 2000 onward
-    df = df[df["date"] >= pd.to_datetime(HISTORY_START_DATE).date()]
-    # 5) insert (simple: delete then insert for this stock)
-    connection.execute("DELETE FROM prices WHERE stock = ?;", [TEST_STOCK])
-    connection.register("tmp_prices", df)
-    connection.execute("INSERT INTO prices SELECT * FROM tmp_prices;")
-    connection.unregister("tmp_prices")
-
-    # 6) verify
-    n = connection.execute("SELECT COUNT(*) FROM prices WHERE stock = ?;", [TEST_STOCK]).fetchone()[0] # type:ignore
-    mind = connection.execute("SELECT MIN(date), MAX(date) FROM prices WHERE stock = ?;", [TEST_STOCK]).fetchone()
-    print("Inserted rows:", n)
-    print("Min/Max date:", mind)
-
 def get_max_dates_by_stock(con, table: str, date_col: str) -> dict[str, object]:
     rows = con.execute(f"""
         SELECT stock, MAX({date_col}) AS max_date
@@ -138,7 +55,6 @@ def get_max_dates_by_stock(con, table: str, date_col: str) -> dict[str, object]:
 
 def test_db(con):
     print("\n\n---------------------\n")
-
     # Describe all tables
     print("Table description in the DB:")
     print(con.execute("""SELECT
@@ -157,7 +73,6 @@ def test_db(con):
         ORDER BY stock
     """).fetch_df()   
     prices_count_df.to_csv("count_prices_db_test.csv",index=False)
-
     print("\ncreated test db in count_db_test.csv\n")
     
     testing_if_all_fetched = con.execute("""
@@ -182,7 +97,7 @@ def test_db(con):
         ORDER BY stock
     """).df()   
     earnings_count_df.to_csv("count_earnings_db_test.csv",index=False)
-    
+    print("\ncreated earnings_count_df.csv\n")
     testing_if_all_fetched = con.execute("""
         WITH mx AS (SELECT MAX(earnings_date) AS global_max FROM earnings)
         SELECT e.stock, MAX(e.earnings_date) AS max_earnings_date
@@ -196,8 +111,5 @@ def test_db(con):
     print("Number of unique stocks in earnings: ", con.execute("SELECT COUNT(DISTINCT stock) FROM earnings").fetchone())
     print(con.execute("SELECT DISTINCT stock FROM earnings ORDER BY stock").fetchdf())
     print("Number of rows in earnings: ", con.execute("SELECT COUNT(*) FROM earnings").fetchone())
-
     con.close()
-
-    #print("rows:", len(df))
-    #print("min/max:", df["date"].min(), df["date"].max())
+    

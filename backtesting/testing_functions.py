@@ -1,10 +1,8 @@
 # backtesting/testing_functions.py
 import pandas as pd
 import numpy as np
-import matplotlib
-
 from backtesting.features_for_backtesting import add_joint_regime_flag
-
+from config import LARGE_EARNINGS_REACTION_THRESHOLD, EXTREME_EARNINGS_REACTION_THRESHOLD
 """
     Backtesting & Regime Evaluation Utilities for Breakwater
 
@@ -91,6 +89,14 @@ from backtesting.features_for_backtesting import add_joint_regime_flag
         Walk-forward yearly OOS test computing correlation,
         bucket separation, and lift statistics per year.
 
+    
+    ---------------------------------------------------------------------------
+    Forward Evaluating
+    ---------------------------------------------------------------------------
+    forward_eval_onefactor
+
+    forward_eval_twofactor_and
+
     All evaluations are performed on earnings-day events unless otherwise specified.
 """
 
@@ -134,7 +140,6 @@ def check_explosiveness_feature(df):
     """
     # Check correlation structure of timing_danger and its components
     subset = df[df["is_earnings_day"] == True].copy()
-
     subset["is_extreme_reaction"] = (
         subset["abs_reaction_3d"] >= 0.08
     ).astype(int)
@@ -290,7 +295,8 @@ def check_timing_danger_connection_to_earnings_move_bucket(df):
     bt = bt[bt["is_earnings_day"] == 1].copy()
 
     # Safety: drop rows missing what you need
-    bt = bt.dropna(subset=["timing_danger", "earnings_move_bucket"])
+    #bt = bt.dropna(subset=["timing_danger", "earnings_move_bucket"])
+    bt = bt.dropna(subset=["timing_danger", "reaction_3d"])
 
     # 10 deciles: 1..10
     bt["danger_decile"] = pd.qcut(
@@ -311,8 +317,10 @@ def check_timing_danger_connection_to_earnings_move_bucket(df):
         # 1.3–1.7 = usable
         # 2.0+ = strong
         # p_extreme is rarer, so it'll be noisier; lift matters more than smoothness.
-    bt["is_large_plus"] = (bt["earnings_move_bucket"] >= 1).astype(int)
-    bt["is_extreme"]    = (bt["earnings_move_bucket"] == 2).astype(int)
+    # bt["is_large_plus"] = (bt["earnings_move_bucket"] >= 1).astype(int)
+    # bt["is_extreme"]    = (bt["earnings_move_bucket"] == 2).astype(int)
+    bt["is_large_plus"] = (bt["reaction_3d"] >= LARGE_EARNINGS_REACTION_THRESHOLD).astype(int)
+    bt["is_extreme"]    = (bt["reaction_3d"] == EXTREME_EARNINGS_REACTION_THRESHOLD).astype(int)
 
     decile_table = (
         bt.groupby("danger_decile")
@@ -353,14 +361,11 @@ def check_timing_danger_connection_to_earnings_move_bucket(df):
     decile_table["p_large_plus_ci_lo"] = [x[0] for x in rows]
     decile_table["p_large_plus_ci_hi"] = [x[1] for x in rows]
 
-    print(bt)
-    print("----------------------")
     print(decile_table)
     print("----------------------")
 
     print(bt["timing_danger"].describe())
     print(bt["timing_danger"].nunique())
-
 
 def check_corr_of_features(df):
     # only earnings ??? 
@@ -508,39 +513,39 @@ def regime_confusion_metrics(input_df):
         print(len(earnings), "total earnings events")
 
 def comparing_regime_results_to_volatility_only(df):
-    earn = df[df.is_earnings_day == 1].sort_values(["stock","date"]).copy()
+    earnings_df = df[df.is_earnings_day == 1].sort_values(["stock","date"]).copy()
 
     # For each stock, compare current p75 with previous event p75
-    earn["p75_diff"] = (
-        earn.groupby("stock")["abs_reaction_p75"]
+    earnings_df["p75_diff"] = (
+        earnings_df.groupby("stock")["abs_reaction_p75"]
         .diff()
     )
-    print(earn[["stock","date","abs_reaction_3d","abs_reaction_p75","p75_diff"]].head(20))
+    print(earnings_df[["stock","date","abs_reaction_3d","abs_reaction_p75","p75_diff"]].head(20))
 
     # Test 2 
-    earn["extreme_shuffled"] = np.random.permutation(earn["is_extreme_reaction"].values)
+    earnings_df["extreme_shuffled"] = np.random.permutation(earnings_df["is_extreme_reaction"].values)
     threshold = 0.9
-    exp_thr = earn["earnings_explosiveness_score"].quantile(threshold)
-    frag_thr = earn["momentum_fragility_score"].quantile(threshold)
+    exp_thr = earnings_df["earnings_explosiveness_score"].quantile(threshold)
+    frag_thr = earnings_df["momentum_fragility_score"].quantile(threshold)
 
-    earn["is_joint_regime"] = (
-        (df["earnings_explosiveness_score"] >= exp_thr) &
-        (df["momentum_fragility_score"] >= frag_thr) &
-        (df["is_earnings_day"])
+    earnings_df["is_joint_regime"] = (
+        (earnings_df["earnings_explosiveness_score"] >= exp_thr) &
+        (earnings_df["momentum_fragility_score"] >= frag_thr) &
+        (earnings_df["is_earnings_day"])
     ).astype(int)
 
-    regime = earn["is_joint_regime"] == 1
+    regime = earnings_df["is_joint_regime"] == 1
 
-    TP = ((regime) & (earn["extreme_shuffled"] == 1)).sum()
-    FP = ((regime) & (earn["extreme_shuffled"] == 0)).sum()
+    TP = ((regime) & (earnings_df["extreme_shuffled"] == 1)).sum()
+    FP = ((regime) & (earnings_df["extreme_shuffled"] == 0)).sum()
 
     print("Shuffled precision:", TP / (TP + FP))
 
     # Test 3
-    median_year = earn["date"].dt.year.median()
+    median_year = earnings_df["date"].dt.year.median()
 
-    first_half = earn[earn["date"].dt.year <= median_year]
-    second_half = earn[earn["date"].dt.year > median_year]
+    first_half = earnings_df[earnings_df["date"].dt.year <= median_year]
+    second_half = earnings_df[earnings_df["date"].dt.year > median_year]
 
     def regime_precision(sub):
         regime = sub["is_joint_regime"] == 1
@@ -555,12 +560,12 @@ def comparing_regime_results_to_volatility_only(df):
     # Top volatility test
     threshold = 0.98
 
-    vol_thr = earn["vol_30d"].quantile(threshold)
-    regime_vol_top2 = earn["vol_30d"] >= vol_thr
+    vol_thr = earnings_df["vol_30d"].quantile(threshold)
+    regime_vol_top2 = earnings_df["vol_30d"] >= vol_thr
     print(regime_vol_top2)
 
-    regime_vol_top2 = earn["vol_30d"] >= vol_thr
-    extreme = earn["is_extreme_reaction"] == 1
+    regime_vol_top2 = earnings_df["vol_30d"] >= vol_thr
+    extreme = earnings_df["is_extreme_reaction"] == 1
 
     TP = ((regime_vol_top2) & (extreme)).sum()
     FP = ((regime_vol_top2) & (~extreme)).sum()
@@ -598,7 +603,7 @@ def check_timing_danger_score_metric(input_df):
     for i in range(len(counts)):
         print(f"{bins[i]:.4f} to {bins[i+1]:.4f} : {counts[i]}")
     per_day_dispersion = (
-    test_score_df
+        test_score_df
         .groupby("earnings_date")["timing_danger_score"]
         .agg(["mean", "std", "min", "max", "count"])
     )
@@ -670,6 +675,7 @@ def check_timing_danger_train_test(df):
 
 def yearly_oos_report(df, date_col="date", score_col="timing_danger", target_col="abs_reaction_3d", q=5):
     d = df[[date_col, score_col, target_col]].dropna().copy()
+    d = d[d["is_earnings_day"]==1]
     d[date_col] = pd.to_datetime(d[date_col])
 
     years = sorted(d[date_col].dt.year.unique())
@@ -734,3 +740,113 @@ def yearly_oos_report(df, date_col="date", score_col="timing_danger", target_col
     print("Avg corr:", yearly["corr"].mean())
     print("Median corr:", yearly["corr"].median())
     print("Pct years corr>0.15:", (yearly["corr"] > 0.15).mean())
+
+# ------------------------------------------------------
+# Forward Evaluating
+# ------------------------------------------------------
+
+def forward_eval_onefactor(
+        df,
+        feature_col,
+        train_years=range(2005, 2011),
+        test_years=range(2011, 2026),
+        q=0.90,
+        label_col="is_extreme_reaction",
+        earn_col="is_earnings_day",
+        date_col="date",
+    ):
+    earn = df[df[earn_col] == 1].dropna(subset=[date_col, label_col, feature_col]).copy()
+    earn["year"] = pd.to_datetime(earn[date_col]).dt.year
+    earn["y"] = earn[label_col].astype(int)
+
+    train = earn[earn["year"].isin(train_years)].copy()
+    test  = earn[earn["year"].isin(test_years)].copy()
+
+    thr = float(train[feature_col].quantile(q))
+
+    def add_regime(sub):
+        out = sub.copy()
+        out["is_regime"] = out[feature_col] >= thr
+        return out
+
+    def stats(sub, split):
+        rows = []
+        for y, g in add_regime(sub).groupby("year"):
+            N = len(g)
+            K = int(g["y"].sum())
+            base = K / N if N else np.nan
+
+            r = g[g["is_regime"]]
+            n = len(r)
+            k = int(r["y"].sum())
+            reg = k / n if n else np.nan
+            lift = (reg / base) if (base and np.isfinite(reg)) else np.nan
+
+            rows.append({
+                "split": split,
+                "year": int(y),
+                "N_earnings": int(N),
+                "baseline_extreme_rate": base,
+                "n_regime": int(n),
+                "regime_extreme_rate": reg,
+                "lift": lift,
+                "regime_share_of_events": (n / N) if N else np.nan,
+                "regime_capture_of_extremes": (k / K) if K else np.nan,
+            })
+        return pd.DataFrame(rows).sort_values("year")
+    return pd.concat([stats(train, "TRAIN"), stats(test, "TEST")], ignore_index=True), thr
+
+def forward_eval_twofactor_and(
+        df,
+        feat1, feat2,
+        train_years=range(2005, 2011),
+        test_years=range(2011, 2026),
+        q=0.90,
+        label_col="is_extreme_reaction",
+        earn_col="is_earnings_day",
+        date_col="date",
+    ):
+    earn = df[df[earn_col] == 1].dropna(subset=[date_col, label_col, feat1, feat2]).copy()
+    earn["year"] = pd.to_datetime(earn[date_col]).dt.year
+    earn["y"] = earn[label_col].astype(int)
+
+    train = earn[earn["year"].isin(train_years)].copy()
+    test  = earn[earn["year"].isin(test_years)].copy()
+
+    thr1 = float(train[feat1].quantile(q))
+    thr2 = float(train[feat2].quantile(q))
+
+    def add_regime(sub):
+        out = sub.copy()
+        out["is_regime"] = (out[feat1] >= thr1) & (out[feat2] >= thr2)
+        return out
+
+    def stats(sub, split):
+        rows = []
+        for y, g in add_regime(sub).groupby("year"):
+            N = len(g)
+            K = int(g["y"].sum())
+            base = K / N if N else np.nan
+
+            r = g[g["is_regime"]]
+            n = len(r)
+            k = int(r["y"].sum())
+            reg = k / n if n else np.nan
+            lift = (reg / base) if (base and np.isfinite(reg)) else np.nan
+
+            rows.append({
+                "split": split,
+                "year": int(y),
+                "N_earnings": int(N),
+                "baseline_extreme_rate": base,
+                "n_regime": int(n),
+                "regime_extreme_rate": reg,
+                "lift": lift,
+                "regime_share_of_events": (n / N) if N else np.nan,
+                "regime_capture_of_extremes": (k / K) if K else np.nan,
+            })
+        return pd.DataFrame(rows).sort_values("year")
+
+    return pd.concat([stats(train, "TRAIN"), stats(test, "TEST")], ignore_index=True), (thr1, thr2)
+
+

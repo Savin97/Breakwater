@@ -17,7 +17,7 @@ import pandas as pd
 import numpy as np
 
 from config import REACTION_THRESHOLD, DEFAULT_REACTION_WINDOW
-from data_utilities.helper_funcs import build_earnings_df
+from data_ingestion.data_utilities import build_earnings_df
 
 def engineer_earnings_reactions(df):
     """
@@ -54,6 +54,13 @@ def engineer_earnings_reactions(df):
         assert df.loc[~mask, f"reaction_{i}d"].isna().all() # No reactions on non-earnings days
     return df
 
+def engineer_abs_reaction_3d(df):
+    earnings_mask = df["is_earnings_day"] == True
+    # Absolute reaction
+    df.loc[earnings_mask, "abs_reaction_3d"] = (
+        df.loc[earnings_mask, "reaction_3d"].abs()
+    )
+    return df
 
 def engineer_reaction_class(df):
     """

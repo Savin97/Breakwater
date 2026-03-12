@@ -4,10 +4,42 @@ import time
 import pandas as pd
 import yfinance as yf
 
-from config import (ALPHAVANTAGE_BASE_URL, 
-                    TIMEOUT_SECONDS,
-                    BACKOFF_SECONDS)
-from data_utilities.helper_funcs import get_alpha_vantage_api_key
+from config import (ALPHAVANTAGE_BASE_URL,BACKOFF_SECONDS)
+from data_ingestion.data_utilities import get_alpha_vantage_api_key
+
+def fetch_daily_adjusted_prices(stock: str, outputsize = "full", max_attempts=5):
+    API_KEY = get_alpha_vantage_api_key()
+    params = {
+        "function": "TIME_SERIES_DAILY_ADJUSTED",
+        "symbol": stock,
+        "outputsize": outputsize,
+        "apikey": API_KEY,
+    }
+    for attempt in range(max_attempts):
+        try:
+            r = requests.get(ALPHAVANTAGE_BASE_URL, params=params,timeout=(5, 30))
+            r.raise_for_status()
+            data = r.json()
+            # handle AlphaVantage rate limit / bad payload
+            # retryable AlphaVantage responses
+            if isinstance(data, dict) and ("Note" in data or "Information" in data):
+                raise RuntimeError(f"AV throttled: {data.get('Note') or data.get('Information')}")
+
+            # non-retryable AV response (bad symbol, etc.)
+            if isinstance(data, dict) and "Error Message" in data:
+                return data
+
+            # success or unexpected -> retry
+            if not isinstance(data, dict) or "Time Series (Daily)" not in data:
+                raise RuntimeError(f"Bad payload keys: {list(data.keys()) if isinstance(data, dict) else type(data)}")
+
+            return data
+        except Exception as e:
+            if attempt == max_attempts - 1:
+                raise
+            sleep_time = min(2 ** attempt, 60)  # backoff
+            print(f"Exception {e} raised.\nRetry {attempt+1}/{max_attempts} for {stock} in {sleep_time}s")
+            time.sleep(sleep_time)
 
 def get_earnings_data_from_api(stock, max_attempts=5):
     # get_earnings_data_from Alpha Vantage
@@ -69,21 +101,3 @@ def get_earnings_dates_yf(ticker: str, limit : int = 12):
     ]]
 
     df["earnings_date"] = pd.to_datetime(df["earnings_date"]).dt.date
-
-def handle_api_fetching_errors(stock, data):
-    last_err = None
-    # Rate-limit / errors
-    if "Note" in data:
-        last_err = RuntimeError(data["Note"])
-        print(f"Alpha Vantage rate limit for {stock}: {data['Note']}")
-        print(f"Waiting {BACKOFF_SECONDS} seconds")
-        time.sleep(BACKOFF_SECONDS)
-        # if attempt == MAX_RETRIES:
-        #     raise RuntimeError(f"Alpha Vantage rate limit for {stock}: {data['Note']}")
-    if "Error Message" in data:
-        last_err = RuntimeError(data["Error Message"])
-        raise RuntimeError(f"Alpha Vantage error for {stock}: {data['Error Message']}")
-    if "Information" in data:
-        last_err = RuntimeError(data["Information"])
-        raise RuntimeError(f"Alpha Vantage error for {stock}: {data['Information']}")
-    return last_err

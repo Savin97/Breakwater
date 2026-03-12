@@ -12,15 +12,11 @@ output/
 data/   
 **/data/
 backtesting/artifacts/
-
+z_deprecated/
 
 # OS stuff
 .DS_Store
 .env
 *.env
 .ipynb_checkpoints/
-
 *.csv
-secrets.json
-config_local.py
-

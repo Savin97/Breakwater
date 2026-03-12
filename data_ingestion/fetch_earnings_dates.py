@@ -1,0 +1,143 @@
+# data_ingestion/fetch_earnings_dates.py
+import duckdb, time, pandas as pd,yfinance as yf
+from datetime import datetime
+
+from data_ingestion.db_functions import get_max_dates_by_stock
+from data_ingestion.api_functions import (get_earnings_data_from_api)
+from data_ingestion.data_utilities import to_float_or_none, get_alpha_vantage_api_key, read_stocks_to_fetch
+from config import DB_PATH,STOCKS_START_DATE,ALPHAVANTAGE_CALLS_PER_MINUTE
+def ingest_all_earnings_dates():
+    already, inserted, failed = 0,0,0
+    FAILED_EARNINGS_LOG_PATH = "debugging/failed_earnings_ingestion.txt"    
+    API_KEY = get_alpha_vantage_api_key()
+    min_sleep = 60.0 / float(ALPHAVANTAGE_CALLS_PER_MINUTE)
+    stocks = read_stocks_to_fetch
+    cutoff = pd.to_datetime(STOCKS_START_DATE).date()
+
+    if not API_KEY:
+        raise RuntimeError("Set ALPHAVANTAGE_API_KEY env var first.")
+    # reset failure log each run (simple)
+    with open(FAILED_EARNINGS_LOG_PATH, "w", encoding="utf-8") as f:
+        f.write("stock\terror\n")
+
+    con = duckdb.connect(DB_PATH)
+    # cache current max earnings_date per stock
+    max_earnings_date_by_stock = get_max_dates_by_stock(con, "earnings", "earnings_date")
+
+    # heuristic freshness window (quarterly): if you already have something in last 90 days, skip
+    today = datetime.now().date()
+    fresh_window_days = 90
+
+    for i, stock in enumerate(stocks, start=1):  
+        stock_earn_max_date = max_earnings_date_by_stock.get(stock)
+
+        if stock_earn_max_date is not None and (today - stock_earn_max_date).days <= fresh_window_days: # type: ignore
+            already += 1
+            print(f"{stock} is up to date")
+            if i % 50 == 0:
+                print(f"[{i}/{len(stocks)}] skipped(fresh): {already}, inserted: {inserted}, failed: {failed}")
+            continue
+
+        data = get_earnings_data_from_api(stock)    
+        print(f"[{i}/{len(stocks)}] Fetching earnings data for {stock}...")
+        try:
+            if "quarterlyEarnings" not in data:
+                raise RuntimeError(f"Bad payload keys: {list(data.keys())}. Snippet: {str(data)[:180]}")
+            quarterly_earnings = data["quarterlyEarnings"]
+            table_cols = ["stock", "reportedDate", "fiscalDateEnding", "reportedEPS", "estimatedEPS", "surprisePercentage"]
+            rows = []   
+            
+            for quarter in quarterly_earnings:
+                rows.append((stock, 
+                             quarter["reportedDate"], 
+                             quarter["fiscalDateEnding"], 
+                             to_float_or_none(quarter["reportedEPS"]), 
+                             to_float_or_none(quarter["estimatedEPS"]), 
+                             to_float_or_none(quarter["surprisePercentage"])) )
+
+            df = pd.DataFrame(rows, columns=table_cols)
+            df = df.rename(columns={
+                "reportedDate": "earnings_date",
+                "fiscalDateEnding": "fiscal_end_date",
+                "reportedEPS": "reported_eps",
+                "estimatedEPS": "estimated_eps",
+                "surprisePercentage": "surprise_percentage"
+            })
+            df["earnings_date"] = pd.to_datetime(df["earnings_date"]).dt.date
+            df["fiscal_end_date"] = pd.to_datetime(df["fiscal_end_date"]).dt.date
+            
+            df = df[df["earnings_date"] >= cutoff]
+            df = df[df["fiscal_end_date"] >= cutoff] 
+
+            if df.empty:
+                already += 1
+                time.sleep(min_sleep)
+                continue
+
+            df["surprise_percentage"] = df["surprise_percentage"] / 100
+            df["ingested_at"] = datetime.now()
+
+            count_before = con.execute("SELECT COUNT(*) FROM earnings WHERE stock = ?", [stock]).fetchone()[0] #type:ignore
+            con.register("tmp_earnings_df", df)
+            con.execute("INSERT OR IGNORE INTO earnings SELECT * FROM tmp_earnings_df")
+            con.unregister("tmp_earnings_df")
+            count_after = con.execute("SELECT COUNT(*) FROM earnings WHERE stock = ?", [stock]).fetchone()[0]#type:ignore
+            added = count_after - count_before
+
+            min_date, max_date = con.execute("""SELECT MIN(earnings_date), MAX(earnings_date) FROM earnings WHERE stock = ?;""", [stock]).fetchone() #type:ignore
+            print(f"Added {added} rows ({min_date} -> {max_date})")
+            if added != 0:
+                inserted += 1
+            print(f"Inserted {count_after} rows ({min_date} -> {max_date})")
+
+        except Exception as e:
+            failed += 1
+            err = f"{type(e).__name__}: {e}"
+            print(f"  FAILED {stock}: {err}")
+            # ensure tmp view not left behind
+            try:
+                con.unregister("tmp_prices")
+            except Exception:
+                pass
+            with open(FAILED_EARNINGS_LOG_PATH, "a", encoding="utf-8") as f:
+                f.write(f"{stock}\t{err}\n")
+        # always sleep a bit to respect rate limits
+        time.sleep(min_sleep)
+    
+    con.close()
+    print("\nIngesting Earnings Done.")
+    print("already in DB:", already)
+    print("inserted new:", inserted)
+    print("failed:", failed)
+    print("Failures saved to:", FAILED_EARNINGS_LOG_PATH)
+
+
+def get_next_earnings_dates(stocks):
+    # TODO: Change to actually today (datetime.now())
+    today = pd.Timestamp("2026-02-20",tz="America/New_York")
+    stock_dict = {}
+    for i,stock in enumerate(stocks,start=1):
+        if i%100==0:
+            time.sleep(30)
+        print(f"[{i}/{len(stocks)}] Fetching {stock} next Earnings Date...")
+        try:
+            ticker = yf.Ticker(stock)
+            if ticker is not None:
+                df = ticker.get_earnings_dates(limit=1, offset=0)
+            else:
+                raise ValueError(f"{ticker} returned None")
+            if df is not None:
+                df = df.reset_index()
+                edates = pd.to_datetime(df["Earnings Date"])
+            else:
+                raise ValueError("Nothing from yfinance")
+            for date in edates:
+                if date >= today:
+                    stock_dict[stock] = date.date()
+        except Exception as e:
+            print("ERROR - ", e)
+            break
+    next_earnings_df = pd.DataFrame(stock_dict.items(), columns=["stock","earnings_date"])
+    next_earnings_df.to_csv("next_earnings_df.csv",index=False)
+    print("DF created - next_earnings_df.csv")
+    return next_earnings_df

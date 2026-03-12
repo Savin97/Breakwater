@@ -1,12 +1,16 @@
 # pipeline/stage1.py
-import duckdb
-import warnings
+import duckdb, warnings
 
-from db.auxilary_functions import create_prices_table_if_not_exists, create_earnings_table_if_not_exists,create_sectors_data_table_if_not_exists, test_db
-from db.getting_data import ingest_all_stocks, ingest_all_earnings_dates
-from data_utilities.helper_funcs import directory_checks
+from data_ingestion.db_functions import (
+    create_prices_table_if_not_exists, 
+    create_earnings_table_if_not_exists,
+    create_sectors_data_table_if_not_exists, 
+    test_db)
+from data_ingestion.fetch_prices import ingest_all_stocks
+from data_ingestion.fetch_earnings_dates import ingest_all_earnings_dates, get_next_earnings_dates
+from data_ingestion.fetch_sp500_sectors import ingest_all_sector_data
+from data_ingestion.data_utilities import directory_checks
 from config import DB_PATH
-
 def stage1():
     """
         Building / Updating DB
@@ -15,15 +19,19 @@ def stage1():
         3. Update tables or choose to leave them as-is (introduce a switch for this)
     """
     print("Stage 1 - Building / Updating DB...")
-    directory_checks()
     warnings.filterwarnings('ignore')
+    directory_checks()
     con = duckdb.connect(DB_PATH)
     create_prices_table_if_not_exists(con)
     create_earnings_table_if_not_exists(con)
     create_sectors_data_table_if_not_exists(con)
     # ingest_all_stocks()
     # ingest_all_earnings_dates()
+    ingest_all_sector_data()
+    # get_next_earnings_dates
     # test_db(con)
+    con.close()
+    print("Stage 1 DONE")
     return
 
     # TODO: check to add for corrupted "ingested_at" values
