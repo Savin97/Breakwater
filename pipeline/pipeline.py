@@ -15,9 +15,15 @@ def run_pipeline():
         5. Report Generation
         - Side step: Backtesting
     """
-    stage1()
-    df = stage2() 
-    feature_engineered_df = stage3(df)
-    risk_scored_df = stage4(feature_engineered_df)
-    report = stage5(risk_scored_df)
-    return risk_scored_df
+    import warnings
+    warnings.filterwarnings('ignore')
+    # stage1()
+    # df = stage2() 
+    # feature_engineered_df = stage3(df)
+    # risk_scored_df = stage4(feature_engineered_df)
+    # report = stage5(risk_scored_df)
+    stage5()
+    #print(risk_scored_df.columns)
+    #partial_df = risk_scored_df[risk_scored_df["date"] >= "2025-10-01"]
+    #partial_df.to_csv("partial_df.csv",index=False)
+    # return partial_df # For streamlit

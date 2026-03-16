@@ -12,7 +12,6 @@ output/
 data/   
 **/data/
 backtesting/artifacts/
-z_deprecated/
 
 # OS stuff
 .DS_Store

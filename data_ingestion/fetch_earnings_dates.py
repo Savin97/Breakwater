@@ -5,8 +5,8 @@ from datetime import datetime
 from data_ingestion.db_functions import get_max_dates_by_stock
 from data_ingestion.api_functions import (get_earnings_data_from_api)
 from data_ingestion.data_utilities import to_float_or_none, get_alpha_vantage_api_key, read_stocks_to_fetch
-from config import DB_PATH,STOCKS_START_DATE,ALPHAVANTAGE_CALLS_PER_MINUTE
-def ingest_all_earnings_dates():
+from config import STOCKS_START_DATE,ALPHAVANTAGE_CALLS_PER_MINUTE
+def ingest_all_earnings_dates(con):
     already, inserted, failed = 0,0,0
     FAILED_EARNINGS_LOG_PATH = "debugging/failed_earnings_ingestion.txt"    
     API_KEY = get_alpha_vantage_api_key()
@@ -20,7 +20,6 @@ def ingest_all_earnings_dates():
     with open(FAILED_EARNINGS_LOG_PATH, "w", encoding="utf-8") as f:
         f.write("stock\terror\n")
 
-    con = duckdb.connect(DB_PATH)
     # cache current max earnings_date per stock
     max_earnings_date_by_stock = get_max_dates_by_stock(con, "earnings", "earnings_date")
 
@@ -104,7 +103,6 @@ def ingest_all_earnings_dates():
         # always sleep a bit to respect rate limits
         time.sleep(min_sleep)
     
-    con.close()
     print("\nIngesting Earnings Done.")
     print("already in DB:", already)
     print("inserted new:", inserted)

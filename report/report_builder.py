@@ -17,8 +17,8 @@ def generate_report(stock, data):
         earnings_date = data["earnings_date"],
         risk_level = data["risk_level"], # (Low / Moderate / Elevated / Extreme)
         risk_score = data["risk_score"], #(0-100)
-        hist_xtreme_prob = data["hist_xtreme_prob"],
-        base_xtreme_prob = data["base_xtreme_prob"],
+        hist_extreme_prob = data["hist_extreme_prob"],
+        base_extreme_prob = data["base_extreme_prob"],
         risk_lift = data["risk_lift"]
     )
     # Executive Summary (1 page)

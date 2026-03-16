@@ -44,13 +44,14 @@ def to_float_or_none(x):
 # ------------------------------------------------------------
 
 def merge_prices_earnings_dates(stock_prices, earnings_dates):
-    merged_df = ( pd.merge_asof(
-                    stock_prices, earnings_dates, left_on='date',
-                    right_on = 'earnings_date', by = "stock", direction="forward") )
+    merged_df = pd.merge_asof(
+        stock_prices, earnings_dates, left_on='date',
+        right_on = 'earnings_date', by = "stock", direction="forward") 
     # Merge the result with EPS data
     return merged_df
 
 def map_sector_data_to_main_df(main_df: pd.DataFrame,sector_df:pd.DataFrame):
+    sector_df = sector_df.drop(columns=["company_name","ingested_at"])
     merged_df = main_df.merge(sector_df, on="stock", validate="m:1")
     return merged_df
 

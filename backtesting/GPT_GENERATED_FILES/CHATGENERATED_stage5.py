@@ -27,7 +27,7 @@ Expected inputs:
 Outputs:
   - dict of metrics
   - bucket tables per score
-  - optional CSV/JSON artifacts under back_testing/artifacts/
+  - optional CSV/JSON artifacts under backtesting/artifacts/
 """
 from __future__ import annotations
 
@@ -76,7 +76,7 @@ class BacktestAConfig:
     top_fracs: Tuple[float, ...] = (0.05, 0.10, 0.20)
 
     # Artifact output
-    artifacts_dir: str = "back_testing/artifacts"
+    artifacts_dir: str = "backtesting/artifacts"
     write_artifacts: bool = True
 
 
@@ -670,7 +670,7 @@ class BacktestBConfig:
     min_group_n: int = 30  # avoid noisy regime cells
 
     # Output
-    artifacts_dir: str = "back_testing/artifacts"
+    artifacts_dir: str = "backtesting/artifacts"
     write_artifacts: bool = True
 
 
@@ -975,8 +975,8 @@ def stage5_part_b(stage4_df: pd.DataFrame, cfg: Optional[BacktestBConfig] = None
       2) pre_earnings (earnings_window by default): evaluates proximity & positioning BEFORE earnings
 
     Writes artifacts:
-      back_testing/artifacts/part_b__earnings_day__*.csv
-      back_testing/artifacts/part_b__pre_earnings__*.csv
+      backtesting/artifacts/part_b__earnings_day__*.csv
+      backtesting/artifacts/part_b__pre_earnings__*.csv
     """
     cfg = cfg or BacktestBConfig()
 

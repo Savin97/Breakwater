@@ -1,9 +1,11 @@
 # backtesting/backtesting.py
+import pandas as pd, warnings
 from backtesting.testing_functions import (
     check_explosiveness_feature,
-    check_timing_danger_connection_to_earnings_move_bucket,
+    check_timing_danger_connection_to_large_reacion_metric,
     check_corr_of_features,
     check_timing_danger_score_metric,
+    conditional_hit_rate_analysis,
     three_way_regime_test,
     breakwater_regime_test,
     volatility_only_regime_test,
@@ -14,9 +16,6 @@ from backtesting.testing_functions import (
     yearly_oos_report,
     forward_eval_onefactor,
     forward_eval_twofactor_and)
-from backtesting.features_for_backtesting import (
-    engineer_abs_reaction_p75_rolling,
-    engineer_abs_reaction_p90_rolling)
 from backtesting.GPT_GENERATED_FILES.CHATGENERATED_stage5 import stage5_part_a, stage5_part_b
 from backtesting.GPT_GENERATED_FILES.year_by_year_regime_eval import run_regime_eval 
 from backtesting.GPT_GENERATED_FILES.year_by_year_regular import main as year_by_year_main
@@ -37,37 +36,38 @@ def backtesting_suite(input_df):
     print("-------------------------------\ncheck_explosiveness_feature:")
     check_explosiveness_feature(df)
     print("-------------------------------\ncheck_timing_danger_connection_to_earnings_move_bucket:")
-    check_timing_danger_connection_to_earnings_move_bucket(df)
+    check_timing_danger_connection_to_large_reacion_metric(df)
     print("-------------------------------\ncheck_corr_of_features:")
     check_corr_of_features(df)
     print("-------------------------------\ncheck_timing_danger_score_metric:")
     check_timing_danger_score_metric(df)
+    print("-------------------------------\nconditional_hit_rate_analysis:")
+    conditional_hit_rate_analysis(df)
     print("-------------------------------\nthree_way_regime_test:")
     three_way_regime_test(df)
     print("-------------------------------\nVolatility Only:\n")
     volatility_only_regime_test(df)
-    print("-------------------------------\n")
+    print("-------------------------------\nevaluate_high_risk_earnings_regime:")
     evaluate_high_risk_earnings_regime(df)
-    print("-------------------------------\n")
+    print("-------------------------------\ncomparing_regime_results_to_volatility_only:")
     comparing_regime_results_to_volatility_only(df)
-    print("-------------------------------\n")
+    print("-------------------------------\nregime_confusion_metrics:")
     regime_confusion_metrics(df)
-    print("-------------------------------\n")
+    print("-------------------------------\ncheck_timing_danger_train_test:")
     check_timing_danger_train_test(df)
-    print("-------------------------------\n")
+    print("-------------------------------\nyearly_oos_report:")
     yearly_oos_report(df)
-
-    # 1) Expanding prior only
+    # Expanding prior only
     prior_stats, prior_thr = forward_eval_onefactor(df, "abs_reaction_p75", q=0.90)
     print("PRIOR thr:", prior_thr)
     print(prior_stats[prior_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
-    # 2) Rolling prior only (if you have it)
+    # Rolling prior only 
     roll_stats, roll_thr = forward_eval_onefactor(df, "abs_reaction_p75_rolling", q=0.90)
     print("ROLL thr:", roll_thr)
     print(roll_stats[roll_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
-    # 3) Prior + fragility (your current core)
+    # Prior + fragility (current core)
     pf_stats, (p_thr, f_thr) = forward_eval_twofactor_and(df, "abs_reaction_p75", "momentum_fragility_score", q=0.90)
-    print("PRIOR+FRAG thrs:", p_thr, f_thr)
+    print("PRIOR thrs:", p_thr, "\tFRAG thrs: ", f_thr)
     print(pf_stats[pf_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
 
     # stage5_df = stage5_part_a(backtesting_df)
@@ -87,6 +87,7 @@ def backtesting_suite(input_df):
 
 if __name__ == "__main__":
     print("Running Backtesting Stage")
-    df = run_pipeline()
+    warnings.filterwarnings('ignore')
+    df = pd.read_parquet("output/full_df.parquet")
     backtesting_suite(df)
     print("-------------------------------\nBacktesting Done.")

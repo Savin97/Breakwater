@@ -495,7 +495,7 @@ def run_regime_eval(
     """
     Pipeline-friendly entrypoint.
 
-    Default: returns stats_df only (so you can do: stage5_df = run_regime_eval(back_testing_df))
+    Default: returns stats_df only (so you can do: stage5_df = run_regime_eval(backtesting_df))
     If return_thresholds=True: returns (stats_df, thresholds_df)
     """
 

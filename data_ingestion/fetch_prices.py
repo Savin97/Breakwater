@@ -1,16 +1,14 @@
 # data_ingestion/fetch_prices.py
-import duckdb
 import time
 import pandas as pd
 from datetime import datetime
-
 from data_ingestion.db_functions import (stock_already_in_prices_db,get_max_dates_by_stock)
 from data_ingestion.api_functions import (fetch_daily_adjusted_prices)
 from data_ingestion.data_utilities import get_alpha_vantage_api_key, read_stocks_to_fetch
-from config import (DB_PATH,
-                    STOCKS_START_DATE,
-                    ALPHAVANTAGE_CALLS_PER_MINUTE)
-def ingest_all_stocks():
+from config import (
+    STOCKS_START_DATE,
+    ALPHAVANTAGE_CALLS_PER_MINUTE)
+def ingest_all_stocks(con):
     """
         This function updates the 'prices' table in the duckDB.
     """
@@ -28,8 +26,6 @@ def ingest_all_stocks():
     # reset failure log each run (simple)
     with open(FAILED_LOG_PATH, "w", encoding="utf-8") as f:
         f.write("stock\terror\n")
-
-    con = duckdb.connect(DB_PATH)
 
     global_max_date = con.execute("SELECT MAX(date) FROM prices").fetchone()[0] # type: ignore
     max_date_by_stock = get_max_dates_by_stock(con, "prices", "date")
@@ -122,7 +118,6 @@ def ingest_all_stocks():
         # always sleep a bit to respect rate limits
         time.sleep(min_sleep)
     
-    con.close()
     print("\nIngesting Prices Done.")
     print("skipped/up-to-date:", already)
     print("inserted new:", inserted)

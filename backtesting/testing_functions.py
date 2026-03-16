@@ -140,10 +140,6 @@ def check_explosiveness_feature(df):
     """
     # Check correlation structure of timing_danger and its components
     subset = df[df["is_earnings_day"] == True].copy()
-    subset["is_extreme_reaction"] = (
-        subset["abs_reaction_3d"] >= 0.08
-    ).astype(int)
-
     print("Extreme move rate:", subset["is_extreme_reaction"].mean())
 
     subset["explosive_bucket"] = pd.qcut(
@@ -152,9 +148,7 @@ def check_explosiveness_feature(df):
         duplicates="drop"
     )
 
-    print(
-        subset.groupby("explosive_bucket")["is_extreme_reaction"].mean()
-    )
+    print(subset.groupby("explosive_bucket")["is_extreme_reaction"].mean())
     print(subset.groupby("explosive_bucket").size())
 
     top = subset[subset["earnings_explosiveness_score"] >= subset["earnings_explosiveness_score"].quantile(0.8)]
@@ -174,14 +168,9 @@ def three_way_regime_test(df):
         We will check the hit rates for large_plus and extreme earnings moves across different regimes.
     """
     # separate back testing df to only earnings days
-    bt = df.copy()
-    bt = bt[bt["is_earnings_day"] == 1].copy()
-
-    bt["is_large_plus"] = (bt["earnings_move_bucket"] >= 1).astype(int)
-    bt["is_extreme"]    = (bt["earnings_move_bucket"] == 2).astype(int)
+    bt = df[df["is_earnings_day"] == 1].copy()
 
     # Define the three regime conditions:
-
     # High timing danger (top decile)
     danger_cutoff = bt["timing_danger"].quantile(0.9)
     bt["high_danger"] = (bt["timing_danger"] >= danger_cutoff).astype(int)
@@ -198,8 +187,8 @@ def three_way_regime_test(df):
     baseline = {
         "group": "ALL",
         "n": len(bt),
-        "p_large_plus": bt["is_large_plus"].mean(),
-        "p_extreme": bt["is_extreme"].mean(),
+        "p_large_plus": bt["is_large_reaction"].mean(),
+        "p_extreme": bt["is_extreme_reaction"].mean(),
     }
 
     mask = (
@@ -211,12 +200,10 @@ def three_way_regime_test(df):
     three_way = {
         "group": "High danger + individual vol + explosiveness",
         "n": mask.sum(),
-        "p_large_plus": bt.loc[mask, "is_large_plus"].mean(),
-        "p_extreme": bt.loc[mask, "is_extreme"].mean(),
+        "p_large_plus": bt.loc[mask, "is_large_reaction"].mean(),
+        "p_extreme": bt.loc[mask, "is_extreme_reaction"].mean(),
     }
-
-    return pd.DataFrame([baseline, three_way])
-
+    print( pd.DataFrame([baseline, three_way]) )
 
 def conditional_hit_rate_analysis(df):
     """ 
@@ -226,16 +213,12 @@ def conditional_hit_rate_analysis(df):
         In which regimes does earnings risk actually turn into realized large moves?
         That means conditioning.
     """
-    bt = df.copy()
-    bt = bt[bt["is_earnings_day"] == 1].copy()
+    bt = df[df["is_earnings_day"] == 1].copy()
 
     # We want:
     # vol_stress_extreme == 1
     # Sector earnings crowding: sector_earnings_density >= median
     # Stock-specific volatility dominance: stock_vs_sector_vol >= 1
-    bt["is_large_plus"] = (bt["earnings_move_bucket"] >= 1).astype(int)
-    bt["is_extreme"]    = (bt["earnings_move_bucket"] == 2).astype(int)
-
     # median split for density
     density_med = bt["sector_earnings_density"].median()
     bt["dense_earnings"] = (bt["sector_earnings_density"] >= density_med).astype(int)
@@ -250,8 +233,8 @@ def conditional_hit_rate_analysis(df):
         return {
             "group": label,
             "n": len(sub),
-            "p_large_plus": sub["is_large_plus"].mean(),
-            "p_extreme": sub["is_extreme"].mean(),
+            "p_large_plus": sub["is_large_reaction"].mean(),
+            "p_extreme": sub["is_extreme_reaction"].mean(),
         }
 
     rows = []
@@ -282,17 +265,13 @@ def conditional_hit_rate_analysis(df):
         (bt["high_danger"] == 1) & (bt["high_individual_vol"] == 1),
         "High danger + high idio vol"
     ))
+    print(pd.DataFrame(rows))
 
-    temp_df = pd.DataFrame(rows)
-
-    temp_df.to_csv("temp_df.csv",index=False)
-
-def check_timing_danger_connection_to_earnings_move_bucket(df):
+def check_timing_danger_connection_to_large_reacion_metric(df):
     
     ## Diagnostic: timing_danger connection to earnings_move_bucket
-    bt = df.copy()
     # Earnings-only rows (use your actual column name)
-    bt = bt[bt["is_earnings_day"] == 1].copy()
+    bt = df[df["is_earnings_day"] == 1].copy()
 
     # Safety: drop rows missing what you need
     #bt = bt.dropna(subset=["timing_danger", "earnings_move_bucket"])
@@ -317,25 +296,21 @@ def check_timing_danger_connection_to_earnings_move_bucket(df):
         # 1.3–1.7 = usable
         # 2.0+ = strong
         # p_extreme is rarer, so it'll be noisier; lift matters more than smoothness.
-    # bt["is_large_plus"] = (bt["earnings_move_bucket"] >= 1).astype(int)
-    # bt["is_extreme"]    = (bt["earnings_move_bucket"] == 2).astype(int)
-    bt["is_large_plus"] = (bt["reaction_3d"] >= LARGE_EARNINGS_REACTION_THRESHOLD).astype(int)
-    bt["is_extreme"]    = (bt["reaction_3d"] == EXTREME_EARNINGS_REACTION_THRESHOLD).astype(int)
 
     decile_table = (
         bt.groupby("danger_decile")
         .agg(
             n=("timing_danger", "size"),
             avg_danger=("timing_danger", "mean"),
-            p_large_plus=("is_large_plus", "mean"),
-            p_extreme=("is_extreme", "mean"),
+            p_large_plus=("is_large_reaction", "mean"),
+            p_extreme=("is_extreme_reaction", "mean"),
         )
         .reset_index()
     )
 
     # Add lift vs overall baseline
-    base_large = bt["is_large_plus"].mean()
-    base_ext   = bt["is_extreme"].mean()
+    base_large = bt["is_large_reaction"].mean()
+    base_ext   = bt["is_extreme_reaction"].mean()
 
     decile_table["lift_large_plus"] = decile_table["p_large_plus"] / base_large
     decile_table["lift_extreme"]    = decile_table["p_extreme"] / base_ext
@@ -379,11 +354,7 @@ def check_corr_of_features(df):
     ].corr())
 
 def breakwater_regime_test(df):
-    bt = df.copy()
-    bt = bt[bt["is_earnings_day"] == 1].copy()
-
-    bt["is_large_plus"] = (bt["earnings_move_bucket"] >= 1).astype(int)
-    bt["is_extreme"]    = (bt["earnings_move_bucket"] == 2).astype(int)
+    bt = df[df["is_earnings_day"] == 1].copy()
 
     # timing danger top decile
     danger_cutoff = bt["timing_danger"].quantile(0.9)
@@ -392,54 +363,44 @@ def breakwater_regime_test(df):
     # explosiveness top decile
     explosiveness_cutoff = bt["earnings_explosiveness_score"].quantile(0.9)
     bt["high_explosive"] = (bt["earnings_explosiveness_score"] >= explosiveness_cutoff)
-
+    # stock vol > sector vol
     bt["vol_vs_sector"] = (bt["stock_vs_sector_vol"] >= 1)
 
-    regime = (bt["vol_vs_sector"]
+    regime = (
+        bt["vol_vs_sector"] &
+        bt["high_explosive"] &
+        bt["high_danger"]
     )
 
     subset = bt[regime]
-
     results = {
         "n_events": len(subset),
-        "extreme_rate": subset["is_extreme"].mean(),
-        "large_plus_rate": subset["is_large_plus"].mean(),
+        "extreme_rate": subset["is_extreme_reaction"].mean(),
+        "large_plus_rate": subset["is_large_reaction"].mean(),
     }
-
-    return results
+    print(results)
 
 def volatility_only_regime_test(df):
     """
         Test whether volatility alone can generate high extreme-move rates.
     """
-
-    bt = df.copy()
-    bt = bt[bt["is_earnings_day"] == 1].copy()
-
-    # Labels
-    bt["is_large_plus"] = (bt["earnings_move_bucket"] >= 1).astype(int)
-    bt["is_extreme"]    = (bt["earnings_move_bucket"] == 2).astype(int)
-
+    bt = df[df["is_earnings_day"] == 1].copy()
     # --- Define volatility regime ---
-
     # Top decile volatility
     vol_cutoff = bt["vol_30d"].quantile(0.9)
     bt["high_vol"] = (bt["vol_30d"] >= vol_cutoff)
-
     # Stock moving more than sector
     bt["vol_vs_sector"] = (bt["stock_vs_sector_vol"] >= 1)
 
     regime = bt["high_vol"] & bt["vol_vs_sector"]
-
     subset = bt[regime]
 
     results = {
         "n_events": len(subset),
-        "extreme_rate": subset["is_extreme"].mean(),
-        "large_plus_rate": subset["is_large_plus"].mean(),
+        "extreme_rate": subset["is_extreme_reaction"].mean(),
+        "large_plus_rate": subset["is_large_reaction"].mean(),
     }
-
-    return results
+    print(results)
 
 def evaluate_high_risk_earnings_regime(df):
     """
@@ -466,7 +427,6 @@ def evaluate_high_risk_earnings_regime(df):
     print("Baseline large:", subset["is_large_reaction"].mean())
 
     print(subset.loc[cond, "abs_reaction_3d"].describe())
-
     print(subset.loc[cond].groupby("stock").size().describe())
 
     for td_q in [0.7, 0.8]:
@@ -481,9 +441,6 @@ def evaluate_high_risk_earnings_regime(df):
                 print(td_q, ex_q,
                     cond.sum(),
                     subset.loc[cond, "is_extreme_reaction"].mean())
-
-    return df
-
 
 def regime_confusion_metrics(input_df):
     df = input_df.copy()
@@ -674,8 +631,8 @@ def check_timing_danger_train_test(df):
     print(post_2015.groupby("bucket")["abs_reaction_3d"].mean())
 
 def yearly_oos_report(df, date_col="date", score_col="timing_danger", target_col="abs_reaction_3d", q=5):
-    d = df[[date_col, score_col, target_col]].dropna().copy()
-    d = d[d["is_earnings_day"]==1]
+    d = df[df["is_earnings_day"]==1]
+    d = d[[date_col, score_col, target_col]].dropna()
     d[date_col] = pd.to_datetime(d[date_col])
 
     years = sorted(d[date_col].dt.year.unique())
@@ -795,6 +752,7 @@ def forward_eval_onefactor(
             })
         return pd.DataFrame(rows).sort_values("year")
     return pd.concat([stats(train, "TRAIN"), stats(test, "TEST")], ignore_index=True), thr
+
 
 def forward_eval_twofactor_and(
         df,

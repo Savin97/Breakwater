@@ -1,10 +1,10 @@
 # pipeline/stage1.py
 import duckdb, warnings
-
 from data_ingestion.db_functions import (
     create_prices_table_if_not_exists, 
     create_earnings_table_if_not_exists,
     create_sectors_data_table_if_not_exists, 
+    merge_tables,
     test_db)
 from data_ingestion.fetch_prices import ingest_all_stocks
 from data_ingestion.fetch_earnings_dates import ingest_all_earnings_dates, get_next_earnings_dates
@@ -25,16 +25,13 @@ def stage1():
     create_prices_table_if_not_exists(con)
     create_earnings_table_if_not_exists(con)
     create_sectors_data_table_if_not_exists(con)
-    # ingest_all_stocks()
-    # ingest_all_earnings_dates()
-    ingest_all_sector_data()
+
+    # ingest_all_stocks(con)
+    # ingest_all_earnings_dates(con)
+    # ingest_all_sector_data(con)
+    # merge_tables(con)
     # get_next_earnings_dates
     # test_db(con)
     con.close()
     print("Stage 1 DONE")
     return
-
-    # TODO: check to add for corrupted "ingested_at" values
-    # if (df_to_insert["ingested_at"] < "2000-01-01").any():
-    #     bad = df_to_insert[df_to_insert["ingested_at"] < "2000-01-01"].head(5)
-    #   raise RuntimeError(f"Bad ingested_at about to be inserted:\n{bad}")

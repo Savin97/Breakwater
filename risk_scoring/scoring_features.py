@@ -13,11 +13,11 @@ from risk_scoring.composite_scoring import (
 
 def engineer_large_reaction(input_df):
     """
-        Adds a binary column 'is_large_plus' indicating if the earnings move is large (≥ threshold).
+        Adds a binary column 'is_large_reaction' indicating if the earnings move is large (≥ threshold).
         Threshold can be set based on historical distribution of abs_reaction_3d or business needs.
     """
     df = input_df.copy()
-    df["is_large_reaction"] = (df["abs_reaction_median"] >= LARGE_EARNINGS_REACTION_THRESHOLD).astype(int)
+    df["is_large_reaction"] = (df["abs_reaction_3d"] >= LARGE_EARNINGS_REACTION_THRESHOLD).astype(int)
     return df
 
 def engineer_extreme_reaction(input_df):
@@ -26,7 +26,7 @@ def engineer_extreme_reaction(input_df):
         Threshold can be set based on historical distribution of abs_reaction_3d or business needs.
     """
     df = input_df.copy()
-    df["is_extreme_reaction"] = (df["abs_reaction_median"] >= EXTREME_EARNINGS_REACTION_THRESHOLD).astype(int)
+    df["is_extreme_reaction"] = (df["abs_reaction_3d"] >= EXTREME_EARNINGS_REACTION_THRESHOLD).astype(int)
     return df
 
 def classify_large_relative_earnings_move_bucket(input_df):
@@ -86,11 +86,11 @@ def engineer_vol_stress(input_df, ratio_col: str = "vol_ratio_10_to_30"):
     )
 
     df["vol_stress_elevated"] = ( df["vol_ratio_cross_sectional_pct"] >= q_high ).astype(int)
-    # Might be a better implementaion 
+    # TODO: Might be a better implementaion 
     # (guards against only showing vol_stress_elevated as relative, not absolute):
-    # vol_stress_elevated =
-        # (vol_ratio_cross_sectional_pct >= 0.80) &
-        # (vol_ratio_10_to_30 >= 1.10)
+    # vol_stress_elevated = (
+    # (vol_ratio_cross_sectional_pct >= 0.80) &
+    # (vol_ratio_10_to_30 >= 1.10) )
 
     df["vol_stress_extreme"] = ( df["vol_ratio_cross_sectional_pct"] >= q_extreme ).astype(int)
     
@@ -152,10 +152,12 @@ def engineer_earnings_explosiveness(input_df, epsilon = 1e-6):
 
 def engineer_timing_danger(input_df, weights=[0.25,0.25,0.2,0.3]):
     """
-        TimingDanger = w1 * ProximityRisk +
-                        + w2 * VolExpansionRisk
-                        + w3 * MomentumFragility
-                        + w4 * EarningsExplosiveness
+        timing_danger = 
+        w1 * proximity_score +
+        w2 * vol_expansion_score +
+        w3 * momentum_fragility_score +
+        w4 * earnings_explosiveness_score
+
         How likely is this earnings event to produce a big move, given:
         (a) where earnings is in time
         (b) how stretched volatility already is
@@ -210,11 +212,12 @@ def engineer_timing_danger_score(input_df):
         Builds timing_danger_score, timing_danger_bucket
     """
     df = input_df.copy()
-    df["timing_danger_score"] = (
-        100 * (df["timing_danger"] - df["timing_danger"].min()) /
-        (df["timing_danger"].max() - df["timing_danger"].min())
-    ) 
-    # td: Series or scalar in [0, 100]
+    # df["timing_danger_score"] = (
+    #     100 * (df["timing_danger"] - df["timing_danger"].min()) /
+    #     (df["timing_danger"].max() - df["timing_danger"].min())
+    # ) 
+    # timing_danger_score: Series or scalar in [0, 100]
+    
     df["timing_danger_bucket"] = pd.qcut(
         df["timing_danger"],
         q=5,

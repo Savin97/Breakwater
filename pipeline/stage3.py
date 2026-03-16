@@ -1,5 +1,4 @@
 # pipeline/stage3.py
-from data_ingestion.data_utilities import parse_date
 from feature_engineering.pre_earnings_stock_features import (
     engineer_daily_ret,
     engineer_drift, 
@@ -25,7 +24,7 @@ def stage3(stage2_df):
     """ 
         Pipeline Stage 3 - Feature Engineering
         Input is a df with columns
-        stock  date  price  earnings_date  fiscal_date_ending reported_eps  estimated_eps  surprise_percentage
+        stock | date | price | sector | sub_sector | earnings_date | reported_eps | estimated_eps | surprise_percentage
 
         Adds:
         daily_ret = price/yesterday's price
@@ -52,7 +51,6 @@ def stage3(stage2_df):
     print("--------------------\nStage 3 - Feature Engineering...")
     stage3_df = stage2_df.copy()
     stage3_df = stage3_df.sort_values(["stock","date"], kind="mergesort")
-    stage3_df["date"] = parse_date(stage3_df["date"])
     feature_steps = [
         engineer_daily_ret,
         engineer_drift,

@@ -7,16 +7,16 @@
         alternate sources in case main one fails,
         datatype checking
 
-3. REACTION_THRESHOLD - probably shouldn't be a static number (Check GPT)
+2. REACTION_THRESHOLD - probably shouldn't be a static number (Check GPT)
+
+3. For reports:
+    base_xtreme_prob: the unconditional historical probability of is_extreme_reaction == 1 across all earnings events in your reference universe. Based on these outputs, that is currently about 4.36%.
+
+    hist_xtreme_prob: the historical extreme probability associated with the stock’s current score bucket or decile. For page 1, this should be the decile-conditioned probability, not the stock’s own raw historical frequency.
+
+    risk_lift: hist_xtreme_prob / base_xtreme_prob.
 
 4. Timing Danger - uses proximity_risk but on earnings_days its always 100 which could be useless. Check GPT for solutions.
-
-4. What you should focus on this week:
-Make pipeline run cleanly end-to-end (dirs, caching, fail-fast checks)
-Implement real Stage 4 backtest + credibility tables
-Add explanations (reasons) in Stage 3
-Generate the first earnings-week PDF/HTML report
-
 
 5. Move these OUT of df, create a separate table earnings_outcomes with:
     """ Used for: evaluation, PDFs, credibility (“historically this stock moves X%”) """
@@ -57,19 +57,13 @@ Generate the first earnings-week PDF/HTML report
 You now need features that vary quarter-to-quarter:
 
 dispersion in analyst revisions
-
 option-implied skew shifts pre-earnings
-
 short interest change
-
 vol_ratio_10_to_30 spike
-
 sector co-movement breakdown
-
 recent surprise volatility acceleration
 
 Right now your engine is mostly static.
-
 
 
 Output:

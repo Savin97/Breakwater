@@ -54,6 +54,27 @@ Global earnings pressure
 Scoring Features:
 
     - Explosiveness | how violently a stock tends to move *because* of earnings, conditional on history.
+        df["earnings_explosiveness_z"] = (
+            df["abs_reaction_median"] / np.maximum(df["vol_30d"], epsilon)
+            )
+        df["earnings_tail_z"] = (
+            df["abs_reaction_p75"] / np.maximum(df["vol_30d"], epsilon)
+            )
+        # Normalize signals
+        #/ 3 ≈ “3σ is extreme”
+        e1 = (df["earnings_explosiveness_z"].fillna(0) / 3).clip(0, 1)
+        e2 = (df["earnings_tail_z"].fillna(0) / 3).clip(0, 1)
+        e3 = (df["abs_reaction_p75"].fillna(0) / 0.12).clip(0, 1)  # 12% is already huge
+        e4 = np.clip(df["reaction_entropy"], 0, 1) # entropy already assumed 0–1
+
+        base = (
+            0.30 * e1 +   # overall explosiveness (earnings_explosiveness_z)
+            0.35 * e2 +   # tail risk (earnings_tail_z)
+            0.25 * e3 +   # large typical moves (abs_reaction_p75 / 12%)
+            0.10 * e4     # chaos / unpredictability (reaction_entropy)
+        )
+        earnings_explosiveness_score = 100 * np.clip(base, 0, 1)
+        `
     - Timing Danger | a 0–100 score composed of four independent risk axes:
         Axis	                        What it captures
         Proximity Risk	                How close earnings are
@@ -106,9 +127,6 @@ momentum_pressure_regime:
          Both short-term and medium-term momentum are extreme.
          Indicates a crowded and extended trade, historically associated
          with the highest earnings-related move risk.
-
-
-
 
 Risk Score:
 earnings_risk_score =

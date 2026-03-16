@@ -1,4 +1,4 @@
-# back_testing/features_for_backtesting.py
+# backtesting/features_for_backtesting.py
 import numpy as np
 
 def add_joint_regime_flag(df,threshold):
