@@ -6,13 +6,13 @@ from risk_scoring.scoring_features import (
     engineer_momentum_pressure,
     engineer_earnings_explosiveness,
     engineer_timing_danger,
+    engineer_sector_vol_stress,
     engineer_proximity_score,
     engineer_vol_expansion_score,
     engineer_momentum_fragility_score,
     engineer_earnings_explosiveness_score,
-    engineer_timing_danger_score,
-    classify_large_relative_earnings_move_bucket)
-from risk_scoring.scoring_features_sector import engineer_sector_vol_stress
+    classify_large_relative_earnings_move_bucket,
+    engineer_total_risk_score)
 def stage4(stage3_df):
     """
         Risk Scoring and recommendation stage
@@ -27,17 +27,19 @@ def stage4(stage3_df):
         engineer_sector_vol_stress,
         engineer_momentum_pressure,
         engineer_earnings_explosiveness,
-        engineer_timing_danger,
+        #engineer_timing_danger,
         engineer_proximity_score,
         engineer_vol_expansion_score,
         engineer_momentum_fragility_score,
         engineer_earnings_explosiveness_score,
-        engineer_timing_danger_score,
-        classify_large_relative_earnings_move_bucket
+        classify_large_relative_earnings_move_bucket,
+        engineer_total_risk_score
     ]
     for f in features:
         stage4_df = f(stage4_df)
     if stage4_df is None:
         raise ValueError("\n---ERROR! Stage 4 Returned None.---\n")
+    print("Building parquet...")
+    stage4_df.to_parquet("output/full_df.parquet")
     print("Stage 4 DONE")
     return stage4_df

@@ -110,8 +110,9 @@ def ingest_all_earnings_dates(con):
     print("Failures saved to:", FAILED_EARNINGS_LOG_PATH)
 
 
-def get_next_earnings_dates(stocks):
+def get_next_earnings_dates():
     # TODO: Change to actually today (datetime.now())
+    stocks = read_stocks_to_fetch()
     today = pd.Timestamp("2026-02-20",tz="America/New_York")
     stock_dict = {}
     for i,stock in enumerate(stocks,start=1):

@@ -25,10 +25,6 @@ def score_proximity(df, horizon=30, power=1.5):
 
     base[pre_earnings_days] = np.clip(x + boost, 0, 1)
     proximity_score = 100 * base
-    
-    return proximity_score
-
-
     # # Normalize signals
     # # days_to_earnings >= 30  -> 0   # days_to_earnings <= 0   -> 100
     # base = 1 - np.clip(df["days_to_earnings"] / 30 , 0, 1)
@@ -42,9 +38,9 @@ def score_proximity(df, horizon=30, power=1.5):
     # boost += ((near & df["is_earnings_week"]).astype(float))   * 0.08
     # boost += ((near & df["is_earnings_day"]).astype(float))    * 0.15
 
-
     # proximity_score = 100 * np.clip(base + boost, 0, 1)
     # return proximity_score
+    return proximity_score    
 
 def score_vol_expansion(df):
     """
@@ -72,8 +68,6 @@ def score_vol_expansion(df):
     additive  = 0.08 * sector_h
 
     vol_expansion = 100 * np.clip(base * multiplier + additive, 0, 1)
-    return vol_expansion
-
     # # snap the score upward when conditions are structurally dangerous
     # boost = 0.0
     # boost = (
@@ -86,6 +80,7 @@ def score_vol_expansion(df):
     # # score = 100*clip(base*(1+0.5*extreme+0.25*elevated)+0.1*sector_high, 0, 1)
     # vol_expansion = 100 * np.clip(base + boost, 0, 1)
     # return vol_expansion
+    return vol_expansion
 
 def score_earnings_explosiveness(df):
     """ 
@@ -129,10 +124,10 @@ def score_momentum_fragility(df):
 
     bias_scale = df["directional_bias"].abs().quantile(0.90)
 
-
     m1 = df["momentum_pressure_regime"].map(PRESSURE_MAP).fillna(0)
-    m2 = np.clip(np.abs(df["directional_bias"].fillna(0)) / bias_scale, 0, 1) # this achieves: 90% of observations live in [0,1),Top 10% saturate at 1, No arbitrary magic number, Stable across stocks and time
-
+    # m2: this achieves: 90% of observations live in [0,1),Top 10% saturate at 1, 
+    # No arbitrary magic number, Stable across stocks and time
+    m2 = np.clip(np.abs(df["directional_bias"].fillna(0)) / bias_scale, 0, 1) 
     m3 = np.clip(np.abs(df["sector_drift_60d"].fillna(0)) / 0.10, 0, 1)
 
     #m2 = (df["directional_bias"].abs() / bias_scale).clip(0, 1)

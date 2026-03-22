@@ -11,7 +11,7 @@ from data_ingestion.fetch_earnings_dates import ingest_all_earnings_dates, get_n
 from data_ingestion.fetch_sp500_sectors import ingest_all_sector_data
 from data_ingestion.data_utilities import directory_checks
 from config import DB_PATH
-def stage1():
+def stage1(update:bool):
     """
         Building / Updating DB
         1. Create DB/Make sure it exists.
@@ -25,13 +25,12 @@ def stage1():
     create_prices_table_if_not_exists(con)
     create_earnings_table_if_not_exists(con)
     create_sectors_data_table_if_not_exists(con)
-
-    # ingest_all_stocks(con)
-    # ingest_all_earnings_dates(con)
-    # ingest_all_sector_data(con)
-    # merge_tables(con)
-    # get_next_earnings_dates
-    # test_db(con)
+    if update == True:
+        ingest_all_stocks(con)
+        ingest_all_earnings_dates(con)
+        ingest_all_sector_data(con)
+        merge_tables(con)
+        get_next_earnings_dates()
     con.close()
     print("Stage 1 DONE")
     return

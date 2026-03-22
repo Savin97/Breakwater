@@ -1,7 +1,6 @@
 # risk_scoring/scoring_features.py
 import numpy as np
 import pandas as pd
-
 from config import (
     LARGE_EARNINGS_REACTION_THRESHOLD,
     EXTREME_EARNINGS_REACTION_THRESHOLD)
@@ -10,7 +9,6 @@ from risk_scoring.composite_scoring import (
     score_vol_expansion,
     score_earnings_explosiveness,
     score_momentum_fragility)
-
 def engineer_large_reaction(input_df):
     """
         Adds a binary column 'is_large_reaction' indicating if the earnings move is large (≥ threshold).
@@ -29,32 +27,7 @@ def engineer_extreme_reaction(input_df):
     df["is_extreme_reaction"] = (df["abs_reaction_3d"] >= EXTREME_EARNINGS_REACTION_THRESHOLD).astype(int)
     return df
 
-def classify_large_relative_earnings_move_bucket(input_df):
-    """
-        large_earnings_move = 1 if abs_reaction_3d ≥ abs_reaction_p75_rolling
-        window: 20-40 past earnings for that stock; 28
-    """
-    df = input_df.copy()
-    # Only meaningful on earnings rows and when p75, p90 aren't NaN
-    eligible = (
-        df["is_earnings_day"]
-        & df[["abs_reaction_p75_rolling", "abs_reaction_p90_rolling"]].notna().all(axis=1)
-    )
-    conditions = [
-        eligible & (df["abs_reaction_3d"] <  df["abs_reaction_p75_rolling"]),
-        eligible & (df["abs_reaction_3d"] >= df["abs_reaction_p75_rolling"])
-                 & (df["abs_reaction_3d"] <  df["abs_reaction_p90_rolling"]),
-        eligible & (df["abs_reaction_3d"] >= df["abs_reaction_p90_rolling"]),
-    ]
-
-    # 0 = normal    # 1 = large (p75-p90)    # 2 = extreme (p90+)
-    # Unknown where insufficient history
-    df["earnings_move_bucket"] = np.select(conditions, [0, 1, 2], default=np.nan) 
-
-    return df
-
 def engineer_vol_stress(input_df, ratio_col: str = "vol_ratio_10_to_30"):
-
     """
         If vol_ratio_10_to_30 is high, recent vol spiked relative to the recent baseline -> “stress”.
         Define “stress” as “top X%”.
@@ -126,6 +99,14 @@ def engineer_momentum_pressure(input_df, quantile = 0.8) -> pd.DataFrame:
         ["normal", "short_term_extreme", "trend_extreme", "crowded_trend"],
         default="normal"
     )
+    #TODO: CHANGE ADDED
+    regime_score_map = {
+        "normal": 0.0,
+        "short_term_extreme": 35.0,
+        "trend_extreme": 55.0,
+        "crowded_trend": 100.0
+    }
+    df["momentum_pressure_regime"] = df["momentum_pressure_regime"].map(regime_score_map).fillna(0.0)
     return df
 
 def engineer_earnings_explosiveness(input_df, epsilon = 1e-6):
@@ -166,25 +147,43 @@ def engineer_timing_danger(input_df, weights=[0.25,0.25,0.2,0.3]):
     """
     df = input_df.copy()
 
-    # TODO: better way of applying weights? makes sure they sum to 1.
-    # weights = np.array([w_prox, w_vol, w_mom, w_exp], dtype=float)
-    # weights = weights / weights.sum()
-
     prox = score_proximity(df)
     vol  = score_vol_expansion(df)
     mom  = score_momentum_fragility(df)
     exp  = score_earnings_explosiveness(df)
 
+    # timing_danger = (
+    #     weights[0] * prox +
+    #     weights[1] * vol +
+    #     weights[2] * mom +
+    #     weights[3] * exp
+    # )
     timing_danger = (
-        weights[0] * prox +
-        weights[1] * vol +
-        weights[2] * mom +
-        weights[3] * exp
+        df["momentum_pressure_regime"] & exp
     )
-    scores = {
-        "timing_danger": np.clip(timing_danger, 0, 100),
-    }
-    df = df.assign(**scores)
+    df["timing_danger"] = np.clip(timing_danger, 0, 100)
+    df["timing_danger_bucket"] =  pd.qcut(
+            df["timing_danger"],
+            q=5,
+            labels=["Very Low", "Low", "Moderate", "High", "Extreme"],
+            duplicates="drop"
+        )
+    
+    # scores = {
+    #     "timing_danger": np.clip(timing_danger, 0, 100), 
+    # }
+    # df = df.assign(**scores)
+    return df
+
+def engineer_sector_vol_stress(input_df: pd.DataFrame, q_high = 0.9) -> pd.DataFrame:
+    """
+    """
+    df = input_df.copy()
+    df["sector_vol_ratio_pct"] = (
+        df.groupby(["sector", "date"])["vol_ratio_10_to_30"]
+        .rank(pct=True, method="average")
+    )
+    df["sector_vol_stress_high"] = (df["sector_vol_ratio_pct"] >= q_high).astype(int)
     return df
 
 def engineer_proximity_score(input_df):
@@ -206,23 +205,38 @@ def engineer_earnings_explosiveness_score(input_df):
     df = input_df.copy()
     df["earnings_explosiveness_score"] = score_earnings_explosiveness(df)
     return df
+    
+def engineer_total_risk_score(input_df):
+    df = input_df.copy()
+    exp = score_earnings_explosiveness(df)
+    mom = score_momentum_fragility(df)
 
-def engineer_timing_danger_score(input_df):
+    risk_score = exp.copy()
+    risk_score += 0.5 * mom * (exp > 70)
+
+    df["risk_score"] = risk_score
+    return df
+
+def classify_large_relative_earnings_move_bucket(input_df):
     """
-        Builds timing_danger_score, timing_danger_bucket
+        large_earnings_move = 1 if abs_reaction_3d ≥ abs_reaction_p75_rolling
+        window: 20-40 past earnings for that stock; 28
     """
     df = input_df.copy()
-    # df["timing_danger_score"] = (
-    #     100 * (df["timing_danger"] - df["timing_danger"].min()) /
-    #     (df["timing_danger"].max() - df["timing_danger"].min())
-    # ) 
-    # timing_danger_score: Series or scalar in [0, 100]
-    
-    df["timing_danger_bucket"] = pd.qcut(
-        df["timing_danger"],
-        q=5,
-        labels=["Very Low", "Low", "Moderate", "High", "Extreme"],
-        duplicates="drop"
+    # Only meaningful on earnings rows and when p75, p90 aren't NaN
+    eligible = (
+        df["is_earnings_day"]
+        & df[["abs_reaction_p75_rolling", "abs_reaction_p90_rolling"]].notna().all(axis=1)
     )
+    conditions = [
+        eligible & (df["abs_reaction_3d"] <  df["abs_reaction_p75_rolling"]),
+        eligible & (df["abs_reaction_3d"] >= df["abs_reaction_p75_rolling"])
+                 & (df["abs_reaction_3d"] <  df["abs_reaction_p90_rolling"]),
+        eligible & (df["abs_reaction_3d"] >= df["abs_reaction_p90_rolling"]),
+    ]
+
+    # 0 = normal    # 1 = large (p75-p90)    # 2 = extreme (p90+)
+    # Unknown where insufficient history
+    df["earnings_move_bucket"] = np.select(conditions, [0, 1, 2], default=np.nan) 
+
     return df
-    

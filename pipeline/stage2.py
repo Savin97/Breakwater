@@ -22,16 +22,19 @@ def stage2():
     """
     print("--------------------\nStage 2 - Data Ingestion...")
     con = duckdb.connect(DB_PATH)
-    prices_df = con.execute("SELECT stock,price,date FROM prices ORDER BY stock,date").fetch_df()
+    # Loading tables
+    prices_df = con.execute("SELECT stock, price, date FROM prices ORDER BY stock, date").fetch_df()
     earnings_df = con.execute("SELECT stock, earnings_date, reported_eps, estimated_eps, surprise_percentage FROM earnings ORDER BY stock,earnings_date").fetch_df()
     stock_data_df = con.execute("SELECT * FROM stock_data ORDER BY stock").fetch_df()
+
     prices_df["date"] = parse_date(prices_df["date"])
     earnings_df["earnings_date"] = parse_date(earnings_df["earnings_date"])
     prices_df = prices_df.sort_values("date")
     earnings_df = earnings_df.sort_values("earnings_date")
+    # Merging
     df = map_sector_data_to_main_df(prices_df, stock_data_df)
     df = merge_prices_earnings_dates(df, earnings_df) # df that holds stock prices, earnings dates
-    # Sort, make sure "price" is numeric, make sure dates are datetime just in case
+    # Sort, make sure "price" is numeric, make sure dates are datetime
     df = df.sort_values(["stock", "date"]).reset_index(drop=True)
     df["date"] = parse_date(df["date"])
     df["earnings_date"] = parse_date(df["earnings_date"])
