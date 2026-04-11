@@ -1,289 +1,228 @@
 # testing.py
-import pandas as pd, warnings, matplotlib.pyplot as plt, numpy as np
-def score_earnings_explosiveness(df):
-    """ 
-        When this stock moves on earnings, how violent can it get?
-        earnings_explosiveness_score identifies stocks prone to large earnings reactions.
-    """
+import pandas as pd, numpy as np
+from sklearn.metrics import roc_auc_score
 
-    # Normalize signals
-    #/ 3 ≈ “3σ is extreme”
-    e1 = (df["earnings_explosiveness_z"].fillna(0) / 3).clip(0, 1)
-    e2 = (df["earnings_tail_z"].fillna(0) / 3).clip(0, 1)
-    e3 = (df["abs_reaction_p75"].fillna(0) / 0.12).clip(0, 1)  # 12% is already huge
-    e4 = np.clip(df["reaction_entropy"], 0, 1) # entropy already assumed 0–1
+def testing_scores():
+    print("Running Score Testing...\n--------------------")
 
-    base = (
-        0.35 * e2 +   # tail risk
-        0.30 * e1 +   # overall explosiveness
-        0.25 * e3 +   # large typical moves
-        0.10 * e4     # chaos / unpredictability
-    )
-    earnings_explosiveness_score = 100 * np.clip(base, 0, 1)
+    df = pd.read_parquet("output/full_df.parquet")
+    stock_list = pd.read_csv("data/stock_list.csv")
+    first_30_stocks = stock_list.iloc[1:31,0]
+
+    global_earnings_df = df[df["is_earnings_day"] == 1].copy()
     
-    return earnings_explosiveness_score
-
-def score_momentum_fragility(df):
-    """
-        Is price positioning fragile right now?
-        High score = price is balanced on a knife-edge.
-    """
-    # Mapping momentum fragility strings to floats
-    PRESSURE_MAP = {
-        "normal": 0.0,
-        "short_term_extreme": 0.6,
-        "trend_extreme": 0.75,
-        "crowded_trend": 1.0,
-    }
-    #Interpretation: 
-    # pressure -> crowding / exhaustion
-    # bias -> one-sided positioning
-    # sector drift -> late-cycle momentum
-
-    bias_scale = df["directional_bias"].abs().quantile(0.90)
-
-    m1 = df["momentum_pressure_regime"].map(PRESSURE_MAP).fillna(0)
-    # m2: this achieves: 90% of observations live in [0,1),Top 10% saturate at 1, 
-    # No arbitrary magic number, Stable across stocks and time
-    m2 = np.clip(np.abs(df["directional_bias"].fillna(0)) / bias_scale, 0, 1) 
-    m3 = np.clip(np.abs(df["sector_drift_60d"].fillna(0)) / 0.10, 0, 1)
-
-    #m2 = (df["directional_bias"].abs() / bias_scale).clip(0, 1)
-    base = (
-        0.45 * m1 +   # positioning pressure
-        0.35 * m3 +   # directional skew
-        0.20 * m2    # sector trend maturity
-    )
-
-    momentum_fragility_score = 100 * np.clip(base, 0, 1)
-    return momentum_fragility_score
-
-def engineer_momentum_fragility_score(input_df):
-    df = input_df.copy()
-    df["momentum_fragility_score"] = score_momentum_fragility(df)
-    return df
+    P_extreme_global  = global_earnings_df["is_extreme_reaction"].mean()
+    P_extreme_given_bucket = global_earnings_df.groupby("earnings_explosiveness_bucket")["is_extreme_reaction"].mean()
+    bucket_stats = pd.DataFrame({
+        "global_hist_prob": P_extreme_given_bucket,
+        "global_risk_lift_vs_baseline": P_extreme_given_bucket / P_extreme_global
+    })
     
-def engineer_earnings_explosiveness_score(input_df):
-    df = input_df.copy()
-    df["earnings_explosiveness_score"] = score_earnings_explosiveness(df)
-    return df
-warnings.filterwarnings('ignore')
-
-
-# ---------------------------------------------
-# TESTING
-# ---------------------------------------------
-
-
-print("---------------------------------------------\nTESTING\n---------------------------------------------")
-original_df = pd.read_parquet("output/full_df.parquet")
-df = original_df.copy()
-label_col = "is_extreme_reaction"
-# Risk score
-exp = score_earnings_explosiveness(df)
-mom = score_momentum_fragility(df)
-
-high_exp = exp >= exp.quantile(0.90)
-risk_score = exp.copy()
-risk_score += 0.5 * mom * high_exp
-risk_score = np.clip(risk_score,0,100)
-high_risk = (
-    (exp >= exp.quantile(0.90))
-    &
-    (mom >= mom.quantile(0.70))
-)
-high_exp = exp >= exp.quantile(0.90)
-high_mom = mom >= mom.quantile(0.70)
-
-group = high_exp & high_mom
-global_extreme_rate = df[label_col].mean()
-event_rate = df.loc[group, "is_extreme_reaction"].mean()
-lift = event_rate / global_extreme_rate
-count = group.sum()
-
-exit()
-
-df["risk_score"] = risk_score
-
-global_earnings_df = df[df["is_earnings_day"] == 1].copy()
-features = ["vol_ratio_cross_sectional_pct", "earnings_explosiveness_score", "sector_vol_ratio_pct", "vol_expansion_score", "momentum_fragility_score",  "risk_score"]
-features = ["earnings_explosiveness_score", "earnings_explosiveness_score", "risk_score"]
-for feature_col in features:
-    print(f"---------------------------------------------\nNow evaluating feature {feature_col}:\n---------------------------------------------")
-    data = global_earnings_df[[feature_col, label_col]].copy()
-    n_bins = 10
-    data = data.replace([np.inf, -np.inf], np.nan).dropna() 
-
-    # Bin into quantiles (deciles)
-    data["bin"] = pd.qcut(
-        data[feature_col],
-        q=n_bins,
-        duplicates="drop"
-    )
-
-    # Global event rate
-    global_extreme_rate = data[label_col].mean()
-
-    # Aggregate stats per bin
-    stats = (
-        data.groupby("bin")[label_col]
-        .agg(
-            events="count",
-            event_rate="mean"
+    report_txt = open("report_txt.txt", "w")
+    for stock in first_30_stocks:
+        print(f"{stock}")
+        stock_df = df[df["stock"] == stock]
+        earnings_df = stock_df[stock_df["is_earnings_day"] == 1]
+        latest_row = earnings_df.iloc[-1]
+        # Bayesian shrinkage: (n_stock * p_stock + prior_strength * p_global) / (n_stock + prior_strength)
+        prior_strength = 20
+        # Stock historical bucket stats
+        earnings_explosiveness_buckets= (
+            earnings_df.groupby("earnings_explosiveness_bucket")["is_extreme_reaction"]
+            .agg(extreme_count="sum", event_count="count")
         )
-    )
+        earnings_explosiveness_buckets["shrunk_prob"] = (
+            earnings_explosiveness_buckets["extreme_count"] +
+            prior_strength * bucket_stats.loc[earnings_explosiveness_buckets.index, "global_hist_prob"]
+        ) / (
+            earnings_explosiveness_buckets["event_count"] + prior_strength
+        )
+        earnings_explosiveness_buckets["global_hist_prob"] = bucket_stats.loc[earnings_explosiveness_buckets.index, "global_hist_prob"]
+        # Lift relative to global baseline
+        earnings_explosiveness_buckets["lift_vs_baseline"] = (
+            earnings_explosiveness_buckets["shrunk_prob"] / P_extreme_global
+        )
+        # Lift relative to global same-bucket risk
+        earnings_explosiveness_buckets["lift_vs_same_bucket_global"] = (
+            earnings_explosiveness_buckets["shrunk_prob"] / earnings_explosiveness_buckets["global_hist_prob"]
+        )
 
-    # Risk lift
-    stats["risk_lift"] = stats["event_rate"] / global_extreme_rate
-    stats = stats.reset_index()
+        current_bucket  = latest_row["earnings_explosiveness_bucket"]
 
-    print("Global rate:", global_extreme_rate)
-    print(stats)
+        if type(current_bucket)!= str:
+            latest_row = earnings_df.iloc[-2]
+            current_bucket = latest_row["earnings_explosiveness_bucket"]
 
-    # ---- PLOT ----
-    plt.figure(figsize=(10, 6))
+        earnings_explosiveness_score = f"{latest_row["earnings_explosiveness_score"]:.0f}"
+        current_earnings_date = latest_row["earnings_date"]
+        P_extreme_global = round(P_extreme_global, 3)
+        current_bucket_prob = f"{earnings_explosiveness_buckets.loc[current_bucket, "shrunk_prob"]:.3f}"
+        current_lift_vs_baseline = f"{earnings_explosiveness_buckets.loc[current_bucket, "lift_vs_baseline"]:.3f}"
+        current_lift_vs_same_bucket_global = f"{earnings_explosiveness_buckets.loc[current_bucket, "lift_vs_same_bucket_global"]:.3f}"
+        earnings_explosiveness_buckets = earnings_explosiveness_buckets.reset_index()
+        # write to file
+        report_txt.write(f"\n---------\n{stock}:\n")
+        report_txt.write(f"Earnings Date: {current_earnings_date}\n")
+        report_txt.write(f"Tail Risk Score: {earnings_explosiveness_score}\n")
+        report_txt.write(f"risk_level, {current_bucket}\n")
+        report_txt.write(f"base_extreme_prob, {P_extreme_global}\n")
+        report_txt.write(f"hist_extreme_prob, {current_bucket_prob}\n")
+        report_txt.write(f"current_lift_vs_baseline, {current_lift_vs_baseline}\n")
+        report_txt.write(f"current_lift_vs_same_bucket_global, {current_lift_vs_same_bucket_global}\n")
 
-    plt.plot(
-        stats.index + 1, 
-        stats["risk_lift"],
-        marker="o"
-    )
-    plt.xticks(stats.index + 1, stats["bin"].astype(str), rotation=45)
-    plt.xlabel(f"{feature_col} Feature Decile")
-    plt.ylabel("Risk Lift")
-    plt.title(f"Risk Lift by {feature_col} Decile")
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(f"output/testing/{feature_col}.png")
+def features_test():
+    print("Running Feature Testing...\n--------------------")
+    df = pd.read_parquet("output/full_df.parquet")
+    earnings_df = df[df["is_earnings_day"] == 1]
+    print(len(earnings_df.columns))
+    earnings_df["label_3pct"] = (earnings_df["abs_reaction_3d"] >= 0.03).astype(int)
+    earnings_df["label_5pct"] = (earnings_df["abs_reaction_3d"] >= 0.05).astype(int)
 
+    earnings_df["rank"] = earnings_df.groupby("earnings_date")["risk_score"].rank(pct=True)
+    earnings_df.to_csv("earnings_df_ranked.csv", index=False)
 
-# P_extreme_global  = global_earnings_df["is_extreme_reaction"].mean()
-# P_extreme_given_bucket = (
-#     global_earnings_df.groupby("timing_danger_bucket")["is_extreme_reaction"]
-#     .mean()
-# )
-# bucket_stats = pd.DataFrame({
-#     "hist_prob": P_extreme_given_bucket,
-#     "risk_lift": P_extreme_given_bucket / P_extreme_global
-# })
-# bins = [0, 5, 10, 20, 30, 50, 100]
-# labels = ["0-5", "5-10", "10-20", "20-30", "30", "50+"]
+    top = earnings_df[earnings_df["rank"] >= 0.9]   # top 10%
+    top["abs_reaction_3d"].mean()
+    (top["abs_reaction_3d"] >= 0.05).mean()
 
-# stocks_to_report_for = ["A", "AAPL" ,"ABBV" ,"ABNB" ,"ABT" ,"ACGL" ,"ACN" ,"ADBE" ,"ADI","AMD"]
-# for stock in stocks_to_report_for:
-#     print(f"\n---------------------------------------------\n{stock}:\n---------------------------------------------\n")
-#     stock_df = df[df["stock"] == stock]
-#     earnings_df = stock_df[stock_df["is_earnings_day"] == 1]
+    earnings_df["final_signal"] = earnings_df["momentum_fragility_score"]
 
-#     # Bayesian shrinkage: (n_stock * p_stock + prior_strength * p_global) / (n_stock + prior_strength)
-#     prior_strength = 20
-#     hist_extreme_prob = (
-#         earnings_df.groupby("timing_danger_bucket")["is_extreme_reaction"]
-#         .agg(["sum","count"])
-#     )
-#     hist_extreme_prob["prob"] = (
-#         hist_extreme_prob["sum"] +
-#         prior_strength * bucket_stats.loc[hist_extreme_prob.index,"hist_prob"]
-#         ) / (
-#         hist_extreme_prob["count"] + prior_strength
-#     )
-#     bucket_prob = bucket_stats["hist_prob"]
+    extreme_regime_df = earnings_df[earnings_df["earnings_explosiveness_score"] > 85].copy()  # only extreme regime
+    extreme_regime_df.to_csv("extreme_regime_df.csv",index=False)
 
-#     risk_lift = hist_extreme_prob["prob"] / bucket_prob.loc[hist_extreme_prob.index]
-#     counts = earnings_df.groupby("timing_danger_bucket").size()
+    # Testing best weights
+    best_auc = 0
+    best_w = None
 
-#     extreme_counts = (
-#         earnings_df.groupby("timing_danger_bucket")["is_extreme_reaction"]
-#         .sum()
-#     )
-#     print(pd.DataFrame({
-#         "events": counts,
-#         "extreme": extreme_counts,
-#         "prob": hist_extreme_prob["prob"],
-#         "risk_lift": risk_lift
-#     }))
+    for w in np.linspace(0, 1, 21):  # 0.0 → 1.0
+        score = w * earnings_df["earnings_explosiveness_score"] + (1 - w) * earnings_df["momentum_fragility_score"]
+        
+        data = pd.DataFrame({
+            "score": score,
+            "label": earnings_df["label_5pct"]
+        }).dropna()
+        
+        auc = roc_auc_score(data["label"], data["score"])
+        
+        if auc > best_auc:
+            best_auc = auc
+            best_w = w
 
 
+    def evaluate_numeric_feature(df, feature, label_col):
+        data = df[[feature, label_col]].replace([np.inf, -np.inf], np.nan).dropna()
+        
+        if data[label_col].nunique() < 2:
+            return None
+        
+        corr = data[feature].corr(data[label_col])
+        
+        try:
+            auc = roc_auc_score(data[label_col], data[feature])
+        except:
+            auc = np.nan
+        
+        return corr, auc
+
+    numeric_features = [
+        "vol_ratio_cross_sectional_pct",
+        "sector_vol_ratio_pct",
+        "earnings_explosiveness_z",
+        "earnings_tail_z",
+        "proximity_score",
+        "vol_expansion_score",
+        "momentum_fragility_score",
+        "earnings_explosiveness_score",
+        "risk_score"
+    ]
+
+    for feature in numeric_features:
+        res3 = evaluate_numeric_feature(earnings_df, feature, "label_3pct")
+        res5 = evaluate_numeric_feature(earnings_df, feature, "label_5pct")
+        
+        print(f"{feature}")
+        print(f"  3% -> corr: {res3[0]:.3f}, AUC: {res3[1]:.3f}")
+        print(f"  5% -> corr: {res5[0]:.3f}, AUC: {res5[1]:.3f}")
 
 
-# # timing_danger
-# # Decile bins
-# global_earnings_df["danger_bin"] = pd.qcut(
-#     global_earnings_df["timing_danger"],
-#     q=10
-# )
 
-# # Aggregate
-# bin_stats = (
-#     global_earnings_df
-#     .groupby("danger_bin", observed=False)["is_extreme_reaction"]
-#     .agg(["count", "mean"])
-#     .rename(columns={"mean": "extreme_rate"})
-#     .reset_index()
-# )
+    cat_features = [
+        "vol_stress_elevated",
+        "vol_stress_extreme",
+        "sector_vol_stress_high",
+        "momentum_pressure_regime",
+        "earnings_explosiveness_bucket"
+    ]
+    def evaluate_categorical_feature(df, feature, label_col):
+        data = df[[feature, label_col]].dropna()
+        
+        stats = (
+            data.groupby(feature)[label_col]
+            .agg(events="count", event_rate="mean")
+            .sort_values("event_rate", ascending=False)
+        )
+        
+        return stats
+    
+    # for feature in cat_features:
+    #     print(f"\n{feature} (3%)")
+    #     print(evaluate_categorical_feature(earnings_df, feature, "label_3pct"))
+        
+    #     print(f"\n{feature} (5%)")
+    #     print(evaluate_categorical_feature(earnings_df, feature, "label_5pct"))
 
-# # Midpoint of each bin (for smooth x-axis)
-# bin_stats["bin_mid"] = bin_stats["danger_bin"].apply(
-#     lambda x: (x.left + x.right) / 2
-# )
-
-# # Compute risk lift
-# bin_stats["risk_lift"] = bin_stats["extreme_rate"] / P_extreme_global
-
-# # ---- PLOT ----
-# plt.figure(figsize=(10, 6))
-
-# plt.plot(
-#     bin_stats["bin_mid"],
-#     bin_stats["risk_lift"],
-#     marker="o"
-# )
-
-# plt.xlabel("timing_danger")
-# plt.ylabel("Risk Lift (vs Global Baseline)")
-# plt.title("Risk Lift vs timing_danger (Deciles)")
-
-# plt.grid(True, alpha=0.3)
-# plt.tight_layout()
-# plt.show()
-
-# # earnings_explosiveness
-# # Decile bins
-# global_earnings_df["danger_bin"] = pd.qcut(
-#     global_earnings_df["earnings_explosiveness_score"],
-#     q=10
-# )
-
-# # Aggregate
-# bin_stats = (
-#     global_earnings_df
-#     .groupby("danger_bin", observed=False)["is_extreme_reaction"]
-#     .agg(["count", "mean"])
-#     .rename(columns={"mean": "extreme_rate"})
-#     .reset_index()
-# )
-
-# # Midpoint of each bin (for smooth x-axis)
-# bin_stats["bin_mid"] = bin_stats["danger_bin"].apply(
-#     lambda x: (x.left + x.right) / 2
-# )
-
-# # Compute risk lift
-# bin_stats["risk_lift"] = bin_stats["extreme_rate"] / P_extreme_global
-
-# # ---- PLOT ----
-# plt.figure(figsize=(10, 6))
-
-# plt.plot(
-#     bin_stats["bin_mid"],
-#     bin_stats["risk_lift"],
-#     marker="o"
-# )
-
-# plt.xlabel("earnings_explosiveness_score")
-# plt.ylabel("Risk Lift (vs Global Baseline)")
-# plt.title("Risk Lift vs earnings_explosiveness_score (Deciles)")
-
-# plt.grid(True, alpha=0.3)
-# plt.tight_layout()
-# plt.show()
+    def bin_analysis(df, feature, label_col, n_bins=10):
+        data = df[[feature, label_col]].replace([np.inf, -np.inf], np.nan).dropna()
+        
+        data["bin"] = pd.qcut(data[feature], q=n_bins, duplicates="drop")
+        
+        stats = (
+            data.groupby("bin")[label_col]
+            .agg(events="count", event_rate="mean")
+        )
+        
+        return stats
+    
+    print(bin_analysis(earnings_df, "earnings_explosiveness_score", "label_5pct"))
+    print( bin_analysis(earnings_df, "risk_score", "label_5pct") )
+"""
+    stock
+    price
+    date
+    sector
+    sub_sector
+    earnings_date
+    reported_eps
+    estimated_eps
+    surprise_percentage
+    reaction_3d
+    reaction_entropy
+    directional_bias
+    abs_reaction_3d
+    abs_reaction_median
+    abs_reaction_p75
+    abs_reaction_p75_rolling
+    abs_reaction_p90_rolling
+    sector_drift_60d
+    sector_vol_10d
+    sector_vol_30d
+    stock_vs_sector_vol
+    sector_earnings_density
+    is_large_reaction
+    is_extreme_reaction
+    vol_ratio_cross_sectional_pct
+    vol_stress_elevated
+    vol_stress_extreme
+    sector_vol_ratio_pct
+    sector_vol_stress_high
+    momentum_pressure_regime
+    earnings_explosiveness_z
+    earnings_tail_z
+    proximity_score
+    vol_expansion_score
+    momentum_fragility_score
+    earnings_explosiveness_score
+    earnings_explosiveness_bucket
+    earnings_move_bucket
+    risk_score
+"""  

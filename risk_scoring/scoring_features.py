@@ -204,6 +204,13 @@ def engineer_momentum_fragility_score(input_df):
 def engineer_earnings_explosiveness_score(input_df):
     df = input_df.copy()
     df["earnings_explosiveness_score"] = score_earnings_explosiveness(df)
+
+    df["earnings_explosiveness_bucket"] =  pd.qcut(
+        df["earnings_explosiveness_score"],
+        q=5,
+        labels=["Very Low", "Low", "Moderate", "High", "Extreme"],
+        duplicates="drop"
+    )
     return df
     
 def engineer_total_risk_score(input_df):
@@ -211,8 +218,7 @@ def engineer_total_risk_score(input_df):
     exp = score_earnings_explosiveness(df)
     mom = score_momentum_fragility(df)
 
-    risk_score = exp.copy()
-    risk_score += 0.5 * mom * (exp > 70)
+    risk_score = 0.85 * mom + 0.15 * exp
 
     df["risk_score"] = risk_score
     return df

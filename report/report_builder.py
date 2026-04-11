@@ -19,7 +19,9 @@ def generate_report(stock, data):
         risk_score = data["risk_score"], #(0-100)
         hist_extreme_prob = data["hist_extreme_prob"],
         base_extreme_prob = data["base_extreme_prob"],
-        risk_lift = data["risk_lift"]
+        current_lift_vs_baseline = data["current_lift_vs_baseline"],
+        current_lift_vs_same_bucket_global = data["current_lift_vs_same_bucket_global"],
+        bucket_table = data["bucket_table"]
     )
     # Executive Summary (1 page)
     # Plain English:
