@@ -18,8 +18,9 @@ def run_pipeline():
     from testing import testing_scores, features_test
     # features_test()
 
-    # stage1(update=False)
-    # df = stage2() 
-    # feature_engineered_df = stage3(df)
-    # risk_scored_df = stage4(feature_engineered_df)
-    # report = stage5(risk_scored_df)
+    stage1(update=False)
+    df = stage2() 
+    feature_engineered_df = stage3(df)
+    risk_scored_df = stage4(feature_engineered_df)
+    # risk_scored_df = []
+    report = stage5(risk_scored_df)

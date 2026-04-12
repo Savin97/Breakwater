@@ -98,3 +98,403 @@ base_extreme_prob, 0.116
 hist_extreme_prob, 0.027
 current_lift_vs_baseline, 0.237
 current_lift_vs_same_bucket_global, 0.526
+
+---------
+ADSK:
+Earnings Date: 2025-11-25 00:00:00
+Tail Risk Score: 94
+risk_level, Extreme
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.260
+current_lift_vs_baseline, 2.240
+current_lift_vs_same_bucket_global, 1.035
+
+---------
+AEE:
+Earnings Date: 2026-02-12 00:00:00
+Tail Risk Score: 55
+risk_level, Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.023
+current_lift_vs_baseline, 0.200
+current_lift_vs_same_bucket_global, 0.444
+
+---------
+AEP:
+Earnings Date: 2025-11-13 00:00:00
+Tail Risk Score: 45
+risk_level, Very Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.054
+current_lift_vs_baseline, 0.461
+current_lift_vs_same_bucket_global, 0.509
+
+---------
+AES:
+Earnings Date: 2025-11-04 00:00:00
+Tail Risk Score: 42
+risk_level, Very Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.161
+current_lift_vs_baseline, 1.385
+current_lift_vs_same_bucket_global, 1.527
+
+---------
+AFL:
+Earnings Date: 2026-02-03 00:00:00
+Tail Risk Score: 85
+risk_level, High
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.066
+current_lift_vs_baseline, 0.570
+current_lift_vs_same_bucket_global, 0.725
+
+---------
+AIG:
+Earnings Date: 2026-02-17 00:00:00
+Tail Risk Score: 71
+risk_level, Moderate
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.120
+current_lift_vs_baseline, 1.038
+current_lift_vs_same_bucket_global, 2.474
+
+---------
+AIZ:
+Earnings Date: 2026-02-10 00:00:00
+Tail Risk Score: 80
+risk_level, High
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.085
+current_lift_vs_baseline, 0.733
+current_lift_vs_same_bucket_global, 0.932
+
+---------
+AJG:
+Earnings Date: 2026-01-29 00:00:00
+Tail Risk Score: 66
+risk_level, Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.062
+current_lift_vs_baseline, 0.534
+current_lift_vs_same_bucket_global, 1.187
+
+---------
+AKAM:
+Earnings Date: 2025-11-06 00:00:00
+Tail Risk Score: 100
+risk_level, Extreme
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.513
+current_lift_vs_baseline, 4.426
+current_lift_vs_same_bucket_global, 2.046
+
+---------
+ALB:
+Earnings Date: 2026-02-11 00:00:00
+Tail Risk Score: 58
+risk_level, Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.225
+current_lift_vs_baseline, 1.943
+current_lift_vs_same_bucket_global, 4.323
+
+---------
+ALGN:
+Earnings Date: 2026-02-04 00:00:00
+Tail Risk Score: 100
+risk_level, Extreme
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.424
+current_lift_vs_baseline, 3.659
+current_lift_vs_same_bucket_global, 1.692
+
+---------
+ALL:
+Earnings Date: 2026-02-04 00:00:00
+Tail Risk Score: 80
+risk_level, High
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.032
+current_lift_vs_baseline, 0.280
+current_lift_vs_same_bucket_global, 0.356
+
+---------
+ALLE:
+Earnings Date: 2025-10-23 00:00:00
+Tail Risk Score: 60
+risk_level, Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.025
+current_lift_vs_baseline, 0.219
+current_lift_vs_same_bucket_global, 0.488
+
+---------
+AMAT:
+Earnings Date: 2026-02-11 00:00:00
+Tail Risk Score: 52
+risk_level, Very Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.142
+current_lift_vs_baseline, 1.222
+current_lift_vs_same_bucket_global, 1.347
+
+---------
+AMCR:
+Earnings Date: 2026-02-03 00:00:00
+Tail Risk Score: 68
+risk_level, Moderate
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.044
+current_lift_vs_baseline, 0.381
+current_lift_vs_same_bucket_global, 0.909
+
+---------
+AMD:
+Earnings Date: 2026-02-03 00:00:00
+Tail Risk Score: 95
+risk_level, Extreme
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.442
+current_lift_vs_baseline, 3.814
+current_lift_vs_same_bucket_global, 1.764
+
+---------
+AME:
+Earnings Date: 2026-02-03 00:00:00
+Tail Risk Score: 64
+risk_level, Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.022
+current_lift_vs_baseline, 0.187
+current_lift_vs_same_bucket_global, 0.417
+
+---------
+AMGN:
+Earnings Date: 2026-02-02 00:00:00
+Tail Risk Score: 76
+risk_level, High
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.077
+current_lift_vs_baseline, 0.661
+current_lift_vs_same_bucket_global, 0.840
+
+---------
+AMP:
+Earnings Date: 2026-01-29 00:00:00
+Tail Risk Score: 75
+risk_level, Moderate
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.025
+current_lift_vs_baseline, 0.215
+current_lift_vs_same_bucket_global, 0.513
+
+---------
+AMT:
+Earnings Date: 2025-10-23 00:00:00
+Tail Risk Score: 72
+risk_level, Moderate
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.069
+current_lift_vs_baseline, 0.596
+current_lift_vs_same_bucket_global, 1.421
+
+---------
+AMZN:
+Earnings Date: 2026-02-05 00:00:00
+Tail Risk Score: 100
+risk_level, Extreme
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.423
+current_lift_vs_baseline, 3.643
+current_lift_vs_same_bucket_global, 1.684
+
+---------
+ANET:
+Earnings Date: 2025-11-10 00:00:00
+Tail Risk Score: 91
+risk_level, Extreme
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.385
+current_lift_vs_baseline, 3.319
+current_lift_vs_same_bucket_global, 1.534
+
+---------
+AON:
+Earnings Date: 2026-01-30 00:00:00
+Tail Risk Score: 69
+risk_level, Moderate
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.019
+current_lift_vs_baseline, 0.165
+current_lift_vs_same_bucket_global, 0.392
+
+---------
+AOS:
+Earnings Date: 2026-01-29 00:00:00
+Tail Risk Score: 69
+risk_level, Moderate
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.046
+current_lift_vs_baseline, 0.396
+current_lift_vs_same_bucket_global, 0.943
+
+---------
+APA:
+Earnings Date: 2025-11-05 00:00:00
+Tail Risk Score: 57
+risk_level, Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.118
+current_lift_vs_baseline, 1.021
+current_lift_vs_same_bucket_global, 2.273
+
+---------
+APD:
+Earnings Date: 2026-01-30 00:00:00
+Tail Risk Score: 61
+risk_level, Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.024
+current_lift_vs_baseline, 0.209
+current_lift_vs_same_bucket_global, 0.465
+
+---------
+APH:
+Earnings Date: 2026-01-28 00:00:00
+Tail Risk Score: 40
+risk_level, Very Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.095
+current_lift_vs_baseline, 0.822
+current_lift_vs_same_bucket_global, 0.906
+
+---------
+APO:
+Earnings Date: 2026-02-09 00:00:00
+Tail Risk Score: 56
+risk_level, Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.031
+current_lift_vs_baseline, 0.264
+current_lift_vs_same_bucket_global, 0.588
+
+---------
+APP:
+Earnings Date: 2026-02-11 00:00:00
+Tail Risk Score: 98
+risk_level, Extreme
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.469
+current_lift_vs_baseline, 4.046
+current_lift_vs_same_bucket_global, 1.871
+
+---------
+APTV:
+Earnings Date: 2026-02-02 00:00:00
+Tail Risk Score: 47
+risk_level, Very Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.100
+current_lift_vs_baseline, 0.863
+current_lift_vs_same_bucket_global, 0.951
+
+---------
+ARE:
+Earnings Date: 2026-01-26 00:00:00
+Tail Risk Score: 43
+risk_level, Very Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.088
+current_lift_vs_baseline, 0.763
+current_lift_vs_same_bucket_global, 0.841
+
+---------
+ARES:
+Earnings Date: 2026-02-05 00:00:00
+Tail Risk Score: 47
+risk_level, Very Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.124
+current_lift_vs_baseline, 1.072
+current_lift_vs_same_bucket_global, 1.182
+
+---------
+ATO:
+Earnings Date: 2026-02-03 00:00:00
+Tail Risk Score: 68
+risk_level, Moderate
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.047
+current_lift_vs_baseline, 0.405
+current_lift_vs_same_bucket_global, 0.965
+
+---------
+AVB:
+Earnings Date: 2026-02-04 00:00:00
+Tail Risk Score: 59
+risk_level, Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.043
+current_lift_vs_baseline, 0.367
+current_lift_vs_same_bucket_global, 0.816
+
+---------
+AVGO:
+Earnings Date: 2025-12-11 00:00:00
+Tail Risk Score: 75
+risk_level, Moderate
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.153
+current_lift_vs_baseline, 1.317
+current_lift_vs_same_bucket_global, 3.140
+
+---------
+AVY:
+Earnings Date: 2026-02-04 00:00:00
+Tail Risk Score: 71
+risk_level, Moderate
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.018
+current_lift_vs_baseline, 0.153
+current_lift_vs_same_bucket_global, 0.364
+
+---------
+AWK:
+Earnings Date: 2025-10-29 00:00:00
+Tail Risk Score: 60
+risk_level, Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.020
+current_lift_vs_baseline, 0.173
+current_lift_vs_same_bucket_global, 0.385
+
+---------
+AXON:
+Earnings Date: 2025-11-04 00:00:00
+Tail Risk Score: 87
+risk_level, Extreme
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.453
+current_lift_vs_baseline, 3.904
+current_lift_vs_same_bucket_global, 1.805
+
+---------
+AXP:
+Earnings Date: 2026-01-30 00:00:00
+Tail Risk Score: 67
+risk_level, Moderate
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.044
+current_lift_vs_baseline, 0.378
+current_lift_vs_same_bucket_global, 0.901
+
+---------
+AZO:
+Earnings Date: 2025-12-09 00:00:00
+Tail Risk Score: 53
+risk_level, Very Low
+base_extreme_prob, 0.116
+hist_extreme_prob, 0.037
+current_lift_vs_baseline, 0.318
+current_lift_vs_same_bucket_global, 0.351
