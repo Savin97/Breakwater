@@ -15,7 +15,7 @@ def run_pipeline():
     """
     import warnings
     warnings.filterwarnings('ignore')
-    from testing import testing_scores, features_test
+    # from testing import testing_scores, features_test
     # features_test()
 
     stage1(update=False)

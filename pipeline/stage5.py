@@ -9,6 +9,10 @@ def stage5(df): # stage5(df);
     print(first_100_stocks.iloc[0])
     stocks_to_report_for = []
     global_earnings_df = df[df["is_earnings_day"] == 1].copy()
+
+    global_earnings_df.to_csv("global_earnings_df.csv", index=False)
+    exit()                        
+
     P_extreme_global  = global_earnings_df["is_extreme_reaction"].mean()
     P_extreme_given_bucket = (
         global_earnings_df.groupby("earnings_explosiveness_bucket")["is_extreme_reaction"]

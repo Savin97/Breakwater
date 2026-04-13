@@ -1,0 +1,7 @@
+When you update code, in the droplet:
+
+cd ~/Project-Files
+git pull
+source .venv/bin/activate
+pip install -r requirements.txt
+systemctl restart breakwater
