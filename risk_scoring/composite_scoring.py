@@ -129,7 +129,7 @@ def score_momentum_fragility(df):
     # No arbitrary magic number, Stable across stocks and time
     m2 = np.clip(np.abs(df["directional_bias"].fillna(0)) / bias_scale, 0, 1) 
     m3 = np.clip(np.abs(df["sector_drift_60d"].fillna(0)) / 0.10, 0, 1)
-
+    
     #m2 = (df["directional_bias"].abs() / bias_scale).clip(0, 1)
     base = (
         0.45 * m1 +   # positioning pressure

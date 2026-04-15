@@ -50,8 +50,6 @@ def stage3(stage2_df):
     """
     print("--------------------\nStage 3 - Feature Engineering...")
     stage3_df = stage2_df.copy()
-    stage3_df.to_csv("stage3_df.csv", index=False)
-    exit()
     stage3_df = stage3_df.sort_values(["stock","date"], kind="mergesort")
     feature_steps = [
         engineer_daily_ret,
