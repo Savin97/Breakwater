@@ -5,3 +5,8 @@ git pull
 source .venv/bin/activate
 pip install -r requirements.txt
 systemctl restart breakwater
+
+for the webpage:
+sudo rsync -av --delete /root/Project-Files/webpage/ /var/www/harbor/
+sudo chown -R www-data:www-data /var/www/harbor
+sudo chmod -R 755 /var/www/harbor
