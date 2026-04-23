@@ -11,7 +11,7 @@ P_extreme_given_bucket = (
     global_earnings_df.groupby("earnings_explosiveness_bucket")["is_extreme_reaction"]
     .mean()
 )
-print(P_extreme_given_bucket)
+
 bucket_stats = pd.DataFrame({
     "global_hist_prob": P_extreme_given_bucket,
     "global_risk_lift_vs_baseline": P_extreme_given_bucket / P_extreme_global
@@ -39,4 +39,11 @@ earnings_explosiveness_buckets["lift_vs_same_bucket_global"] = (
     earnings_explosiveness_buckets["shrunk_prob"] / earnings_explosiveness_buckets["global_hist_prob"]
 )
 P_extreme_global = round(P_extreme_global, 3)
-
+scoring_df = global_earnings_df[['stock', 'sector', 'sub_sector', 'earnings_date', 'is_large_reaction', 'is_extreme_reaction',
+       'vol_ratio_cross_sectional_pct', 'vol_stress_elevated',
+       'vol_stress_extreme', 'sector_vol_ratio_pct', 'sector_vol_stress_high',
+       'momentum_pressure_regime', 'earnings_explosiveness_z',
+       'earnings_tail_z', 'proximity_score', 'vol_expansion_score',
+       'momentum_fragility_score', 'earnings_explosiveness_score',
+       'earnings_explosiveness_bucket', 'earnings_move_bucket', 'risk_score']]
+scoring_df.to_csv("scoring_df.csv",index=False)
