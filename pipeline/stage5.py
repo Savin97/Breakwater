@@ -5,13 +5,8 @@ def stage5(df): # stage5(df);
     print("--------------------\nStage 5 - Generating Report...")
     df = pd.read_parquet("output/full_df.parquet")
     stock_list = pd.read_csv("data/stock_list.csv")
-    first_100_stocks = stock_list.iloc[1:51,0]
-    print(first_100_stocks.iloc[0])
     stocks_to_report_for = []
     global_earnings_df = df[df["is_earnings_day"] == 1].copy()
-    
-
-
 
     P_extreme_global  = global_earnings_df["is_extreme_reaction"].mean()
     P_extreme_given_bucket = (
@@ -28,7 +23,7 @@ def stage5(df): # stage5(df);
     ]
     #global_earnings_df.to_csv("global_earnings_df.csv",index=False)
     report_txt = open("report_txt.txt", "w")
-    for stock in first_100_stocks:
+    for stock in stocks_to_report_for:
         print(f"\n---------\n{stock}:")
         stock_df = df[df["stock"] == stock]
         earnings_df = stock_df[stock_df["is_earnings_day"] == 1]
@@ -42,7 +37,7 @@ def stage5(df): # stage5(df);
         )
         earnings_explosiveness_buckets["shrunk_prob"] = (
             earnings_explosiveness_buckets["extreme_count"] +
-            prior_strength * bucket_stats.loc[earnings_explosiveness_buckets.index, "global_hist_prob"]
+            prior_strength * bucket_stats.loc[earnings_explosiveness_buckets.index, "global_hist_prob"] # type: ignore
         ) / (
             earnings_explosiveness_buckets["event_count"] + prior_strength
         )
@@ -79,7 +74,6 @@ def stage5(df): # stage5(df);
         report_txt.write(f"hist_extreme_prob, {current_bucket_prob}\n")
         report_txt.write(f"current_lift_vs_baseline, {current_lift_vs_baseline}\n")
         report_txt.write(f"current_lift_vs_same_bucket_global, {current_lift_vs_same_bucket_global}\n")
-        # print("bucket_table", earnings_explosiveness_buckets")
   
         data_for_report = {
             "earnings_date": current_earnings_date,

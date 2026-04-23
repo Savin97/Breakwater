@@ -40,9 +40,5 @@ def stage4(stage3_df):
     if stage4_df is None:
         raise ValueError("\n---ERROR! Stage 4 Returned None.---\n")
     
-    print(stage4_df["momentum_pressure_regime"].value_counts(dropna=False).head(20))
-    print("Building parquet...")
-    stage4_df.to_parquet("output/full_df.parquet")
-
     print("Stage 4 DONE")
     return stage4_df

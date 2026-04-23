@@ -2,6 +2,7 @@
 from data_ingestion.data_utilities import read_stocks_to_fetch
 import pandas as pd, requests
 from datetime import datetime
+from io import StringIO
 
 def get_sp500_sectors():
     """
@@ -12,18 +13,25 @@ def get_sp500_sectors():
     # importing stock list and sector data
     URL = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
     stock_list = read_stocks_to_fetch()
-    headers = {
-    "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/120.0.0.0 Safari/537.36"
-        )
-    }
-    r = requests.get(URL, headers=headers, timeout=30)
-    r.raise_for_status()  # will show you 403/429 clearly if it still happens
-    tables = pd.read_html(r.text)
-    sp500_df = tables[0]
-    sp500_changes = tables[1] # TODO: might be useful later for organizing changes in the stock list
+    # headers = {
+    # "User-Agent": (
+    #         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    #         "AppleWebKit/537.36 (KHTML, like Gecko) "
+    #         "Chrome/120.0.0.0 Safari/537.36"
+    #     )
+    # }
+    # r = requests.get(URL, headers=headers, timeout=30)
+    # r.raise_for_status()  # will show you 403/429 clearly if it still happens
+    # tables = pd.read_html(response.text)
+    # sp500_df = tables[0]
+    # sp500_changes = tables[1] # TODO: might be useful later for organizing changes in the stock list
+    
+    response = requests.get(URL, headers={"User-Agent": "Mozilla/5.0"}, timeout=30)
+    response.raise_for_status()
+
+    sp500_df = (
+        pd.read_html(StringIO(response.text))[0]
+    )
     sp500_df = sp500_df.rename(columns={
         "Symbol": "stock",
         "Security": "name",
@@ -58,7 +66,7 @@ def ingest_all_sector_data(con):
         err = f"{type(e).__name__}: {e}"
         print(f"FAILED fetching sector data: {err}")
         try:
-                con.unregister("tmp_prices")
+            con.unregister("tmp_prices")
         except Exception:
             pass
         with open(FAILED_SECTOR_LOG_PATH, "a", encoding="utf-8") as f:

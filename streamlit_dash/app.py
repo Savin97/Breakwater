@@ -2,7 +2,7 @@
 import streamlit as st, sys, pandas as pd
 # Streamlit page configuration
 st.set_page_config(
-    page_title="Dashboard",
+    page_title="Breakwater",
     layout="wide"
 )
 
@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 # CSV with the dashboard output
 # put latest_earnings_df.csv in the repo root (same level as /streamlit)
-CSV_PATH = ROOT / "partial_df.csv"  # change if you keep it elsewhere
+CSV_PATH = ROOT / "streamlit_df.csv"  # change if you keep it elsewhere
 from pipeline.pipeline import run_pipeline
 @st.cache_data(show_spinner="Running Pipeline…")
 def get_dashboard_df(use_cached_eps: bool = True) -> pd.DataFrame:
@@ -20,28 +20,20 @@ def get_dashboard_df(use_cached_eps: bool = True) -> pd.DataFrame:
     Calls your engine and returns the final dashboard dataframe.
 
     Assumes run_pipeline(...) returns a DataFrame with at least:
-        Date, Stock, Risk Level, Risk Score, hist_xtreme_prob, base_xtreme_prob, risk_lift,
-        Excessive Move, Reaction Divergence, Muted Response, 
-        Extreme Volatility, Divergence Alert, Recommendation,
+        Date, Stock, risk_level, risk_score, hist_xtreme_prob, base_xtreme_prob, risk_lift
     """
-    df = pd.read_csv("partial_df.csv")
+    df = pd.read_csv(CSV_PATH)
     #df = run_pipeline()
 
     # Sanity check for expected columns
     expected_cols = [
         "Date",
         "Stock",
-        "Risk Level",
-        "Risk Score",
+        "risk_level",
+        "risk_score",
         "hist_xtreme_prob",
         "base_xtreme_prob",
-        "risk_lift",
-        # "Recommendation",
-        # "Excessive Move",
-        # "Reaction Divergence",
-        # "Muted Response",
-        # "Extreme Volatility",
-        # "Divergence Alert",
+        "risk_lift"
     ]
     missing = [c for c in expected_cols if c not in df.columns]
     if missing:
@@ -80,17 +72,17 @@ def sidebar_filters(df: pd.DataFrame) -> pd.DataFrame:
         if stock_choice != "(All)":
             df = df[df["Stock"] == stock_choice]
 
-    # Risk score range
-    if "Risk Score" in df.columns and not df["Risk Score"].isna().all():
-        min_rs = int(df["Risk Score"].min())
-        max_rs = int(df["Risk Score"].max())
+    # risk_score range
+    if "risk_score" in df.columns and not df["risk_score"].isna().all():
+        min_rs = int(df["risk_score"].min())
+        max_rs = int(df["risk_score"].max())
         lo, hi = st.sidebar.slider(
-            "Risk Score range",
+            "risk_score range",
             min_value=min_rs,
             max_value=max_rs,
             value=(min_rs, max_rs),
         )
-        df = df[(df["Risk Score"] >= lo) & (df["Risk Score"] <= hi)]
+        df = df[(df["risk_score"] >= lo) & (df["risk_score"] <= hi)]
 
     # Recommendation filter
     if "Recommendation" in df.columns:
@@ -142,9 +134,9 @@ def main():
         if "Stock" in df.columns:
             st.metric("Unique stocks", df["Stock"].nunique())
     with col3:
-        if "Risk Score" in df.columns:
+        if "risk_score" in df.columns:
             # naive threshold: 4+ considered high risk
-            high_risk = (df["Risk Score"] >= 4).sum()
+            high_risk = (df["risk_score"] >= 4).sum()
             st.metric("High-risk events (Score ≥ 4)", int(high_risk))
     with col4:
         if "any_alert" in df.columns:
@@ -164,8 +156,8 @@ def main():
             for c in [
                 "Date",
                 "Stock",
-                "Risk Level",
-                "Risk Score",
+                "risk_level",
+                "risk_score",
                 "hist_xtreme_prob",
                 "base_xtreme_prob",
                 "risk_lift",
@@ -193,17 +185,17 @@ def main():
         )
         # st.dataframe(df_display[cols_to_show])
 
-        # Simple aggregate: count of events by risk score
-        if "Risk Score" in df.columns:
-            st.markdown("#### Count of events by Risk Score")
+        # Simple aggregate: count of events by risk_score
+        if "risk_score" in df.columns:
+            st.markdown("#### Count of events by risk_score")
             agg = (
-                df.groupby("Risk Score")["Stock"]
+                df.groupby("risk_score")["Stock"]
                 .count()
                 .rename("count")
                 .reset_index()
-                .sort_values("Risk Score")
+                .sort_values("risk_score")
             )
-            chart_df = agg.set_index("Risk Score")["count"]
+            chart_df = agg.set_index("risk_score")["count"]
             st.bar_chart(chart_df)
 
     # -------- Risk Alerts tab --------
@@ -222,8 +214,8 @@ def main():
                 for c in [
                     "Date",
                     "Stock",
-                    "Risk Level",
-                    "Risk Score",
+                    "risk_level",
+                    "risk_score",
                     "hist_xtreme_prob",
                     "base_xtreme_prob",
                     "risk_lift",
@@ -259,8 +251,8 @@ def main():
                 for c in [
                     "Date",
                     "Stock",
-                    "Risk Level",
-                    "Risk Score",
+                    "risk_level",
+                    "risk_score",
                     "hist_xtreme_prob",
                     "base_xtreme_prob",
                     "risk_lift",
@@ -276,9 +268,9 @@ def main():
             ]
             st.dataframe(stock_df[cols])
 
-            # Quick line chart: Risk Score over time
-            if {"Date", "Risk Score"}.issubset(stock_df.columns):
-                chart_df = stock_df.set_index("Date")["Risk Score"]
+            # Quick line chart: risk_score over time
+            if {"Date", "risk_score"}.issubset(stock_df.columns):
+                chart_df = stock_df.set_index("Date")["risk_score"]
                 st.line_chart(chart_df)
 
 if __name__ == "__main__":

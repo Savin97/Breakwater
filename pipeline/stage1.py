@@ -31,6 +31,7 @@ def stage1(update:bool):
         ingest_all_sector_data(con)
         merge_tables(con)
         get_next_earnings_dates()
+
     con.close()
     print("Stage 1 DONE")
     return
