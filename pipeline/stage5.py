@@ -65,6 +65,7 @@ def stage5(df): # stage5(df);
         current_lift_vs_baseline = f"{earnings_explosiveness_buckets.loc[current_bucket, "lift_vs_baseline"]:.3f}"
         current_lift_vs_same_bucket_global = f"{earnings_explosiveness_buckets.loc[current_bucket, "lift_vs_same_bucket_global"]:.3f}"
         earnings_explosiveness_buckets = earnings_explosiveness_buckets.reset_index()
+        
         # write to file
         report_txt.write(f"\n---------\n{stock}:\n")
         report_txt.write(f"Earnings Date: {current_earnings_date}\n")
@@ -74,7 +75,7 @@ def stage5(df): # stage5(df);
         report_txt.write(f"hist_extreme_prob, {current_bucket_prob}\n")
         report_txt.write(f"current_lift_vs_baseline, {current_lift_vs_baseline}\n")
         report_txt.write(f"current_lift_vs_same_bucket_global, {current_lift_vs_same_bucket_global}\n")
-  
+
         data_for_report = {
             "earnings_date": current_earnings_date,
             "risk_level": current_bucket,

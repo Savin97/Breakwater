@@ -1,12 +1,34 @@
-When you update code, in the droplet:
+On the server:
 
-cd ~/Project-Files
+cd /var/www/cv_website
 git pull
+
+If you changed only index.html, styles.css, images, etc.:
+
+systemctl reload nginx
+
+If you changed app.py, streamlit_df.csv, or Python code used by Streamlit:
+
+systemctl restart breakwater
+
+If you changed requirements.txt:
+
+cd /var/www/cv_website
 source .venv/bin/activate
 pip install -r requirements.txt
 systemctl restart breakwater
 
-for the webpage:
-sudo rsync -av --delete /root/Project-Files/webpage/ /var/www/harbor/
-sudo chown -R www-data:www-data /var/www/harbor
-sudo chmod -R 755 /var/www/harbor
+Typical update flow:
+
+cd /var/www/cv_website
+git pull
+source .venv/bin/activate
+pip install -r requirements.txt
+systemctl restart breakwater
+systemctl reload nginx
+
+Then check:
+
+systemctl status breakwater --no-pager
+curl -I https://harbor-markets.com
+curl -I https://harbor-markets.com/breakwater/
