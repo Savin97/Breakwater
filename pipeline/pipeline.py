@@ -13,11 +13,6 @@ def run_pipeline():
         4. Calculate Risk Score and Provide Explanations
         5. Report Generation
     """
-    import warnings
-    warnings.filterwarnings('ignore')
-    # from testing import testing_scores, features_test
-    # features_test()
-
     stage1(update=False)
     df = stage2() 
     feature_engineered_df = stage3(df)

@@ -1,11 +1,13 @@
-# testing.py
 import pandas as pd, numpy as np
+import warnings
 from sklearn.metrics import roc_auc_score
+warnings.filterwarnings('ignore')
+# stage3_df = pd.read_parquet("stage3_df.parquet")
+full_df = pd.read_parquet("output/full_df.parquet")
 
-def testing_scores():
+def testing_scores(df):
     print("Running Score Testing...\n--------------------")
 
-    df = pd.read_parquet("output/full_df.parquet")
     stock_list = pd.read_csv("data/stock_list.csv")
     first_30_stocks = stock_list.iloc[1:31,0]
 
@@ -33,7 +35,7 @@ def testing_scores():
         )
         earnings_explosiveness_buckets["shrunk_prob"] = (
             earnings_explosiveness_buckets["extreme_count"] +
-            prior_strength * bucket_stats.loc[earnings_explosiveness_buckets.index, "global_hist_prob"]
+            prior_strength * bucket_stats.loc[earnings_explosiveness_buckets.index, "global_hist_prob"] # type: ignore
         ) / (
             earnings_explosiveness_buckets["event_count"] + prior_strength
         )
@@ -70,11 +72,10 @@ def testing_scores():
         report_txt.write(f"current_lift_vs_baseline, {current_lift_vs_baseline}\n")
         report_txt.write(f"current_lift_vs_same_bucket_global, {current_lift_vs_same_bucket_global}\n")
 
-def features_test():
+def features_test(df):
     print("Running Feature Testing...\n--------------------")
-    df = pd.read_parquet("output/full_df.parquet")
+
     earnings_df = df[df["is_earnings_day"] == 1]
-    print(len(earnings_df.columns))
     earnings_df["label_3pct"] = (earnings_df["abs_reaction_3d"] >= 0.03).astype(int)
     earnings_df["label_5pct"] = (earnings_df["abs_reaction_3d"] >= 0.05).astype(int)
 
@@ -90,7 +91,7 @@ def features_test():
     extreme_regime_df = earnings_df[earnings_df["earnings_explosiveness_score"] > 85].copy()  # only extreme regime
     extreme_regime_df.to_csv("extreme_regime_df.csv",index=False)
 
-    # Testing best weights
+    # Testing best weights for the final risk score
     best_auc = 0
     best_w = None
 
@@ -108,6 +109,7 @@ def features_test():
             best_auc = auc
             best_w = w
 
+    print(best_auc, best_w)
 
     def evaluate_numeric_feature(df, feature, label_col):
         data = df[[feature, label_col]].replace([np.inf, -np.inf], np.nan).dropna()
@@ -141,8 +143,8 @@ def features_test():
         res5 = evaluate_numeric_feature(earnings_df, feature, "label_5pct")
         
         print(f"{feature}")
-        print(f"  3% -> corr: {res3[0]:.3f}, AUC: {res3[1]:.3f}")
-        print(f"  5% -> corr: {res5[0]:.3f}, AUC: {res5[1]:.3f}")
+        print(f"  3% -> corr: {res3[0]:.3f}, AUC: {res3[1]:.3f}") # type:ignore
+        print(f"  5% -> corr: {res5[0]:.3f}, AUC: {res5[1]:.3f}") # type:ignore
 
 
 
@@ -182,47 +184,51 @@ def features_test():
         )
         
         return stats
-    
+    print(bin_analysis(earnings_df, "vol_ratio_cross_sectional_pct", "label_5pct"))
     print(bin_analysis(earnings_df, "earnings_explosiveness_score", "label_5pct"))
-    print( bin_analysis(earnings_df, "risk_score", "label_5pct") )
-"""
-    stock
-    price
-    date
-    sector
-    sub_sector
-    earnings_date
-    reported_eps
-    estimated_eps
-    surprise_percentage
-    reaction_3d
-    reaction_entropy
-    directional_bias
-    abs_reaction_3d
-    abs_reaction_median
-    abs_reaction_p75
-    abs_reaction_p75_rolling
-    abs_reaction_p90_rolling
-    sector_drift_60d
-    sector_vol_10d
-    sector_vol_30d
-    stock_vs_sector_vol
-    sector_earnings_density
-    is_large_reaction
-    is_extreme_reaction
-    vol_ratio_cross_sectional_pct
-    vol_stress_elevated
-    vol_stress_extreme
-    sector_vol_ratio_pct
-    sector_vol_stress_high
-    momentum_pressure_regime
-    earnings_explosiveness_z
-    earnings_tail_z
-    proximity_score
-    vol_expansion_score
-    momentum_fragility_score
-    earnings_explosiveness_score
-    earnings_explosiveness_bucket
-    earnings_move_bucket
-    risk_score
-"""  
+    print(bin_analysis(earnings_df, "risk_score", "label_5pct") )
+    
+# features_test(full_df)
+# Test only stocks close to earnings, not just earnings day
+full_df["label_3pct"] = (full_df["abs_reaction_3d"] >= 0.03).astype(int)
+full_df["label_5pct"] = (full_df["abs_reaction_3d"] >= 0.05).astype(int)
+pre = full_df[(full_df["days_to_earnings"] >= 1) & (full_df["days_to_earnings"] <= 10)]
+
+pre["rank_near_earnings"] = (
+    pre.groupby("date")["vol_ratio_10_to_30"]
+    .rank(pct=True)
+)
+pre["rank_near_earnings"] = pre["rank_near_earnings"].notna()
+print(pre[pre["rank_near_earnings"]])
+
+pre_roc_score = roc_auc_score(
+    pre["label_5pct"],
+    pre["rank_near_earnings"]
+    )
+
+
+earnings_df = full_df[full_df["is_earnings_day"] == 1]
+earnings_df["label_3pct"] = (earnings_df["abs_reaction_3d"] >= 0.03).astype(int)
+earnings_df["label_5pct"] = (earnings_df["abs_reaction_3d"] >= 0.05).astype(int)
+earnings_df["momentum_pressure_regime"] = earnings_df["momentum_pressure_regime"].notna()
+
+earnings_df["label_8pct"] = (earnings_df["abs_reaction_3d"] >= 0.08).astype(int)
+
+mom_roc_score = roc_auc_score(
+    earnings_df["label_5pct"],
+    earnings_df["momentum_fragility_score"]
+    )
+
+print("momentum_fragility_score roc_auc_score", mom_roc_score)
+
+earnings_df["bucket"] = pd.qcut(earnings_df["momentum_fragility_score"], 10, labels=False)
+# earnings_df["rank"] = earnings_df.groupby("earnings_date")["risk_score"].rank(pct=True)
+earnings_df["rank"] = earnings_df.groupby("earnings_date")["momentum_fragility_score"].rank(pct=True)
+
+print("top")
+top = earnings_df[earnings_df["rank"] >= 0.9]   # top 10%
+print(full_df["abs_reaction_3d"].mean())
+print(top["abs_reaction_3d"].mean())
+print( (top["abs_reaction_3d"] >= 0.05).mean() )
+
+# print( earnings_df.groupby("bucket")["label_5pct"].mean() )
