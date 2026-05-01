@@ -1,5 +1,4 @@
-import pandas as pd, numpy as np
-import warnings
+import pandas as pd, numpy as np, warnings
 from sklearn.metrics import roc_auc_score
 warnings.filterwarnings('ignore')
 # stage3_df = pd.read_parquet("stage3_df.parquet")
@@ -109,7 +108,7 @@ def features_test(df):
             best_auc = auc
             best_w = w
 
-    print(best_auc, best_w)
+    # print(best_auc, best_w)
 
     def evaluate_numeric_feature(df, feature, label_col):
         data = df[[feature, label_col]].replace([np.inf, -np.inf], np.nan).dropna()
@@ -145,8 +144,6 @@ def features_test(df):
         print(f"{feature}")
         print(f"  3% -> corr: {res3[0]:.3f}, AUC: {res3[1]:.3f}") # type:ignore
         print(f"  5% -> corr: {res5[0]:.3f}, AUC: {res5[1]:.3f}") # type:ignore
-
-
 
     cat_features = [
         "vol_stress_elevated",
@@ -184,11 +181,12 @@ def features_test(df):
         )
         
         return stats
-    print(bin_analysis(earnings_df, "vol_ratio_cross_sectional_pct", "label_5pct"))
-    print(bin_analysis(earnings_df, "earnings_explosiveness_score", "label_5pct"))
-    print(bin_analysis(earnings_df, "risk_score", "label_5pct") )
+    print(bin_analysis(earnings_df, "momentum_fragility_score", "label_5pct"))
+    # print(bin_analysis(earnings_df, "earnings_explosiveness_score", "label_5pct"))
+    # print(bin_analysis(earnings_df, "risk_score", "label_5pct") )
     
-# features_test(full_df)
+
+
 # Test only stocks close to earnings, not just earnings day
 full_df["label_3pct"] = (full_df["abs_reaction_3d"] >= 0.03).astype(int)
 full_df["label_5pct"] = (full_df["abs_reaction_3d"] >= 0.05).astype(int)
@@ -199,7 +197,7 @@ pre["rank_near_earnings"] = (
     .rank(pct=True)
 )
 pre["rank_near_earnings"] = pre["rank_near_earnings"].notna()
-print(pre[pre["rank_near_earnings"]])
+# print(pre[pre["rank_near_earnings"]])
 
 pre_roc_score = roc_auc_score(
     pre["label_5pct"],
@@ -219,16 +217,49 @@ mom_roc_score = roc_auc_score(
     earnings_df["momentum_fragility_score"]
     )
 
-print("momentum_fragility_score roc_auc_score", mom_roc_score)
+# print("momentum_fragility_score roc_auc_score", mom_roc_score)
 
 earnings_df["bucket"] = pd.qcut(earnings_df["momentum_fragility_score"], 10, labels=False)
 # earnings_df["rank"] = earnings_df.groupby("earnings_date")["risk_score"].rank(pct=True)
 earnings_df["rank"] = earnings_df.groupby("earnings_date")["momentum_fragility_score"].rank(pct=True)
-
-print("top")
 top = earnings_df[earnings_df["rank"] >= 0.9]   # top 10%
-print(full_df["abs_reaction_3d"].mean())
-print(top["abs_reaction_3d"].mean())
-print( (top["abs_reaction_3d"] >= 0.05).mean() )
-
 # print( earnings_df.groupby("bucket")["label_5pct"].mean() )
+
+"""
+    Is price positioning fragile right now?
+    High score = price is balanced on a knife-edge.
+"""
+# Mapping momentum fragility strings to floats
+PRESSURE_MAP = {
+    "normal": 0.0,
+    "short_term_extreme": 0.6,
+    "trend_extreme": 0.75,
+    "crowded_trend": 1.0,
+}
+# Interpretation: 
+# pressure -> crowding / exhaustion
+# bias -> one-sided positioning
+# sector drift -> late-cycle momentum
+df = full_df.copy()
+bias_scale = df["directional_bias"].abs().quantile(0.90)
+
+m1 = df["momentum_pressure_regime"].map(PRESSURE_MAP).fillna(0)
+# m2: this achieves: 90% of observations live in [0,1),Top 10% saturate at 1, 
+# No arbitrary magic number, Stable across stocks and time
+m2 = np.clip(np.abs(df["directional_bias"].fillna(0)) / bias_scale, 0, 1) 
+m3 = np.clip(np.abs(df["sector_drift_60d"].fillna(0)) / 0.10, 0, 1)
+
+#m2 = (df["directional_bias"].abs() / bias_scale).clip(0, 1)
+base = (
+    0.45 * m1 +   # positioning pressure
+    0.35 * m3 +   # sector trend maturity
+    0.20 * m2     # directional skew
+)
+print(base.describe())
+momentum_fragility_score = 100 * np.clip(base, 0, 1)
+
+earnings_df["fragility_pct"] = (
+    earnings_df.groupby("earnings_date")["momentum_fragility_score"]
+    .rank(pct=True)
+)
+print(earnings_df["fragility_pct"])

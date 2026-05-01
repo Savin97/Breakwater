@@ -209,7 +209,6 @@ def engineer_total_risk_score(input_df):
     df = input_df.copy()
     exp = score_earnings_explosiveness(df)
     mom = score_momentum_fragility(df)
-
     risk_score = 0.85 * mom + 0.15 * exp
 
     df["risk_score"] = risk_score
@@ -377,9 +376,9 @@ def score_momentum_fragility(df):
     #m2 = (df["directional_bias"].abs() / bias_scale).clip(0, 1)
     base = (
         0.45 * m1 +   # positioning pressure
-        0.35 * m3 +   # directional skew
-        0.20 * m2    # sector trend maturity
+        0.35 * m3 +   # sector trend maturity
+        0.20 * m2     # directional skew
     )
-
+    base.describe()
     momentum_fragility_score = 100 * np.clip(base, 0, 1)
     return momentum_fragility_score
