@@ -1,0 +1,67 @@
+Run these 4 analyses
+1. Strict forward OOS decile test
+
+For every year:
+
+compute score using only prior data
+bucket into deciles
+measure:
+mean abs move
+P(move > 5%)
+lift vs baseline
+
+Then chart:
+
+bottom decile vs top decile
+
+across years.
+
+If stable:
+that's real.
+
+2. Within-stock analysis
+
+For each stock:
+
+compare high-score earnings vs low-score earnings
+
+Example:
+
+AAPL high-risk earnings
+vs AAPL low-risk earnings
+
+This is HUGE.
+
+Because it proves dynamic signal beyond stock identity.
+
+3. Feature ablation
+
+Test:
+
+explosiveness only
+fragility only
+volatility only
+combined
+
+You already partly did this.
+
+But formalize it.
+
+You want to prove:
+
+combined regime > any single component
+
+4. Calibration analysis
+
+This matters for a real product.
+
+If you say:
+
+20% risk bucket
+
+does reality roughly match?
+
+You want:
+
+trustworthy probabilities
+not just rankings

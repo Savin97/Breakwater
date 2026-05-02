@@ -229,37 +229,78 @@ top = earnings_df[earnings_df["rank"] >= 0.9]   # top 10%
     Is price positioning fragile right now?
     High score = price is balanced on a knife-edge.
 """
-# Mapping momentum fragility strings to floats
-PRESSURE_MAP = {
+##################################
+# TESTING momentum_pressure
+##################################
+df = full_df.copy()
+
+abs5 = df["mom_5d"].abs()
+abs20 = df["mom_20d"].abs()
+
+threshold_5 = abs5.groupby(df["date"]).transform(lambda x: x.quantile(0.8))
+threshold_20 = abs20.groupby(df["date"]).transform(lambda x: x.quantile(0.8))
+
+mom_5 = abs5 > threshold_5
+mom_20 = abs20 > threshold_20
+
+df["momentum_pressure_label"] = np.select(
+    [~mom_5 & ~mom_20, mom_5 & ~mom_20, ~mom_5 & mom_20, mom_5 & mom_20],
+    ["normal", "short_term_extreme", "trend_extreme", "crowded_trend"],
+    default="normal"
+)
+
+df["momentum_pressure_score"] = df["momentum_pressure_label"].map({
     "normal": 0.0,
     "short_term_extreme": 0.6,
     "trend_extreme": 0.75,
     "crowded_trend": 1.0,
-}
-# Interpretation: 
-# pressure -> crowding / exhaustion
-# bias -> one-sided positioning
-# sector drift -> late-cycle momentum
-df = full_df.copy()
+}).fillna(0)
+
 bias_scale = df["directional_bias"].abs().quantile(0.90)
 
-m1 = df["momentum_pressure_regime"].map(PRESSURE_MAP).fillna(0)
-# m2: this achieves: 90% of observations live in [0,1),Top 10% saturate at 1, 
-# No arbitrary magic number, Stable across stocks and time
-m2 = np.clip(np.abs(df["directional_bias"].fillna(0)) / bias_scale, 0, 1) 
-m3 = np.clip(np.abs(df["sector_drift_60d"].fillna(0)) / 0.10, 0, 1)
+m1 = df["momentum_pressure_score"]
+m2 = np.clip(df["directional_bias"].abs().fillna(0) / bias_scale, 0, 1)
+m3 = np.clip(df["sector_drift_60d"].abs().fillna(0) / 0.10, 0, 1)
 
-#m2 = (df["directional_bias"].abs() / bias_scale).clip(0, 1)
-base = (
-    0.45 * m1 +   # positioning pressure
-    0.35 * m3 +   # sector trend maturity
-    0.20 * m2     # directional skew
+df["momentum_fragility_score"] = 100 * np.clip(
+    0.45 * m1 + 0.35 * m3 + 0.20 * m2,
+    0,
+    1
 )
-print(base.describe())
-momentum_fragility_score = 100 * np.clip(base, 0, 1)
+
+earnings_df = df[df["is_earnings_day"] == 1].copy()
+
+base = 0.45 * m1 + 0.35 * m3 + 0.20 * m2
+
+print(earnings_df["momentum_pressure_label"].value_counts(normalize=True))
+print(earnings_df["momentum_fragility_score"].describe())
+
+earnings_df["label_5pct"] = (earnings_df["abs_reaction_3d"] >= 0.05).astype(int)
+earnings_df = earnings_df[
+    earnings_df["momentum_fragility_score"].notna()
+]
+
+mom_roc_score = roc_auc_score(
+    earnings_df["label_5pct"],
+    earnings_df["momentum_fragility_score"]
+    )
+print(mom_roc_score)
+
+earnings_df["fragility_decile"] = pd.qcut(
+    earnings_df["momentum_fragility_score"],
+    10,
+    labels=False,
+    duplicates="drop"
+)
+
+print(
+    earnings_df.groupby("fragility_decile")["label_5pct"]
+    .agg(events="count", event_rate="mean")
+)
 
 earnings_df["fragility_pct"] = (
-    earnings_df.groupby("earnings_date")["momentum_fragility_score"]
+    earnings_df.groupby("date")["momentum_fragility_score"]
     .rank(pct=True)
 )
-print(earnings_df["fragility_pct"])
+earnings_df["fragility_display_score"] = 100 * earnings_df["fragility_pct"]
+# print(earnings_df["fragility_pct"])
