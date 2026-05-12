@@ -17,7 +17,7 @@ Days to next earnings (Calendar days) = (next_earnings_date - date).days
 earnings_proximity = min(
     abs(days_from_last_earnings),
     abs(days_to_next_earnings)
-) # very low -> stock is “hot” | mid -> digestion phase | high -> normal regime
+) # very low -> stock is "hot" | mid -> digestion phase | high -> normal regime
 
 is_earnings_week -> days_to_earnings ∈ [0,7]
 is_earnings_window -> [-2,+3]
@@ -61,7 +61,7 @@ Scoring Features:
             df["abs_reaction_p75"] / np.maximum(df["vol_30d"], epsilon)
             )
         # Normalize signals
-        #/ 3 ≈ “3σ is extreme”
+        #/ 3 ≈ "3σ is extreme"
         e1 = (df["earnings_explosiveness_z"].fillna(0) / 3).clip(0, 1)
         e2 = (df["earnings_tail_z"].fillna(0) / 3).clip(0, 1)
         e3 = (df["abs_reaction_p75"].fillna(0) / 0.12).clip(0, 1)  # 12% is already huge

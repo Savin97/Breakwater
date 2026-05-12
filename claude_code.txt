@@ -1,0 +1,3 @@
+
+Resume this session with:
+claude --resume "btw: i want to close this and pick up tomorrow"

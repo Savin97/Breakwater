@@ -1,8 +1,152 @@
 import pandas as pd, numpy as np, warnings
 from sklearn.metrics import roc_auc_score
 warnings.filterwarnings('ignore')
-# stage3_df = pd.read_parquet("stage3_df.parquet")
-full_df = pd.read_parquet("output/full_df.parquet")
+
+df = pd.read_parquet("output/full_df.parquet")
+
+# ── Grid search: normalization denominator for earnings_explosiveness_score ──
+# Recomputes gated_explosiveness_score inline for each candidate denominator.
+# No need to re-run main.py — raw features are already in the parquet.
+# Key metric: avg OOS Pearson correlation (walk-forward, year-by-year).
+
+def score_at_denom(df, denom):
+    epsilon = 1e-6
+    vol = np.maximum(df["vol_30d"], epsilon)
+    p75 = df["abs_reaction_p75_rolling"].fillna(df["abs_reaction_p75"])
+    e1 = (df["earnings_explosiveness_z"].fillna(0) / denom).clip(0, 1)
+    e2 = (p75 / vol / denom).clip(0, 1)
+    e3 = (p75 / 0.12).clip(0, 1)
+    e4 = np.clip(df["reaction_entropy"], 0, 1)
+    exp = 100 * np.clip(0.35 * e2 + 0.30 * e1 + 0.25 * e3 + 0.10 * e4, 0, 1)
+    vol_gate = (
+        1.0
+        + 0.4 * (df["stock_vs_sector_vol"].fillna(1) > 1).astype(float)
+        + 0.3 * df["vol_stress_extreme"].fillna(0).astype(float)
+    )
+    return (exp * vol_gate).clip(0, 100)
+
+
+def avg_oos_corr(df, score_series, date_col="date", target_col="abs_reaction_3d"):
+    d = df[df["is_earnings_day"] == 1][[date_col, target_col]].copy()
+    d["score"] = score_series.loc[d.index]
+    d = d.dropna()
+    d[date_col] = pd.to_datetime(d[date_col])
+    corrs = []
+    for y in sorted(d[date_col].dt.year.unique())[1:]:
+        train = d[d[date_col] < pd.Timestamp(f"{y}-01-01")]
+        test  = d[(d[date_col] >= pd.Timestamp(f"{y}-01-01")) & (d[date_col] < pd.Timestamp(f"{y+1}-01-01"))]
+        if len(train) < 500 or len(test) < 100:
+            continue
+        lo, hi = train["score"].min(), train["score"].max()
+        if hi == lo:
+            continue
+        test_score = (test["score"] - lo) / (hi - lo)
+        corrs.append(test_score.corr(test[target_col]))
+    return np.mean(corrs) if corrs else np.nan
+
+
+spot_stocks = ["AAPL", "TSLA", "NVDA", "MSFT"]
+results = []
+
+for denom in [4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20,25,30,35,40]:
+    df["_gated"] = score_at_denom(df, denom)
+    corr = avg_oos_corr(df, df["_gated"])
+    latest = {}
+    for s in spot_stocks:
+        sdf = df[(df["stock"] == s) & (df["is_earnings_day"] == 1)]
+        latest[s] = f"{sdf['_gated'].iloc[-1]:.0f}" if not sdf.empty else "n/a"
+    results.append({"denom": denom, "avg_oos_corr": round(corr, 4), **latest})
+
+df.drop(columns=["_gated"], inplace=True)
+
+print(pd.DataFrame(results).to_string(index=False))
+
+# ── Test: simplified score (no vol-normalized components) ──
+def score_simplified(df, e3_w=0.85, e4_w=0.15):
+    p75 = df["abs_reaction_p75_rolling"].fillna(df["abs_reaction_p75"])
+    e3 = (p75 / 0.12).clip(0, 1)
+    e4 = np.clip(df["reaction_entropy"], 0, 1)
+    exp = 100 * np.clip(e3_w * e3 + e4_w * e4, 0, 1)
+    vol_gate = (
+        1.0
+        + 0.4 * (df["stock_vs_sector_vol"].fillna(1) > 1).astype(float)
+        + 0.3 * df["vol_stress_extreme"].fillna(0).astype(float)
+    )
+    return (exp * vol_gate).clip(0, 100)
+
+df["_simplified"] = score_simplified(df)
+corr_s = avg_oos_corr(df, df["_simplified"])
+simple_latest = {}
+for s in spot_stocks:
+    sdf = df[(df["stock"] == s) & (df["is_earnings_day"] == 1)]
+    simple_latest[s] = f"{sdf['_simplified'].iloc[-1]:.0f}" if not sdf.empty else "n/a"
+df.drop(columns=["_simplified"], inplace=True)
+print(f"\nSimplified (no e1/e2): avg_oos_corr={round(corr_s,4)}  {simple_latest}")
+
+
+exit()
+##################################
+# FREE-FORM TESTING 
+##################################
+
+df = df.drop(columns=["momentum_fragility_score", "risk_score", "momentum_pressure_regime"] )
+df["label_3pct"] = (df["abs_reaction_3d"] >= 0.03).astype(int)
+df["label_5pct"] = (df["abs_reaction_3d"] >= 0.05).astype(int)
+pre_earnings = df[(df["days_to_earnings"] >= 1) & (df["days_to_earnings"] <= 10)]
+earnings_df = df[df["is_earnings_day"] == 1].copy()
+
+##################################
+# Backtesting features
+##################################
+print("##################################\nBacktesting features\n##################################")
+feature = "earnings_explosiveness_score"
+
+test_score_df = df[["stock", "date","earnings_date","abs_reaction_3d", feature]].dropna().copy()
+pre_2015 = test_score_df[test_score_df["date"] < "2015-01-01"].copy()
+post_2015 = test_score_df[test_score_df["date"] >= "2015-01-01"].copy()
+
+def normalize_with_train(s, train_min, train_max):
+    denom = train_max - train_min
+    if denom == 0:
+        return pd.Series(50, index=s.index)
+    return 100 * (s - train_min) / denom
+
+train_min = pre_2015[feature].min()
+train_max = pre_2015[feature].max()
+pre_2015["score_oos"] = normalize_with_train(
+    pre_2015[feature], train_min, train_max
+)
+
+post_2015["score_oos"] = normalize_with_train(
+    post_2015[feature], train_min, train_max
+).clip(0, 100)
+pre_corr = pre_2015[["score_oos", "abs_reaction_3d"]].corr().iloc[0,1]
+print("Train corr:", pre_corr)
+
+pre_2015["bucket"] = pd.qcut(pre_2015["score_oos"], q=10, labels=False)
+print(pre_2015.groupby("bucket")["abs_reaction_3d"].mean())
+train_edges = pd.qcut(
+    pre_2015["score_oos"],
+    q=10,
+    retbins=True,
+    labels=False
+)[1]
+
+post_2015["bucket"] = pd.cut(
+    post_2015["score_oos"],
+    bins=train_edges,
+    labels=False,
+    include_lowest=True
+)
+post_corr = post_2015[["score_oos", "abs_reaction_3d"]].corr().iloc[0,1]
+print("Test corr:", post_corr)
+print(post_2015.groupby("bucket")["abs_reaction_3d"].mean())
+
+
+
+
+
+
 
 def testing_scores(df):
     print("Running Score Testing...\n--------------------")
@@ -19,7 +163,7 @@ def testing_scores(df):
         "global_risk_lift_vs_baseline": P_extreme_given_bucket / P_extreme_global
     })
     
-    report_txt = open("report_txt.txt", "w")
+    report_txt = open("output/report_txt.txt", "w")
     for stock in first_30_stocks:
         print(f"{stock}")
         stock_df = df[df["stock"] == stock]
@@ -184,123 +328,16 @@ def features_test(df):
     print(bin_analysis(earnings_df, "momentum_fragility_score", "label_5pct"))
     # print(bin_analysis(earnings_df, "earnings_explosiveness_score", "label_5pct"))
     # print(bin_analysis(earnings_df, "risk_score", "label_5pct") )
-    
 
-
-# Test only stocks close to earnings, not just earnings day
-full_df["label_3pct"] = (full_df["abs_reaction_3d"] >= 0.03).astype(int)
-full_df["label_5pct"] = (full_df["abs_reaction_3d"] >= 0.05).astype(int)
-pre = full_df[(full_df["days_to_earnings"] >= 1) & (full_df["days_to_earnings"] <= 10)]
-
-pre["rank_near_earnings"] = (
-    pre.groupby("date")["vol_ratio_10_to_30"]
-    .rank(pct=True)
-)
-pre["rank_near_earnings"] = pre["rank_near_earnings"].notna()
-# print(pre[pre["rank_near_earnings"]])
-
-pre_roc_score = roc_auc_score(
-    pre["label_5pct"],
-    pre["rank_near_earnings"]
-    )
-
-
-earnings_df = full_df[full_df["is_earnings_day"] == 1]
-earnings_df["label_3pct"] = (earnings_df["abs_reaction_3d"] >= 0.03).astype(int)
-earnings_df["label_5pct"] = (earnings_df["abs_reaction_3d"] >= 0.05).astype(int)
-earnings_df["momentum_pressure_regime"] = earnings_df["momentum_pressure_regime"].notna()
-
-earnings_df["label_8pct"] = (earnings_df["abs_reaction_3d"] >= 0.08).astype(int)
-
-mom_roc_score = roc_auc_score(
-    earnings_df["label_5pct"],
-    earnings_df["momentum_fragility_score"]
-    )
-
-# print("momentum_fragility_score roc_auc_score", mom_roc_score)
-
-earnings_df["bucket"] = pd.qcut(earnings_df["momentum_fragility_score"], 10, labels=False)
-# earnings_df["rank"] = earnings_df.groupby("earnings_date")["risk_score"].rank(pct=True)
-earnings_df["rank"] = earnings_df.groupby("earnings_date")["momentum_fragility_score"].rank(pct=True)
-top = earnings_df[earnings_df["rank"] >= 0.9]   # top 10%
-# print( earnings_df.groupby("bucket")["label_5pct"].mean() )
-
-"""
-    Is price positioning fragile right now?
-    High score = price is balanced on a knife-edge.
-"""
-##################################
-# TESTING momentum_pressure
-##################################
-df = full_df.copy()
-
-abs5 = df["mom_5d"].abs()
-abs20 = df["mom_20d"].abs()
-
-threshold_5 = abs5.groupby(df["date"]).transform(lambda x: x.quantile(0.8))
-threshold_20 = abs20.groupby(df["date"]).transform(lambda x: x.quantile(0.8))
-
-mom_5 = abs5 > threshold_5
-mom_20 = abs20 > threshold_20
-
-df["momentum_pressure_label"] = np.select(
-    [~mom_5 & ~mom_20, mom_5 & ~mom_20, ~mom_5 & mom_20, mom_5 & mom_20],
-    ["normal", "short_term_extreme", "trend_extreme", "crowded_trend"],
-    default="normal"
-)
-
-df["momentum_pressure_score"] = df["momentum_pressure_label"].map({
-    "normal": 0.0,
-    "short_term_extreme": 0.6,
-    "trend_extreme": 0.75,
-    "crowded_trend": 1.0,
-}).fillna(0)
-
-bias_scale = df["directional_bias"].abs().quantile(0.90)
-
-m1 = df["momentum_pressure_score"]
-m2 = np.clip(df["directional_bias"].abs().fillna(0) / bias_scale, 0, 1)
-m3 = np.clip(df["sector_drift_60d"].abs().fillna(0) / 0.10, 0, 1)
-
-df["momentum_fragility_score"] = 100 * np.clip(
-    0.45 * m1 + 0.35 * m3 + 0.20 * m2,
-    0,
-    1
-)
-
-earnings_df = df[df["is_earnings_day"] == 1].copy()
-
-base = 0.45 * m1 + 0.35 * m3 + 0.20 * m2
-
-print(earnings_df["momentum_pressure_label"].value_counts(normalize=True))
-print(earnings_df["momentum_fragility_score"].describe())
-
-earnings_df["label_5pct"] = (earnings_df["abs_reaction_3d"] >= 0.05).astype(int)
-earnings_df = earnings_df[
-    earnings_df["momentum_fragility_score"].notna()
-]
-
-mom_roc_score = roc_auc_score(
-    earnings_df["label_5pct"],
-    earnings_df["momentum_fragility_score"]
-    )
-print(mom_roc_score)
-
-earnings_df["fragility_decile"] = pd.qcut(
-    earnings_df["momentum_fragility_score"],
-    10,
-    labels=False,
-    duplicates="drop"
-)
-
-print(
-    earnings_df.groupby("fragility_decile")["label_5pct"]
-    .agg(events="count", event_rate="mean")
-)
 
 earnings_df["fragility_pct"] = (
     earnings_df.groupby("date")["momentum_fragility_score"]
     .rank(pct=True)
 )
+
 earnings_df["fragility_display_score"] = 100 * earnings_df["fragility_pct"]
+earnings_df["bucket"] = pd.qcut(earnings_df["momentum_fragility_score"], 10, labels=False)
+earnings_df["rank"] = earnings_df.groupby("earnings_date")["momentum_fragility_score"].rank(pct=True)
+top = earnings_df[earnings_df["rank"] >= 0.9]   # top 10%
+# print( earnings_df.groupby("bucket")["label_5pct"].mean() )
 # print(earnings_df["fragility_pct"])

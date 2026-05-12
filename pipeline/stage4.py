@@ -2,7 +2,7 @@
 from risk_scoring.scoring_features import (
     engineer_large_reaction,
     engineer_extreme_reaction,
-    engineer_vol_stress, 
+    engineer_vol_stress,
     engineer_momentum_pressure,
     engineer_earnings_explosiveness,
     engineer_timing_danger,
@@ -11,6 +11,7 @@ from risk_scoring.scoring_features import (
     engineer_vol_expansion_score,
     engineer_momentum_fragility_score,
     engineer_earnings_explosiveness_score,
+    engineer_gated_explosiveness_score,
     classify_large_relative_earnings_move_bucket,
     engineer_total_risk_score)
 def stage4(stage3_df):
@@ -27,11 +28,11 @@ def stage4(stage3_df):
         engineer_sector_vol_stress,
         engineer_momentum_pressure,
         engineer_earnings_explosiveness,
-        #engineer_timing_danger,
         engineer_proximity_score,
         engineer_vol_expansion_score,
         engineer_momentum_fragility_score,
         engineer_earnings_explosiveness_score,
+        engineer_gated_explosiveness_score,
         classify_large_relative_earnings_move_bucket,
         engineer_total_risk_score
     ]
@@ -39,6 +40,6 @@ def stage4(stage3_df):
         stage4_df = f(stage4_df)
     if stage4_df is None:
         raise ValueError("\n---ERROR! Stage 4 Returned None.---\n")
-    
     print("Stage 4 DONE")
+    stage4_df.to_parquet("output/full_df.parquet", index=False)
     return stage4_df

@@ -29,7 +29,7 @@ def engineer_sector_drift_vol(df):
 
 def engineer_stock_vs_sector_vol(df):
     """
-        relative volatility: “is this stock calmer or crazier than its sector?”
+        relative volatility: "is this stock calmer or crazier than its sector?"
 
         Values ~1.0 = sector-typical
         1.5 = 50% more volatile than sector

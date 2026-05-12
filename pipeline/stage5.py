@@ -1,14 +1,20 @@
 # pipeline/stage5.py
-from report.report_builder import generate_report
+import os
 import pandas as pd
-def stage5(df): # stage5(df);
-    print("--------------------\nStage 5 - Generating Report...")
-    df = pd.read_parquet("output/full_df.parquet")
-    stock_list = pd.read_csv("data/stock_list.csv")
-    stocks_to_report_for = []
-    global_earnings_df = df[df["is_earnings_day"] == 1].copy()
+from report.report_builder import generate_report
 
-    P_extreme_global  = global_earnings_df["is_extreme_reaction"].mean()
+def stage5(df):
+    print("--------------------\nStage 5 - Generating Report...")
+
+    report_stocks_path = "data/report_stocks.csv"
+    if os.path.exists(report_stocks_path):
+        stocks_to_report_for = pd.read_csv(report_stocks_path)["stock"].tolist()
+    else:
+        stocks_to_report_for = []
+        print("Warning: data/report_stocks.csv not found. No reports generated.")
+
+    global_earnings_df = df[df["is_earnings_day"] == 1].copy()
+    P_extreme_global = global_earnings_df["is_extreme_reaction"].mean()
     P_extreme_given_bucket = (
         global_earnings_df.groupby("earnings_explosiveness_bucket")["is_extreme_reaction"]
         .mean()
@@ -18,74 +24,93 @@ def stage5(df): # stage5(df);
         "global_risk_lift_vs_baseline": P_extreme_given_bucket / P_extreme_global
     })
 
-    global_earnings_df = global_earnings_df[
-        global_earnings_df["stock"].isin(stocks_to_report_for)
-    ]
-    #global_earnings_df.to_csv("global_earnings_df.csv",index=False)
-    report_txt = open("report_txt.txt", "w")
+    report_txt = open("output/report_txt.txt", "w")
     for stock in stocks_to_report_for:
         print(f"\n---------\n{stock}:")
         stock_df = df[df["stock"] == stock]
+        if stock_df.empty:
+            print(f"  No data found for {stock}, skipping.")
+            continue
         earnings_df = stock_df[stock_df["is_earnings_day"] == 1]
+        if earnings_df.empty:
+            print(f"  No earnings events found for {stock}, skipping.")
+            continue
+
         latest_row = earnings_df.iloc[-1]
-        # Bayesian shrinkage: (n_stock * p_stock + prior_strength * p_global) / (n_stock + prior_strength)
         prior_strength = 20
-        # Stock historical bucket stats
-        earnings_explosiveness_buckets= (
+
+        earnings_explosiveness_buckets = (
             earnings_df.groupby("earnings_explosiveness_bucket")["is_extreme_reaction"]
             .agg(extreme_count="sum", event_count="count")
         )
         earnings_explosiveness_buckets["shrunk_prob"] = (
             earnings_explosiveness_buckets["extreme_count"] +
-            prior_strength * bucket_stats.loc[earnings_explosiveness_buckets.index, "global_hist_prob"] # type: ignore
+            prior_strength * bucket_stats.loc[earnings_explosiveness_buckets.index, "global_hist_prob"]  # type: ignore
         ) / (
             earnings_explosiveness_buckets["event_count"] + prior_strength
         )
         earnings_explosiveness_buckets["global_hist_prob"] = bucket_stats.loc[earnings_explosiveness_buckets.index, "global_hist_prob"]
-        # Lift relative to global baseline
         earnings_explosiveness_buckets["lift_vs_baseline"] = (
             earnings_explosiveness_buckets["shrunk_prob"] / P_extreme_global
         )
-        # Lift relative to global same-bucket risk
         earnings_explosiveness_buckets["lift_vs_same_bucket_global"] = (
             earnings_explosiveness_buckets["shrunk_prob"] / earnings_explosiveness_buckets["global_hist_prob"]
         )
-        
-        current_bucket  = latest_row["earnings_explosiveness_bucket"]
 
-
-        if type(current_bucket)!= str:
+        current_bucket = latest_row["earnings_explosiveness_bucket"]
+        if not isinstance(current_bucket, str):
             latest_row = earnings_df.iloc[-2]
             current_bucket = latest_row["earnings_explosiveness_bucket"]
 
-        earnings_explosiveness_score = f"{latest_row["earnings_explosiveness_score"]:.0f}"
+        risk_score = f"{latest_row['risk_score']:.0f}"
         current_earnings_date = latest_row["earnings_date"]
-        P_extreme_global = round(P_extreme_global, 3)
-        current_bucket_prob = f"{earnings_explosiveness_buckets.loc[current_bucket, "shrunk_prob"]:.3f}"
-        current_lift_vs_baseline = f"{earnings_explosiveness_buckets.loc[current_bucket, "lift_vs_baseline"]:.3f}"
-        current_lift_vs_same_bucket_global = f"{earnings_explosiveness_buckets.loc[current_bucket, "lift_vs_same_bucket_global"]:.3f}"
+        sector = latest_row.get("sector", "")
+        sub_sector = latest_row.get("sub_sector", "")
+        n_events = len(earnings_df)
+        P_extreme_global_rounded = round(P_extreme_global, 3)
+        current_bucket_prob = f"{earnings_explosiveness_buckets.loc[current_bucket, 'shrunk_prob']:.3f}"
+        current_lift_vs_baseline = f"{earnings_explosiveness_buckets.loc[current_bucket, 'lift_vs_baseline']:.3f}"
+        current_lift_vs_same_bucket_global = f"{earnings_explosiveness_buckets.loc[current_bucket, 'lift_vs_same_bucket_global']:.3f}"
         earnings_explosiveness_buckets = earnings_explosiveness_buckets.reset_index()
-        
-        # write to file
+
         report_txt.write(f"\n---------\n{stock}:\n")
         report_txt.write(f"Earnings Date: {current_earnings_date}\n")
-        report_txt.write(f"Tail Risk Score: {earnings_explosiveness_score}\n")
+        report_txt.write(f"Tail Risk Score: {risk_score}\n")
         report_txt.write(f"risk_level, {current_bucket}\n")
-        report_txt.write(f"base_extreme_prob, {P_extreme_global}\n")
+        report_txt.write(f"base_extreme_prob, {P_extreme_global_rounded}\n")
         report_txt.write(f"hist_extreme_prob, {current_bucket_prob}\n")
         report_txt.write(f"current_lift_vs_baseline, {current_lift_vs_baseline}\n")
         report_txt.write(f"current_lift_vs_same_bucket_global, {current_lift_vs_same_bucket_global}\n")
 
+        bucket_table_html = (
+            earnings_explosiveness_buckets
+            .drop(columns=["extreme_count"])
+            .rename(columns={
+                "earnings_explosiveness_bucket": "Risk Bucket",
+                "event_count":                   "Events",
+                "shrunk_prob":                   "Hist. Prob.",
+                "global_hist_prob":              "Global Prob.",
+                "lift_vs_baseline":              "Lift vs Baseline",
+                "lift_vs_same_bucket_global":    "Lift vs Peers",
+            })
+            .to_html(index=False, classes="bucket-table", float_format=lambda x: f"{x:.3f}")
+        )
+
         data_for_report = {
             "earnings_date": current_earnings_date,
             "risk_level": current_bucket,
-            "risk_score": earnings_explosiveness_score,
-            "base_extreme_prob": P_extreme_global,
+            "risk_score": risk_score,
+            "sector": sector,
+            "sub_sector": sub_sector,
+            "n_events": n_events,
+            "base_extreme_prob": P_extreme_global_rounded,
             "hist_extreme_prob": current_bucket_prob,
             "current_lift_vs_baseline": current_lift_vs_baseline,
             "current_lift_vs_same_bucket_global": current_lift_vs_same_bucket_global,
-            "bucket_table": earnings_explosiveness_buckets
-            }
-        #generate_report(stock, data_for_report)
+            "bucket_table": bucket_table_html,
+        }
+        generate_report(stock, data_for_report)
+
+    report_txt.close()
     print("Stage 5 DONE")
     return df

@@ -2,9 +2,9 @@
 import pandas as pd, warnings
 from backtesting.testing_functions import (
     check_explosiveness_feature,
-    check_timing_danger_connection_to_large_reacion_metric,
+    check_feature_connection_to_large_reacion_metric,
     check_corr_of_features,
-    check_timing_danger_score_metric,
+    check_score_metric,
     conditional_hit_rate_analysis,
     three_way_regime_test,
     breakwater_regime_test,
@@ -12,77 +12,37 @@ from backtesting.testing_functions import (
     evaluate_high_risk_earnings_regime,
     comparing_regime_results_to_volatility_only,
     regime_confusion_metrics,
-    check_timing_danger_train_test,
+    check_feature_train_test,
     yearly_oos_report,
     forward_eval_onefactor,
-    forward_eval_twofactor_and)
-from backtesting.GPT_GENERATED_FILES.CHATGENERATED_stage5 import stage5_part_a, stage5_part_b
-from backtesting.GPT_GENERATED_FILES.year_by_year_regime_eval import run_regime_eval 
-from backtesting.GPT_GENERATED_FILES.year_by_year_regular import main as year_by_year_main
-from pipeline.pipeline import run_pipeline
+    forward_eval_twofactor)
 
 def backtesting_suite(input_df):
-    """    
+    """
         Backtesting Stage
-        Produces credibility tables (calibration, lift, hit rates, bucket stats, stability by year/sector).
-
-        You now have your first defensible rule:
-        Tail risk increases materially when:
-        timing_danger is high
-        stock_vs_sector_vol ≥ 1
+        Three-way comparison:
+        1. Baseline:  earnings_explosiveness_score  (historical tail profile only)
+        2. New:       gated_explosiveness_score      (multiplicative vol gate on top)
+        3. AND ctrl:  abs_reaction_p75 AND stock_vs_sector_vol (shows why AND regimes fail OOS)
     """
     df = input_df.copy()
-    print("Backtesting Stage...")
-    print("-------------------------------\ncheck_explosiveness_feature:")
-    check_explosiveness_feature(df)
-    print("-------------------------------\ncheck_timing_danger_connection_to_earnings_move_bucket:")
-    check_timing_danger_connection_to_large_reacion_metric(df)
-    print("-------------------------------\ncheck_corr_of_features:")
-    check_corr_of_features(df)
-    print("-------------------------------\ncheck_timing_danger_score_metric:")
-    check_timing_danger_score_metric(df)
-    print("-------------------------------\nconditional_hit_rate_analysis:")
-    conditional_hit_rate_analysis(df)
-    print("-------------------------------\nthree_way_regime_test:")
-    three_way_regime_test(df)
-    print("-------------------------------\nVolatility Only:\n")
-    volatility_only_regime_test(df)
-    print("-------------------------------\nevaluate_high_risk_earnings_regime:")
-    evaluate_high_risk_earnings_regime(df)
-    print("-------------------------------\ncomparing_regime_results_to_volatility_only:")
-    comparing_regime_results_to_volatility_only(df)
-    print("-------------------------------\nregime_confusion_metrics:")
-    regime_confusion_metrics(df)
-    print("-------------------------------\ncheck_timing_danger_train_test:")
-    check_timing_danger_train_test(df)
-    print("-------------------------------\nyearly_oos_report:")
-    yearly_oos_report(df)
-    # Expanding prior only
-    prior_stats, prior_thr = forward_eval_onefactor(df, "abs_reaction_p75", q=0.90)
-    print("PRIOR thr:", prior_thr)
-    print(prior_stats[prior_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
-    # Rolling prior only 
-    roll_stats, roll_thr = forward_eval_onefactor(df, "abs_reaction_p75_rolling", q=0.90)
-    print("ROLL thr:", roll_thr)
-    print(roll_stats[roll_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
-    # Prior + fragility (current core)
-    pf_stats, (p_thr, f_thr) = forward_eval_twofactor_and(df, "abs_reaction_p75", "momentum_fragility_score", q=0.90)
-    print("PRIOR thrs:", p_thr, "\tFRAG thrs: ", f_thr)
-    print(pf_stats[pf_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
+    cols = ["year", "n_regime", "regime_extreme_rate", "lift", "regime_capture_of_extremes"]
 
-    # stage5_df = stage5_part_a(backtesting_df)
-    # stage5_b_df = stage5_part_b(backtesting_df)
-    # stage5_year_by_year_df = year_by_year_main(backtesting_df)
-    # stage5_year_by_year_holds_thresh = run_regime_eval(
-    #     backtesting_df, mode="forward",
-    #     train_years="2005-2010", test_years="2011-2025",
-    #     report_train=True
-    # )
-    # print(stage5_year_by_year_holds_thresh[
-    #     ["split","year","N_earnings","baseline_extreme_rate",
-    #     "n_regime","regime_extreme_rate","lift", 
-    #     "regime_share_of_events","regime_capture_of_extremes"]
-    # ].to_string(index=False))
+    print("-------------------------------\nBASELINE: earnings_explosiveness_score")
+    e_stats, _ = forward_eval_onefactor(df, "earnings_explosiveness_score", q=0.90)
+    print(e_stats[e_stats["split"] == "TEST"][cols].to_string(index=False))
+
+    print("-------------------------------\nNEW: gated_explosiveness_score")
+    g_stats, _ = forward_eval_onefactor(df, "gated_explosiveness_score", q=0.90)
+    print(g_stats[g_stats["split"] == "TEST"][cols].to_string(index=False))
+
+    print("-------------------------------\nAND CTRL: abs_reaction_p75 AND stock_vs_sector_vol")
+    and_stats, _ = forward_eval_twofactor(df, "abs_reaction_p75", "stock_vs_sector_vol", q=0.90)
+    print(and_stats[and_stats["split"] == "TEST"][cols].to_string(index=False))
+
+    print("-------------------------------\nyearly_oos_report (gated):")
+    yearly_oos_report(df, date_col="date", score_feature="gated_explosiveness_score", target_col="abs_reaction_3d")
+
     return
 
 if __name__ == "__main__":

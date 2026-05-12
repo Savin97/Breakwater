@@ -1,0 +1,203 @@
+@page {
+  size: A4;
+  margin: 2cm 2.2cm;
+}
+
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 10pt;
+  color: #1a1a1a;
+  line-height: 1.5;
+}
+
+/* ── Header ─────────────────────────────────────────── */
+.header {
+  display: table;
+  width: 100%;
+  border-bottom: 2px solid #1a1a1a;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+
+.logo {
+  display: table-cell;
+  width: 5cm;
+  vertical-align: middle;
+}
+
+.header-title {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: right;
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 16pt;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #1a1a1a;
+}
+
+/* ── Meta row ────────────────────────────────────────── */
+.meta-row {
+  display: table;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.meta-item {
+  display: table-cell;
+  padding-right: 24px;
+  vertical-align: top;
+}
+
+.label {
+  display: block;
+  font-size: 7pt;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.value {
+  font-size: 10pt;
+  font-weight: 600;
+}
+
+.value-lg {
+  font-size: 14pt;
+  font-weight: 700;
+}
+
+/* ── Sections ────────────────────────────────────────── */
+.section {
+  margin-bottom: 24px;
+  page-break-inside: avoid;
+}
+
+.section h2 {
+  font-size: 11pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+  color: #1a1a1a;
+}
+
+.explainer {
+  font-size: 8.5pt;
+  color: #555;
+  margin: 0 0 10px 0;
+  font-style: italic;
+}
+
+/* ── Score row ───────────────────────────────────────── */
+.score-row {
+  display: table;
+  width: 100%;
+}
+
+.score-block {
+  display: table-cell;
+  padding-right: 32px;
+  vertical-align: top;
+}
+
+.score-number {
+  font-size: 22pt;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.score-denom {
+  font-size: 12pt;
+  font-weight: 400;
+  color: #666;
+}
+
+/* ── Risk level badges ───────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 3px;
+  font-size: 11pt;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.badge-extreme    { background: #c0392b; color: #fff; }
+.badge-high       { background: #e67e22; color: #fff; }
+.badge-moderate   { background: #f1c40f; color: #333; }
+.badge-low        { background: #27ae60; color: #fff; }
+.badge-very-low   { background: #2ecc71; color: #fff; }
+
+/* ── Stats table ─────────────────────────────────────── */
+.stats-table {
+  width: 60%;
+  border-collapse: collapse;
+  margin-bottom: 6px;
+}
+
+.stats-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid #eee;
+  font-size: 10pt;
+}
+
+.stat-label { color: #333; }
+.stat-value { font-weight: 700; text-align: right; }
+
+.highlight-row td {
+  background: #f0f4ff;
+  font-weight: 700;
+}
+
+/* ── Bucket table ────────────────────────────────────── */
+.bucket-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 8.5pt;
+  margin-top: 6px;
+  word-wrap: break-word;
+}
+
+.bucket-table th,
+.bucket-table td {
+  overflow: hidden;
+}
+
+.bucket-table th {
+  background: #1a1a1a;
+  color: #fff;
+  padding: 5px 8px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.bucket-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.bucket-table tr:nth-child(even) td {
+  background: #f9f9f9;
+}
+
+/* ── Footer ──────────────────────────────────────────── */
+.footer {
+  margin-top: 32px;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+  font-size: 7.5pt;
+  color: #999;
+  text-align: center;
+}

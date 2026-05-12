@@ -24,12 +24,12 @@ def engineer_extreme_reaction(input_df):
 
 def engineer_vol_stress(input_df, ratio_col: str = "vol_ratio_10_to_30"):
     """
-        If vol_ratio_10_to_30 is high, recent vol spiked relative to the recent baseline -> “stress”.
-        Define “stress” as “top X%”.
+        If vol_ratio_10_to_30 is high, recent vol spiked relative to the recent baseline -> "stress".
+        Define "stress" as "top X%".
         Typical starting points:
-        Top 20% = “elevated”
-        Top 10% = “high”
-        Top 5% = “extreme”
+        Top 20% = "elevated"
+        Top 10% = "high"
+        Top 5% = "extreme"
 
         Adds percentile-based volatility stress flags using cross-sectional distribution per date.
         Leakage-safe if ratio_col is already computed using shift(1) rolling stats.
@@ -106,9 +106,9 @@ def engineer_earnings_explosiveness(input_df, epsilon = 1e-6):
         Adds:
         - earnings_explosiveness (raw)          = abs_reaction_median_3d
         - earnings_explosiveness_z (normalized) = abs_reaction_median_3d / max(vol_30d, epsilon)
-        Median-based explosiveness = “typical risk”
+        Median-based explosiveness = "typical risk"
         - earnings_tail_z (optional)            = abs_reaction_p75_3d / max(vol_30d, epsilon)  (if column exists)
-        P75-based explosiveness = “tail danger” (“When earnings go bad, this is how ugly it can get.”)
+        P75-based explosiveness = "tail danger" ("When earnings go bad, this is how ugly it can get.")
         
         Assumptions:
         - med_col / p75_col are already computed using ONLY past earnings events (shifted).
@@ -204,14 +204,21 @@ def engineer_earnings_explosiveness_score(input_df):
         duplicates="drop"
     )
     return df
-    
+
+def engineer_gated_explosiveness_score(input_df):
+    df = input_df.copy()
+    df["gated_explosiveness_score"] = score_earnings_explosiveness(df)
+    df["gated_explosiveness_bucket"] = pd.qcut(
+        df["gated_explosiveness_score"],
+        q=5,
+        labels=["Very Low", "Low", "Moderate", "High", "Extreme"],
+        duplicates="drop"
+    )
+    return df
+
 def engineer_total_risk_score(input_df):
     df = input_df.copy()
-    exp = score_earnings_explosiveness(df)
-    mom = score_momentum_fragility(df)
-    risk_score = 0.85 * mom + 0.15 * exp
-
-    df["risk_score"] = risk_score
+    df["risk_score"] = score_earnings_explosiveness(df)
     return df
 
 def classify_large_relative_earnings_move_bucket(input_df):
@@ -287,7 +294,7 @@ def score_proximity(df, horizon=30, power=1.5):
 
 def score_vol_expansion(df):
     """
-        Vol Expansion Risk = “Is volatility already stretched before earnings?”        
+        Vol Expansion Risk = "Is volatility already stretched before earnings?"        
         Range: 0-100
         Meaning:
         0-30 -> calm
@@ -326,27 +333,33 @@ def score_vol_expansion(df):
     return vol_expansion
 
 def score_earnings_explosiveness(df):
-    """ 
-        When this stock moves on earnings, how violent can it get?
-        earnings_explosiveness_score identifies stocks prone to large earnings reactions.
     """
+        When this stock moves on earnings, how violent can it get?
+        Uses rolling p75 (28 events); falls back to expanding p75 for thin history.
+        Vol-normalized components removed — grid search showed they add noise, not signal.
+        Signal is driven by raw p75 magnitude and reaction entropy.
+    """
+    p75 = df["abs_reaction_p75_rolling"].fillna(df["abs_reaction_p75"])
+    e3 = (p75 / 0.12).clip(0, 1)           # raw magnitude: 12% ceiling
+    e4 = np.clip(df["reaction_entropy"], 0, 1)
+    score = 100 * np.clip(0.85 * e3 + 0.15 * e4, 0, 1)
+    return score
 
-    # Normalize signals
-    #/ 3 ≈ “3σ is extreme”
-    e1 = (df["earnings_explosiveness_z"].fillna(0) / 3).clip(0, 1)
-    e2 = (df["earnings_tail_z"].fillna(0) / 3).clip(0, 1)
-    e3 = (df["abs_reaction_p75"].fillna(0) / 0.12).clip(0, 1)  # 12% is already huge
-    e4 = np.clip(df["reaction_entropy"], 0, 1) # entropy already assumed 0–1
-
-    base = (
-        0.35 * e2 +   # tail risk
-        0.30 * e1 +   # overall explosiveness
-        0.25 * e3 +   # large typical moves
-        0.10 * e4     # chaos / unpredictability
+def score_gated_explosiveness(df):
+    """
+        Multiplicative gate: boost earnings_explosiveness_score when current vol conditions are elevated.
+        - stock_vs_sector_vol > 1  → stock is moving more than its sector peers  (+40%)
+        - vol_stress_extreme == 1  → top-decile vol expansion cross-sectionally   (+30%)
+        Both flags off → multiplier = 1.0 (score unchanged)
+        Both flags on  → multiplier = 1.7 (e.g. base 60 → 102 → clips to 100)
+    """
+    exp = score_earnings_explosiveness(df)
+    vol_gate = (
+        1.0
+        + 0.4 * (df["stock_vs_sector_vol"].fillna(1) > 1).astype(float)
+        + 0.3 * df["vol_stress_extreme"].fillna(0).astype(float)
     )
-    earnings_explosiveness_score = 100 * np.clip(base, 0, 1)
-    
-    return earnings_explosiveness_score
+    return (exp * vol_gate).clip(0, 100)
 
 def score_momentum_fragility(df):
     """

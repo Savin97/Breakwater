@@ -1,8 +1,8 @@
 # backtesting/testing_functions.py
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from backtesting.features_for_backtesting import add_joint_regime_flag
-from config import LARGE_EARNINGS_REACTION_THRESHOLD, EXTREME_EARNINGS_REACTION_THRESHOLD
 """
     Backtesting & Regime Evaluation Utilities for Breakwater
 
@@ -13,7 +13,7 @@ from config import LARGE_EARNINGS_REACTION_THRESHOLD, EXTREME_EARNINGS_REACTION_
     -------
     Provide tools to:
     • Validate individual feature predictive power
-    • Test multi-factor “high-risk” regimes
+    • Test multi-factor "high-risk" regimes
     • Compare regime performance vs volatility-only baselines
     • Measure precision/recall of extreme-move detection
     • Run train/test and walk-forward robustness checks
@@ -58,7 +58,7 @@ from config import LARGE_EARNINGS_REACTION_THRESHOLD, EXTREME_EARNINGS_REACTION_
         (high vol_30d + elevated idiosyncratic vol).
 
     evaluate_high_risk_earnings_regime(df)
-        Defines a stricter “high-risk” regime and runs threshold grids
+        Defines a stricter "high-risk" regime and runs threshold grids
         to evaluate sensitivity of extreme-move concentration.
 
     comparing_regime_results_to_volatility_only(df)
@@ -119,8 +119,8 @@ def check_explosiveness_feature(df):
         That's strong signal for a single feature. Very strong, actually.
 
         This gives results:
-        “Stocks with historically explosive earnings behavior are about 
-        three times more likely to experience an extreme earnings move.”
+        "Stocks with historically explosive earnings behavior are about 
+        three times more likely to experience an extreme earnings move."
 
         Why this validates your explosiveness design
         It confirms:
@@ -135,7 +135,7 @@ def check_explosiveness_feature(df):
 
         You just discovered something real about earnings risk:
         Extreme earnings moves are heavily stock-dependent.
-        Some stocks are simply “earnings explosives.”
+        Some stocks are simply "earnings explosives."
 
     """
     # Check correlation structure of timing_danger and its components
@@ -157,7 +157,7 @@ def check_explosiveness_feature(df):
     print("Top bucket extreme rate:", top["is_extreme_reaction"].mean())
     print("Bottom bucket extreme rate:", bottom["is_extreme_reaction"].mean())
 
-def three_way_regime_test(df):
+def three_way_regime_test(df, score_feature):
     """
         This is a temporary function to test the three-way regime hypothesis:
         Tail risk increases materially when:
@@ -172,8 +172,8 @@ def three_way_regime_test(df):
 
     # Define the three regime conditions:
     # High timing danger (top decile)
-    danger_cutoff = bt["timing_danger"].quantile(0.9)
-    bt["high_danger"] = (bt["timing_danger"] >= danger_cutoff).astype(int)
+    danger_cutoff = bt[score_feature].quantile(0.9)
+    bt["high_danger"] = (bt[score_feature] >= danger_cutoff).astype(int)
 
     # High individual volatility
     bt["high_individual_vol"] = (bt["stock_vs_sector_vol"] >= 1).astype(int)
@@ -205,7 +205,7 @@ def three_way_regime_test(df):
     }
     print( pd.DataFrame([baseline, three_way]) )
 
-def conditional_hit_rate_analysis(df):
+def conditional_hit_rate_analysis(df, score_feature):
     """ 
         We already proved something important:
         Unconditional timing_danger ≠ large move predictor
@@ -225,8 +225,8 @@ def conditional_hit_rate_analysis(df):
 
     bt["high_individual_vol"] = (bt["stock_vs_sector_vol"] >= 1).astype(int)
 
-    danger_cut = bt["timing_danger"].quantile(0.9)
-    bt["high_danger"] = (bt["timing_danger"] >= danger_cut).astype(int)
+    danger_cut = bt[score_feature].quantile(0.9)
+    bt["high_danger"] = (bt[score_feature] >= danger_cut).astype(int)
 
     def cond_table(df, mask, label):
         sub = df[mask]
@@ -267,7 +267,7 @@ def conditional_hit_rate_analysis(df):
     ))
     print(pd.DataFrame(rows))
 
-def check_timing_danger_connection_to_large_reacion_metric(df):
+def check_feature_connection_to_large_reacion_metric(df, feature):
     
     ## Diagnostic: timing_danger connection to earnings_move_bucket
     # Earnings-only rows (use your actual column name)
@@ -275,11 +275,11 @@ def check_timing_danger_connection_to_large_reacion_metric(df):
 
     # Safety: drop rows missing what you need
     #bt = bt.dropna(subset=["timing_danger", "earnings_move_bucket"])
-    bt = bt.dropna(subset=["timing_danger", "reaction_3d"])
+    bt = bt.dropna(subset=[feature, "reaction_3d"])
 
     # 10 deciles: 1..10
-    bt["danger_decile"] = pd.qcut(
-        bt["timing_danger"],
+    bt[f"{feature}_decile"] = pd.qcut(
+        bt[feature],
         q=10,
         labels=False,
         duplicates="drop" # avoids errors if timing_danger has repeated values
@@ -298,10 +298,10 @@ def check_timing_danger_connection_to_large_reacion_metric(df):
         # p_extreme is rarer, so it'll be noisier; lift matters more than smoothness.
 
     decile_table = (
-        bt.groupby("danger_decile")
+        bt.groupby(f"{feature}_decile")
         .agg(
-            n=("timing_danger", "size"),
-            avg_danger=("timing_danger", "mean"),
+            n=(feature, "size"),
+            avg_danger=(feature, "mean"),
             p_large_plus=("is_large_reaction", "mean"),
             p_extreme=("is_extreme_reaction", "mean"),
         )
@@ -315,7 +315,7 @@ def check_timing_danger_connection_to_large_reacion_metric(df):
     decile_table["lift_large_plus"] = decile_table["p_large_plus"] / base_large
     decile_table["lift_extreme"]    = decile_table["p_extreme"] / base_ext
 
-    decile_table.sort_values("danger_decile")
+    decile_table.sort_values(f"{feature}_decile")
 
     from math import sqrt
     import numpy as np
@@ -339,8 +339,8 @@ def check_timing_danger_connection_to_large_reacion_metric(df):
     print(decile_table)
     print("----------------------")
 
-    print(bt["timing_danger"].describe())
-    print(bt["timing_danger"].nunique())
+    print(bt[feature].describe())
+    print(bt[feature].nunique())
 
 def check_corr_of_features(df):
     # only earnings ??? 
@@ -349,16 +349,15 @@ def check_corr_of_features(df):
         ["proximity_score",
         "vol_expansion_score",
         "momentum_fragility_score",
-        "earnings_explosiveness_score",
-        "timing_danger"]
+        "earnings_explosiveness_score"]
     ].corr())
 
-def breakwater_regime_test(df):
+def breakwater_regime_test(df, score_feature):
     bt = df[df["is_earnings_day"] == 1].copy()
 
     # timing danger top decile
-    danger_cutoff = bt["timing_danger"].quantile(0.9)
-    bt["high_danger"] = (bt["timing_danger"] >= danger_cutoff)
+    danger_cutoff = bt[score_feature].quantile(0.9)
+    bt["high_danger"] = (bt[score_feature] >= danger_cutoff)
 
     # explosiveness top decile
     explosiveness_cutoff = bt["earnings_explosiveness_score"].quantile(0.9)
@@ -402,9 +401,9 @@ def volatility_only_regime_test(df):
     }
     print(results)
 
-def evaluate_high_risk_earnings_regime(df):
+def evaluate_high_risk_earnings_regime(df, score_feature):
     """
-        Define a “high-risk regime” where all three conditions hold:
+        Define a "high-risk regime" where all three conditions hold:
         timing_danger in top 20%
         stock_vs_sector_vol >= 1
         earnings_explosiveness_score in top 10%
@@ -414,7 +413,7 @@ def evaluate_high_risk_earnings_regime(df):
     subset = df[df["is_earnings_day"] == True].copy()
 
     cond = (
-        (subset["timing_danger"] >= subset["timing_danger"].quantile(0.8)) &
+        (subset[score_feature] >= subset[score_feature].quantile(0.8)) &
         (subset["stock_vs_sector_vol"] >= 1) &
         (subset["earnings_explosiveness_score"] >= subset["earnings_explosiveness_score"].quantile(0.9))
     )
@@ -432,7 +431,7 @@ def evaluate_high_risk_earnings_regime(df):
     for td_q in [0.7, 0.8]:
         for ex_q in [0.8, 0.9]:
             cond = (
-                (subset["timing_danger"] >= subset["timing_danger"].quantile(td_q)) &
+                (subset[score_feature] >= subset[score_feature].quantile(td_q)) &
                 (subset["earnings_explosiveness_score"] >= subset["earnings_explosiveness_score"].quantile(ex_q)) &
                 (subset["stock_vs_sector_vol"] >= 1)
             )
@@ -532,15 +531,15 @@ def comparing_regime_results_to_volatility_only(df):
     print("Top 2% vol events:", regime_vol_top2.sum())
     print("Extreme rate (precision):", precision)
 
-def check_timing_danger_score_metric(input_df):
+def check_score_metric(input_df, score_feature):
     df = input_df.copy()
     df["abs_reaction_3d"] = df["reaction_3d"].abs()
-    df["timing_danger_score"] = (
-            100 * (df["timing_danger"] - df["timing_danger"].min()) /
-            (df["timing_danger"].max() - df["timing_danger"].min())
+    df[f"{score_feature}_score"] = (
+            100 * (df[score_feature] - df[score_feature].min()) /
+            (df[score_feature].max() - df[score_feature].min())
         )
-    test_score_df = df[["stock", "date","earnings_date","abs_reaction_3d", "timing_danger_score"]].dropna()
-    s = test_score_df["timing_danger_score"]
+    test_score_df = df[["stock", "date","earnings_date","abs_reaction_3d", f"{score_feature}_score"]].dropna()
+    s = test_score_df[f"{score_feature}_score"]
     stats = {
         "count": s.count(),
         "min": s.min(),
@@ -561,12 +560,12 @@ def check_timing_danger_score_metric(input_df):
         print(f"{bins[i]:.4f} to {bins[i+1]:.4f} : {counts[i]}")
     per_day_dispersion = (
         test_score_df
-        .groupby("earnings_date")["timing_danger_score"]
+        .groupby("earnings_date")[f"{score_feature}_score"]
         .agg(["mean", "std", "min", "max", "count"])
     )
     per_stock = (
         test_score_df
-        .groupby("stock")["timing_danger_score"]
+        .groupby("stock")[f"{score_feature}_score"]
         .agg(["mean", "std", "count"])
     )
     top_10 = s.quantile(0.90)
@@ -576,11 +575,11 @@ def check_timing_danger_score_metric(input_df):
     print(high_tail_rate)
     low_tail_rate = (s <= bottom_10).mean()
     print(low_tail_rate)
-    corr = test_score_df[["timing_danger_score", "abs_reaction_3d"]].corr()
+    corr = test_score_df[[f"{score_feature}_score", "abs_reaction_3d"]].corr()
     print(corr)
 
     test_score_df["bucket"] = pd.qcut(
-        test_score_df["timing_danger_score"], 
+        test_score_df[f"{score_feature}_score"], 
         q=5, 
         labels=False
     )
@@ -588,8 +587,40 @@ def check_timing_danger_score_metric(input_df):
     bucket_stats = test_score_df.groupby("bucket")["abs_reaction_3d"].mean()
     print(bucket_stats)
 
-def check_timing_danger_train_test(df):
-    test_score_df = df[["stock", "date","earnings_date","abs_reaction_3d", "timing_danger"]].dropna().copy()
+    plt.figure(figsize=(8, 5))
+    plt.hist(s, bins=30)
+    plt.title(f"{score_feature} score distribution")
+    plt.xlabel(f"{score_feature}_score")
+    plt.ylabel("Count")
+    plt.show()
+
+    plt.figure(figsize=(8, 5))
+    plt.scatter(
+        test_score_df[f"{score_feature}_score"],
+        test_score_df["abs_reaction_3d"],
+        alpha=0.25
+    )
+    plt.title(f"{score_feature} score vs abs reaction 3d")
+    plt.xlabel(f"{score_feature}_score")
+    plt.ylabel("abs_reaction_3d")
+    plt.show()
+
+    plt.figure(figsize=(8, 5))
+    bucket_stats.plot(kind="bar")
+    plt.title(f"Mean abs_reaction_3d by {score_feature} bucket")
+    plt.xlabel("Score bucket, low to high")
+    plt.ylabel("Mean abs_reaction_3d")
+    plt.show()
+
+    plt.figure(figsize=(8, 5))
+    plt.hist(per_day_dispersion["std"].dropna(), bins=30)
+    plt.title(f"Per-earnings-date dispersion of {score_feature} score")
+    plt.xlabel("Daily cross-sectional std")
+    plt.ylabel("Count")
+    plt.show()
+
+def check_feature_train_test(df, feature):
+    test_score_df = df[["stock", "date","earnings_date","abs_reaction_3d", feature]].dropna().copy()
     pre_2015 = test_score_df[test_score_df["date"] < "2015-01-01"].copy()
     post_2015 = test_score_df[test_score_df["date"] >= "2015-01-01"].copy()
 
@@ -598,14 +629,14 @@ def check_timing_danger_train_test(df):
         if denom == 0:
             return pd.Series(50, index=s.index)
         return 100 * (s - train_min) / denom
-    train_min = pre_2015["timing_danger"].min()
-    train_max = pre_2015["timing_danger"].max()
+    train_min = pre_2015[feature].min()
+    train_max = pre_2015[feature].max()
     pre_2015["score_oos"] = normalize_with_train(
-        pre_2015["timing_danger"], train_min, train_max
+        pre_2015[feature], train_min, train_max
     )
 
     post_2015["score_oos"] = normalize_with_train(
-        post_2015["timing_danger"], train_min, train_max
+        post_2015[feature], train_min, train_max
     ).clip(0, 100)
     pre_corr = pre_2015[["score_oos", "abs_reaction_3d"]].corr().iloc[0,1]
     print("Train corr:", pre_corr)
@@ -627,12 +658,11 @@ def check_timing_danger_train_test(df):
     )
     post_corr = post_2015[["score_oos", "abs_reaction_3d"]].corr().iloc[0,1]
     print("Test corr:", post_corr)
-
     print(post_2015.groupby("bucket")["abs_reaction_3d"].mean())
 
-def yearly_oos_report(df, date_col="date", score_col="timing_danger", target_col="abs_reaction_3d", q=5):
+def yearly_oos_report(df, date_col, score_feature, target_col, q=5):
     d = df[df["is_earnings_day"]==1]
-    d = d[[date_col, score_col, target_col]].dropna()
+    d = d[[date_col, score_feature, target_col]].dropna()
     d[date_col] = pd.to_datetime(d[date_col])
 
     years = sorted(d[date_col].dt.year.unique())
@@ -645,15 +675,15 @@ def yearly_oos_report(df, date_col="date", score_col="timing_danger", target_col
         if len(train) < 500 or len(test) < 100:
             continue
 
-        train_min = train[score_col].min()
-        train_max = train[score_col].max()
+        train_min = train[score_feature].min()
+        train_max = train[score_feature].max()
         denom = train_max - train_min
         if denom == 0:
             continue
 
         # Normalize using train params only
-        train_score = 100 * (train[score_col] - train_min) / denom
-        test_score  = 100 * (test[score_col]  - train_min) / denom
+        train_score = 100 * (train[score_feature] - train_min) / denom
+        test_score  = 100 * (test[score_feature]  - train_min) / denom
 
         # Clip to avoid out-of-range due to new extremes
         train_score = train_score.clip(0, 100)
@@ -701,10 +731,26 @@ def yearly_oos_report(df, date_col="date", score_col="timing_danger", target_col
 # ------------------------------------------------------
 # Forward Evaluating
 # ------------------------------------------------------
+"""
+    Add this when using forward eval:
+    # Expanding prior only
+    prior_stats, prior_thr = forward_eval_onefactor(df, "abs_reaction_p75", q=0.90)
+    print("-------------------------------\nPRIOR thr:", prior_thr)
+    print(prior_stats[prior_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
+    # Rolling prior only 
+    roll_stats, roll_thr = forward_eval_onefactor(df, "abs_reaction_p75_rolling", q=0.90)
+    print("-------------------------------\nROLL thr:", roll_thr)
+    print(roll_stats[roll_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
+    # Prior + fragility (current core)
+    pf_stats, (p_thr, f_thr) = forward_eval_twofactor(df, "abs_reaction_p75", "momentum_fragility_score", q=0.90)
+    print("-------------------------------\nPRIOR thrs:", p_thr, "\tFRAG thrs: ", f_thr)
+    print(pf_stats[pf_stats["split"]=="TEST"][["year","n_regime","regime_extreme_rate","lift","regime_capture_of_extremes"]].to_string(index=False))
 
+
+"""
 def forward_eval_onefactor(
         df,
-        feature_col,
+        eval_feature,
         train_years=range(2005, 2011),
         test_years=range(2011, 2026),
         q=0.90,
@@ -712,18 +758,18 @@ def forward_eval_onefactor(
         earn_col="is_earnings_day",
         date_col="date",
     ):
-    earn = df[df[earn_col] == 1].dropna(subset=[date_col, label_col, feature_col]).copy()
+    earn = df[df[earn_col] == 1].dropna(subset=[date_col, label_col, eval_feature]).copy()
     earn["year"] = pd.to_datetime(earn[date_col]).dt.year
     earn["y"] = earn[label_col].astype(int)
 
     train = earn[earn["year"].isin(train_years)].copy()
     test  = earn[earn["year"].isin(test_years)].copy()
 
-    thr = float(train[feature_col].quantile(q))
+    thr = float(train[eval_feature].quantile(q))
 
     def add_regime(sub):
         out = sub.copy()
-        out["is_regime"] = out[feature_col] >= thr
+        out["is_regime"] = out[eval_feature] >= thr
         return out
 
     def stats(sub, split):
@@ -754,7 +800,7 @@ def forward_eval_onefactor(
     return pd.concat([stats(train, "TRAIN"), stats(test, "TEST")], ignore_index=True), thr
 
 
-def forward_eval_twofactor_and(
+def forward_eval_twofactor(
         df,
         feat1, feat2,
         train_years=range(2005, 2011),
