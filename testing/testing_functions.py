@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from backtesting.features_for_backtesting import add_joint_regime_flag
+from testing.features_for_backtesting import add_joint_regime_flag
 """
     Backtesting & Regime Evaluation Utilities for Breakwater
 

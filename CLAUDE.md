@@ -13,7 +13,7 @@ Breakwater is an earnings tail-risk model for S&P 500 stocks. It ingests price/e
 python main.py
 
 # Run backtesting suite (reads output/full_df.parquet)
-python -m backtesting.backtesting
+python -m testing.backtesting
 
 # Prepare streamlit_df.csv from output/full_df.parquet
 python prep_for_streamlit.py

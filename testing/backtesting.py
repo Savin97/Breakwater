@@ -1,6 +1,6 @@
-# backtesting/backtesting.py
+# testing/backtesting.py
 import pandas as pd, warnings
-from backtesting.testing_functions import (
+from testing.testing_functions import (
     check_explosiveness_feature,
     check_feature_connection_to_large_reacion_metric,
     check_corr_of_features,

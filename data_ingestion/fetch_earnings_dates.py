@@ -8,7 +8,7 @@ from data_ingestion.data_utilities import to_float_or_none, get_alpha_vantage_ap
 from config import STOCKS_START_DATE,ALPHAVANTAGE_CALLS_PER_MINUTE
 def ingest_all_earnings_dates(con):
     already, inserted, failed = 0,0,0
-    FAILED_EARNINGS_LOG_PATH = "debugging/failed_earnings_ingestion.txt"    
+    FAILED_EARNINGS_LOG_PATH = "output/debug_failed_earnings_ingestion.txt"    
     API_KEY = get_alpha_vantage_api_key()
     min_sleep = 60.0 / float(ALPHAVANTAGE_CALLS_PER_MINUTE)
     stocks = read_stocks_to_fetch

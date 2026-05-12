@@ -338,6 +338,10 @@ def score_earnings_explosiveness(df):
         Uses rolling p75 (28 events); falls back to expanding p75 for thin history.
         Vol-normalized components removed — grid search showed they add noise, not signal.
         Signal is driven by raw p75 magnitude and reaction entropy.
+
+        Deprecated:
+        e1 = (df["earnings_explosiveness_z"].fillna(0) / 7).clip(0, 1)  # expanding median z, 7sigma ceiling                                                                    
+        e2 = (p75 / vol / 7).clip(0, 1)                                  # rolling tail z, 7sigma ceiling                                                                       
     """
     p75 = df["abs_reaction_p75_rolling"].fillna(df["abs_reaction_p75"])
     e3 = (p75 / 0.12).clip(0, 1)           # raw magnitude: 12% ceiling

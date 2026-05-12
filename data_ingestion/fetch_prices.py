@@ -13,7 +13,7 @@ def ingest_all_stocks(con):
         This function updates the 'prices' table in the duckDB.
     """
     already, inserted, failed = 0,0,0
-    FAILED_LOG_PATH = "debugging/failed_price_ingestion.txt"
+    FAILED_LOG_PATH = "output/debug_failed_price_ingestion.txt"
     API_KEY = get_alpha_vantage_api_key()
     min_sleep = 60.0 / float(ALPHAVANTAGE_CALLS_PER_MINUTE)
     stocks = read_stocks_to_fetch()
