@@ -197,24 +197,67 @@ def engineer_earnings_explosiveness_score(input_df):
     df = input_df.copy()
     df["earnings_explosiveness_score"] = score_earnings_explosiveness(df)
 
-    df["earnings_explosiveness_bucket"] =  pd.qcut(
+    # Fixed thresholds from OOS decile calibration (testing/testing.py).
+    # Equal-frequency qcut produced non-monotonic actual rates across buckets.
+    # (73, 79) minimises ECE (2.68pp) across 2011-2025 walk-forward.
+    # Actual OOS extreme rates: Normal ~6%, Elevated ~24%, High Alert ~38%.
+    df["earnings_explosiveness_bucket"] = pd.cut(
         df["earnings_explosiveness_score"],
-        q=5,
-        labels=["Very Low", "Low", "Moderate", "High", "Extreme"],
-        duplicates="drop"
+        bins=[-np.inf, 73, 79, np.inf],
+        labels=["Normal", "Elevated", "High Alert"]
     )
     return df
 
-def engineer_gated_explosiveness_score(input_df):
+
+def engineer_surprise_momentum_flag(input_df):
+    """
+    Categorical flag derived from surprise_streak, surprise_mean_5, surprise_std_5.
+    Only populated on earnings days; blank string on all other rows.
+
+    Flags (evaluated in priority order):
+      "Overdue Miss"  — streak >= 6: bar maximally elevated after long beat run
+      "Beat Streak"   — streak >= 4 and mean_5 > 0.05: consistently beating big
+      "Miss Streak"   — streak <= -3: consecutive misses, expectations reset lower
+      "Erratic"       — std_5 > 0.20: highly unpredictable surprise magnitude
+      ""              — everything else (normal)
+    """
     df = input_df.copy()
-    df["gated_explosiveness_score"] = score_earnings_explosiveness(df)
-    df["gated_explosiveness_bucket"] = pd.qcut(
-        df["gated_explosiveness_score"],
-        q=5,
-        labels=["Very Low", "Low", "Moderate", "High", "Extreme"],
-        duplicates="drop"
-    )
+    earnings_mask = df["is_earnings_day"] == 1
+
+    streak = df["surprise_streak"]
+    mean5  = df["surprise_mean_5"]
+    std5   = df["surprise_std_5"]
+
+    flag = pd.Series("", index=df.index)
+    flag.loc[earnings_mask & (std5   >  0.20)]                     = "Erratic"
+    flag.loc[earnings_mask & (streak <= -3)]                        = "Miss Streak"
+    flag.loc[earnings_mask & (streak >=  4) & (mean5 > 0.05)]      = "Beat Streak"
+    flag.loc[earnings_mask & (streak >=  6)]                        = "Overdue Miss"
+
+    df["surprise_momentum_flag"] = flag
     return df
+
+
+def engineer_pre_earnings_drift_flag(input_df):
+    """
+    Categorical flag from pre_earnings_drift_z. Only populated on earnings days.
+
+    Flags:
+      "Extended"   — drift_z >= 1.5: running into earnings hotter than historical norm
+      "Compressed" — drift_z <= -1.5: sold off more than usual heading into earnings
+      ""           — normal range or insufficient history (< 5 prior earnings)
+    """
+    df = input_df.copy()
+    earnings_mask = df["is_earnings_day"] == 1
+    z = df["pre_earnings_drift_z"]
+
+    flag = pd.Series("", index=df.index)
+    flag.loc[earnings_mask & (z >= 1.5)]  = "Extended"
+    flag.loc[earnings_mask & (z <= -1.5)] = "Compressed"
+
+    df["pre_earnings_drift_flag"] = flag
+    return df
+
 
 def engineer_total_risk_score(input_df):
     df = input_df.copy()
@@ -349,21 +392,6 @@ def score_earnings_explosiveness(df):
     score = 100 * np.clip(0.85 * e3 + 0.15 * e4, 0, 1)
     return score
 
-def score_gated_explosiveness(df):
-    """
-        Multiplicative gate: boost earnings_explosiveness_score when current vol conditions are elevated.
-        - stock_vs_sector_vol > 1  → stock is moving more than its sector peers  (+40%)
-        - vol_stress_extreme == 1  → top-decile vol expansion cross-sectionally   (+30%)
-        Both flags off → multiplier = 1.0 (score unchanged)
-        Both flags on  → multiplier = 1.7 (e.g. base 60 → 102 → clips to 100)
-    """
-    exp = score_earnings_explosiveness(df)
-    vol_gate = (
-        1.0
-        + 0.4 * (df["stock_vs_sector_vol"].fillna(1) > 1).astype(float)
-        + 0.3 * df["vol_stress_extreme"].fillna(0).astype(float)
-    )
-    return (exp * vol_gate).clip(0, 100)
 
 def score_momentum_fragility(df):
     """

@@ -1,14 +1,16 @@
 # pipeline/stage3.py
 from feature_engineering.pre_earnings_stock_features import (
     engineer_daily_ret,
-    engineer_drift, 
-    engineer_volatility, 
+    engineer_drift,
+    engineer_volatility,
     engineer_momentum,
-    engineer_abs_reaction_median, 
+    engineer_abs_reaction_median,
     engineer_abs_reaction_p75,
     engineer_abs_reaction_p75_rolling,
     engineer_abs_reaction_p90_rolling,
-    engineer_earnings_windows)
+    engineer_earnings_windows,
+    engineer_surprise_features,
+    engineer_pre_earnings_drift_z)
 from feature_engineering.post_earnings_stock_features import (
     engineer_earnings_reactions,
     engineer_reaction_class,
@@ -67,6 +69,8 @@ def stage3(stage2_df):
         engineer_abs_reaction_p75,
         engineer_abs_reaction_p75_rolling,
         engineer_abs_reaction_p90_rolling,
+        engineer_surprise_features,       # needs surprise_percentage + is_earnings_day
+        engineer_pre_earnings_drift_z,    # needs drift_30d + is_earnings_day
         engineer_sector_drift_vol,
         engineer_stock_vs_sector_vol,
         engineer_sector_earnings_density

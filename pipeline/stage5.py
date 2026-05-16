@@ -1,7 +1,9 @@
 # pipeline/stage5.py
 import os
+from datetime import date
 import pandas as pd
 from report.report_builder import generate_report
+from report.calendar_builder import generate_calendar
 
 def stage5(df):
     print("--------------------\nStage 5 - Generating Report...")
@@ -12,6 +14,9 @@ def stage5(df):
     else:
         stocks_to_report_for = []
         print("Warning: data/report_stocks.csv not found. No reports generated.")
+
+    company_names = pd.read_csv("data/sp500_data.csv", usecols=["stock", "name"]).set_index("stock")["name"]
+    generated_date = date.today().strftime("%B %d, %Y")
 
     global_earnings_df = df[df["is_earnings_day"] == 1].copy()
     P_extreme_global = global_earnings_df["is_extreme_reaction"].mean()
@@ -45,7 +50,7 @@ def stage5(df):
         )
         earnings_explosiveness_buckets["shrunk_prob"] = (
             earnings_explosiveness_buckets["extreme_count"] +
-            prior_strength * bucket_stats.loc[earnings_explosiveness_buckets.index, "global_hist_prob"]  # type: ignore
+            prior_strength * P_extreme_global
         ) / (
             earnings_explosiveness_buckets["event_count"] + prior_strength
         )
@@ -63,9 +68,13 @@ def stage5(df):
             current_bucket = latest_row["earnings_explosiveness_bucket"]
 
         risk_score = f"{latest_row['risk_score']:.0f}"
-        current_earnings_date = latest_row["earnings_date"]
+        current_earnings_date = pd.Timestamp(latest_row["earnings_date"]).strftime("%B %d, %Y")
         sector = latest_row.get("sector", "")
         sub_sector = latest_row.get("sub_sector", "")
+        company_name = company_names.get(stock, "")
+        surprise_flag = str(latest_row.get("surprise_momentum_flag", "") or "")
+        drift_flag    = str(latest_row.get("pre_earnings_drift_flag",  "") or "")
+        high_conviction = (current_bucket == "High Alert") and bool(drift_flag)
         n_events = len(earnings_df)
         P_extreme_global_rounded = round(P_extreme_global, 3)
         current_bucket_prob = f"{earnings_explosiveness_buckets.loc[current_bucket, 'shrunk_prob']:.3f}"
@@ -97,7 +106,9 @@ def stage5(df):
         )
 
         data_for_report = {
-            "earnings_date": current_earnings_date,
+            "earnings_date":    current_earnings_date,
+            "company_name":     company_name,
+            "generated_date":   generated_date,
             "risk_level": current_bucket,
             "risk_score": risk_score,
             "sector": sector,
@@ -108,9 +119,13 @@ def stage5(df):
             "current_lift_vs_baseline": current_lift_vs_baseline,
             "current_lift_vs_same_bucket_global": current_lift_vs_same_bucket_global,
             "bucket_table": bucket_table_html,
+            "surprise_flag":    surprise_flag,
+            "drift_flag":       drift_flag,
+            "high_conviction":  high_conviction,
         }
         generate_report(stock, data_for_report)
 
     report_txt.close()
+    generate_calendar(df)
     print("Stage 5 DONE")
     return df

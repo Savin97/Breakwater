@@ -5,14 +5,14 @@ from risk_scoring.scoring_features import (
     engineer_vol_stress,
     engineer_momentum_pressure,
     engineer_earnings_explosiveness,
-    engineer_timing_danger,
     engineer_sector_vol_stress,
     engineer_proximity_score,
     engineer_vol_expansion_score,
     engineer_momentum_fragility_score,
     engineer_earnings_explosiveness_score,
-    engineer_gated_explosiveness_score,
     classify_large_relative_earnings_move_bucket,
+    engineer_surprise_momentum_flag,
+    engineer_pre_earnings_drift_flag,
     engineer_total_risk_score)
 def stage4(stage3_df):
     """
@@ -32,8 +32,9 @@ def stage4(stage3_df):
         engineer_vol_expansion_score,
         engineer_momentum_fragility_score,
         engineer_earnings_explosiveness_score,
-        engineer_gated_explosiveness_score,
         classify_large_relative_earnings_move_bucket,
+        engineer_surprise_momentum_flag,
+        engineer_pre_earnings_drift_flag,
         engineer_total_risk_score
     ]
     for f in features:

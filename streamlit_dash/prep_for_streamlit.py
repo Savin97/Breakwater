@@ -25,7 +25,7 @@ earnings_explosiveness_buckets= (
 prior_strength = 20
 earnings_explosiveness_buckets["shrunk_prob"] = (
     earnings_explosiveness_buckets["extreme_count"] +
-    prior_strength * bucket_stats.loc[earnings_explosiveness_buckets.index, "global_hist_prob"]
+    prior_strength * P_extreme_global
 ) / (
     earnings_explosiveness_buckets["event_count"] + prior_strength
 )

@@ -1,3 +1,2 @@
-
 Resume this session with:
-claude --resume "btw: i want to close this and pick up tomorrow"
+claude --resume 6fe01301-7d43-4bff-8bd0-8784c3521c79

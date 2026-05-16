@@ -1,5 +1,6 @@
 # app.py
 import streamlit as st, sys, pandas as pd
+from datetime import timedelta
 # Streamlit page configuration
 st.set_page_config(
     page_title="Breakwater",
@@ -14,6 +15,13 @@ sys.path.insert(0, str(ROOT))
 # put latest_earnings_df.csv in the repo root (same level as /streamlit)
 CSV_PATH = ROOT / "streamlit_df.csv"  # change if you keep it elsewhere
 from pipeline.pipeline import run_pipeline
+@st.cache_data(show_spinner="Loading parquet…")
+def get_full_df() -> pd.DataFrame:
+    df = pd.read_parquet(ROOT / "output" / "full_df.parquet")
+    df["earnings_date"] = pd.to_datetime(df["earnings_date"], errors="coerce")
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    return df
+
 @st.cache_data(show_spinner="Loading dashboard data…")
 def get_dashboard_df(use_cached_eps: bool = True) -> pd.DataFrame:
     """
@@ -64,6 +72,7 @@ def get_dashboard_df(use_cached_eps: bool = True) -> pd.DataFrame:
             df[col] = pd.to_numeric(df[col], errors="coerce")
 
     return df
+
 def sidebar_filters(df: pd.DataFrame) -> pd.DataFrame:
     st.sidebar.header("Filters")
 
@@ -153,8 +162,8 @@ def main():
         if "is_extreme_reaction" in df.columns:
             st.metric("Extreme reactions", int(df["is_extreme_reaction"].sum()))
 
-    tab_overview, tab_buckets, tab_stock = st.tabs(
-        ["Overview", "Bucket stats", "Stock drill-down"]
+    tab_overview, tab_buckets, tab_stock, tab_calendar = st.tabs(
+        ["Overview", "Bucket stats", "Stock drill-down", "Weekly Calendar"]
     )
 
     with tab_overview:
@@ -257,171 +266,85 @@ def main():
             chart_df = stock_df.set_index("earnings_date")["risk_score"]
             st.line_chart(chart_df)
             
-# def main():
-#     st.title("Breakwater - Earnings Risk & Alerts Dashboard")
+    with tab_calendar:
+        st.subheader("Earnings Risk Calendar")
 
-#     with st.sidebar:
-#         st.markdown("### Data options")
-#         if st.button("Reload CSV from disk"):
-#             # clear cache and reload on next get_dashboard_df() call
-#             get_dashboard_df.clear()
+        full_df = get_full_df()
+        earn = full_df[full_df["is_earnings_day"] == 1].copy()
 
-#     raw_df = get_dashboard_df()
-#     df = raw_df.copy()
+        latest_date = earn["earnings_date"].max()
+        default_start = latest_date - timedelta(days=7)
+        default_end   = latest_date + timedelta(days=7)
 
-#     # Apply sidebar filters
-#     df = sidebar_filters(df)
+        c1, c2 = st.columns(2)
+        with c1:
+            start_date = st.date_input("From", value=default_start.date())
+        with c2:
+            end_date = st.date_input("To",   value=default_end.date())
 
-#     if df.empty:
-#         st.warning("No rows match the current filters.")
-#         return
+        window = earn[
+            (earn["earnings_date"] >= pd.Timestamp(start_date)) &
+            (earn["earnings_date"] <= pd.Timestamp(end_date))
+        ].copy()
 
-#     # High-level KPIs
-#     col1, col2, col3, col4 = st.columns(4)
-#     with col1:
-#         st.metric("Earnings events", len(df))
-#     with col2:
-#         if "Stock" in df.columns:
-#             st.metric("Unique stocks", df["Stock"].nunique())
-#     with col3:
-#         if "risk_score" in df.columns:
-#             # naive threshold: 4+ considered high risk
-#             high_risk = (df["risk_score"] >= 4).sum()
-#             st.metric("High-risk events (Score ≥ 4)", int(high_risk))
-#     with col4:
-#         if "any_alert" in df.columns:
-#             st.metric("Rows with alerts", int(df["any_alert"].sum()))
+        if window.empty:
+            st.info("No earnings events in the selected window.")
+        else:
+            # Fragility thresholds from full history
+            frag_elevated_thr  = earn["momentum_fragility_score"].quantile(0.75)
+            frag_stretched_thr = earn["momentum_fragility_score"].quantile(0.90)
 
-#     # Tabs: Overview / Alerts / Stock detail
-#     tab_overview, tab_alerts, tab_stock = st.tabs(
-#         ["Overview", "Risk Alerts", "Stock drill-down"]
-#     )
+            def frag_label(s):
+                if pd.isna(s): return ""
+                if s >= frag_stretched_thr: return "Stretched"
+                if s >= frag_elevated_thr:  return "Elevated"
+                return ""
 
-#     # -------- Overview tab --------
-#     with tab_overview:
-#         st.subheader("Filtered earnings events")
+            window["positioning"] = window["momentum_fragility_score"].apply(frag_label)
 
-#         cols_to_show = [
-#             c
-#             for c in [
-#                 "Date",
-#                 "Stock",
-#                 "risk_level",
-#                 "risk_score",
-#                 "hist_xtreme_prob",
-#                 "base_xtreme_prob",
-#                 "risk_lift",
-#                 # "Recommendation",
-#                 # "Excessive Move",
-#                 # "No Reaction",
-#                 # "Reaction Divergence",
-#                 # "Muted Response",
-#                 # "Extreme Volatility",
-#                 # "Divergence Alert",
-#             ]
-#             if c in df.columns
-#         ]
+            display = window[[
+                "earnings_date", "stock", "sector", "sub_sector",
+                "earnings_explosiveness_score", "earnings_explosiveness_bucket",
+                "momentum_fragility_score", "positioning",
+            ]].rename(columns={
+                "earnings_date":                "Date",
+                "stock":                        "Ticker",
+                "sector":                       "Sector",
+                "sub_sector":                   "Sub-Sector",
+                "earnings_explosiveness_score": "Risk Score",
+                "earnings_explosiveness_bucket":"Risk Level",
+                "momentum_fragility_score":     "Fragility Score",
+                "positioning":                  "Positioning",
+            }).sort_values(["Date", "Risk Score"], ascending=[True, False])
 
-#         if "Date" in df.columns:
-#             df_display = df.sort_values("Date", ascending=False)
-#         else:
-#             df_display = df
+            # Summary KPIs
+            k1, k2, k3, k4 = st.columns(4)
+            k1.metric("Events", len(display))
+            k2.metric("Elevated / Stretched positioning",
+                      int((display["Positioning"] != "").sum()))
+            k3.metric("Avg Risk Score",
+                      f"{display['Risk Score'].mean():.1f}")
+            sector_top = window["sector"].value_counts().index[0] if not window.empty else "—"
+            k4.metric("Most Active Sector", sector_top)
 
-#         st.dataframe(
-#             df_display[cols_to_show],
-#             column_config={
-#                 "Date": st.column_config.DateColumn(format="DD/MM/YYYY")
-#             }
-#         )
-#         # st.dataframe(df_display[cols_to_show])
+            st.dataframe(
+                display,
+                use_container_width=True,
+                column_config={
+                    "Date":         st.column_config.DateColumn("Date", format="DD MMM YYYY"),
+                    "Risk Score":   st.column_config.NumberColumn("Risk Score", format="%.0f"),
+                    "Fragility Score": st.column_config.NumberColumn("Fragility", format="%.1f"),
+                },
+            )
 
-#         # Simple aggregate: count of events by risk_score
-#         if "risk_score" in df.columns:
-#             st.markdown("#### Count of events by risk_score")
-#             agg = (
-#                 df.groupby("risk_score")["Stock"]
-#                 .count()
-#                 .rename("count")
-#                 .reset_index()
-#                 .sort_values("risk_score")
-#             )
-#             chart_df = agg.set_index("risk_score")["count"]
-#             st.bar_chart(chart_df)
-
-#     # -------- Risk Alerts tab --------
-#     with tab_alerts:
-#         st.subheader("Flagged risk cases")
-
-#         if "any_alert" not in df.columns or not df["any_alert"].any():
-#             st.info("No rows with alert flags in the filtered data.")
-#         else:
-#             alerts = df[df["any_alert"]].copy()
-#             if "Date" in alerts.columns:
-#                 alerts = alerts.sort_values("Date", ascending=False)
-
-#             alert_cols = [
-#                 c
-#                 for c in [
-#                     "Date",
-#                     "Stock",
-#                     "risk_level",
-#                     "risk_score",
-#                     "hist_xtreme_prob",
-#                     "base_xtreme_prob",
-#                     "risk_lift",
-#                     # "Recommendation",
-#                     # "Excessive Move",
-#                     # "No Reaction",
-#                     # "Reaction Divergence",
-#                     # "Muted Response",
-#                     # "Extreme Volatility",
-#                     # "Divergence Alert",
-#                 ]
-#                 if c in alerts.columns
-#             ]
-
-#             st.dataframe(alerts[alert_cols])
-
-#     # -------- Stock drill-down tab --------
-#     with tab_stock:
-#         st.subheader("Single-stock history")
-
-#         if "Stock" not in df.columns:
-#             st.info("Stock column not found.")
-#         else:
-#             stocks = sorted(df["Stock"].dropna().unique())
-#             selected_stock = st.selectbox("Choose stock", options=stocks)
-
-#             stock_df = df[df["Stock"] == selected_stock].copy()
-#             if "Date" in stock_df.columns:
-#                 stock_df = stock_df.sort_values("Date")
-
-#             cols = [
-#                 c
-#                 for c in [
-#                     "Date",
-#                     "Stock",
-#                     "risk_level",
-#                     "risk_score",
-#                     "hist_xtreme_prob",
-#                     "base_xtreme_prob",
-#                     "risk_lift",
-#                     # "Recommendation",
-#                     # "Excessive Move",
-#                     # "No Reaction",
-#                     # "Reaction Divergence",
-#                     # "Muted Response",
-#                     # "Extreme Volatility",
-#                     # "Divergence Alert",
-#                 ]
-#                 if c in stock_df.columns
-#             ]
-#             st.dataframe(stock_df[cols])
-
-#             # Quick line chart: risk_score over time
-#             if {"Date", "risk_score"}.issubset(stock_df.columns):
-#                 chart_df = stock_df.set_index("Date")["risk_score"]
-#                 st.line_chart(chart_df)
+            with st.sidebar:
+                st.markdown("---")
+                if st.button("Export calendar HTML"):
+                    sys.path.insert(0, str(ROOT))
+                    from report.calendar_builder import generate_calendar
+                    generate_calendar(full_df, reference_date=start_date,
+                                      window_days=(end_date - start_date).days)
+                    st.success("Written to output/weekly_calendar.html")
 
 if __name__ == "__main__":
     main()
