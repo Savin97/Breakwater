@@ -49,6 +49,9 @@ def get_dashboard_df(use_cached_eps: bool = True) -> pd.DataFrame:
         "risk_level",
         "risk_score",
         "base_extreme_prob",
+        "pre_earnings_drift_flag",
+        "surprise_momentum_flag",
+        "is_high_conviction",
     ]
     missing = [c for c in expected_cols if c not in df.columns]
     if missing:
@@ -128,6 +131,11 @@ def sidebar_filters(df: pd.DataFrame) -> pd.DataFrame:
         if only_large:
             df = df[df["is_large_reaction"] == 1]
 
+    if "is_high_conviction" in df.columns:
+        only_hc = st.sidebar.checkbox("High Conviction only", value=False)
+        if only_hc:
+            df = df[df["is_high_conviction"] == True]
+
     return df
 
 def main():
@@ -145,7 +153,7 @@ def main():
         st.warning("No rows match the current filters.")
         return
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
 
     with col1:
         st.metric("Earnings events", len(df))
@@ -162,6 +170,10 @@ def main():
         if "is_extreme_reaction" in df.columns:
             st.metric("Extreme reactions", int(df["is_extreme_reaction"].sum()))
 
+    with col5:
+        if "is_high_conviction" in df.columns:
+            st.metric("High Conviction", int(df["is_high_conviction"].sum()))
+
     tab_overview, tab_buckets, tab_stock, tab_calendar = st.tabs(
         ["Overview", "Bucket stats", "Stock drill-down", "Weekly Calendar"]
     )
@@ -177,6 +189,9 @@ def main():
                 "sub_sector",
                 "risk_level",
                 "risk_score",
+                "pre_earnings_drift_flag",
+                "surprise_momentum_flag",
+                "is_high_conviction",
                 "hist_extreme_prob",
                 "base_extreme_prob",
                 "current_lift_vs_baseline",
@@ -194,11 +209,14 @@ def main():
             use_container_width=True,
             column_config={
                 "earnings_date": st.column_config.DateColumn("Earnings date", format="DD/MM/YYYY"),
+                "risk_score": st.column_config.NumberColumn("Risk score", format="%.0f"),
+                "pre_earnings_drift_flag": st.column_config.TextColumn("Drift"),
+                "surprise_momentum_flag": st.column_config.TextColumn("Surprise Pattern"),
+                "is_high_conviction": st.column_config.CheckboxColumn("High Conviction"),
                 "hist_extreme_prob": st.column_config.NumberColumn("Hist extreme prob", format="%.3f"),
                 "base_extreme_prob": st.column_config.NumberColumn("Base extreme prob", format="%.3f"),
                 "current_lift_vs_baseline": st.column_config.NumberColumn("Lift vs baseline", format="%.2f"),
                 "current_lift_vs_same_bucket_global": st.column_config.NumberColumn("Lift vs same bucket", format="%.2f"),
-                "risk_score": st.column_config.NumberColumn("Risk score", format="%.0f"),
             }
         )
 
@@ -250,6 +268,9 @@ def main():
                 "stock",
                 "risk_level",
                 "risk_score",
+                "pre_earnings_drift_flag",
+                "surprise_momentum_flag",
+                "is_high_conviction",
                 "hist_extreme_prob",
                 "base_extreme_prob",
                 "current_lift_vs_baseline",
@@ -290,50 +311,45 @@ def main():
         if window.empty:
             st.info("No earnings events in the selected window.")
         else:
-            # Fragility thresholds from full history
-            frag_elevated_thr  = earn["momentum_fragility_score"].quantile(0.75)
-            frag_stretched_thr = earn["momentum_fragility_score"].quantile(0.90)
-
-            def frag_label(s):
-                if pd.isna(s): return ""
-                if s >= frag_stretched_thr: return "Stretched"
-                if s >= frag_elevated_thr:  return "Elevated"
-                return ""
-
-            window["positioning"] = window["momentum_fragility_score"].apply(frag_label)
+            window["is_high_conviction"] = (
+                (window["earnings_explosiveness_bucket"] == "High Alert") &
+                (window["pre_earnings_drift_flag"].fillna("") != "")
+            )
 
             display = window[[
                 "earnings_date", "stock", "sector", "sub_sector",
                 "earnings_explosiveness_score", "earnings_explosiveness_bucket",
-                "momentum_fragility_score", "positioning",
+                "pre_earnings_drift_flag", "surprise_momentum_flag",
+                "is_high_conviction",
             ]].rename(columns={
                 "earnings_date":                "Date",
                 "stock":                        "Ticker",
                 "sector":                       "Sector",
                 "sub_sector":                   "Sub-Sector",
                 "earnings_explosiveness_score": "Risk Score",
-                "earnings_explosiveness_bucket":"Risk Level",
-                "momentum_fragility_score":     "Fragility Score",
-                "positioning":                  "Positioning",
+                "earnings_explosiveness_bucket": "Risk Level",
+                "pre_earnings_drift_flag":      "Drift",
+                "surprise_momentum_flag":       "Surprise Pattern",
+                "is_high_conviction":           "High Conviction",
             }).sort_values(["Date", "Risk Score"], ascending=[True, False])
 
             # Summary KPIs
-            k1, k2, k3, k4 = st.columns(4)
+            k1, k2, k3, k4, k5 = st.columns(5)
             k1.metric("Events", len(display))
-            k2.metric("Elevated / Stretched positioning",
-                      int((display["Positioning"] != "").sum()))
-            k3.metric("Avg Risk Score",
-                      f"{display['Risk Score'].mean():.1f}")
+            k2.metric("High Conviction", int(display["High Conviction"].sum()))
+            k3.metric("With Drift Flag",
+                      int((display["Drift"].fillna("") != "").sum()))
+            k4.metric("Avg Risk Score", f"{display['Risk Score'].mean():.1f}")
             sector_top = window["sector"].value_counts().index[0] if not window.empty else "—"
-            k4.metric("Most Active Sector", sector_top)
+            k5.metric("Most Active Sector", sector_top)
 
             st.dataframe(
                 display,
                 use_container_width=True,
                 column_config={
-                    "Date":         st.column_config.DateColumn("Date", format="DD MMM YYYY"),
-                    "Risk Score":   st.column_config.NumberColumn("Risk Score", format="%.0f"),
-                    "Fragility Score": st.column_config.NumberColumn("Fragility", format="%.1f"),
+                    "Date":             st.column_config.DateColumn("Date", format="DD MMM YYYY"),
+                    "Risk Score":       st.column_config.NumberColumn("Risk Score", format="%.0f"),
+                    "High Conviction":  st.column_config.CheckboxColumn("High Conviction"),
                 },
             )
 

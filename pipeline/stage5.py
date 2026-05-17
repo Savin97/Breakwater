@@ -4,6 +4,7 @@ from datetime import date
 import pandas as pd
 from report.report_builder import generate_report
 from report.calendar_builder import generate_calendar
+from pipeline.streamlit_export import export_streamlit_df
 
 def stage5(df):
     print("--------------------\nStage 5 - Generating Report...")
@@ -127,5 +128,6 @@ def stage5(df):
 
     report_txt.close()
     generate_calendar(df)
+    export_streamlit_df(df)
     print("Stage 5 DONE")
     return df
